@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sparse Embeddings - Classic NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #ca8a04; /* Yellow-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #fef9c3; /* Yellow-100 */ color: #a16207; /* Yellow-700 */ }
+        .nav-link.active { background-color: #ca8a04; /* Yellow-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #fefce8; /* Yellow-50 */ border: 1px solid #fef08a; /* Yellow-200 */ border-left-width: 4px; border-left-color: #eab308; /* Yellow-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #a16207; /* Yellow-700 */ margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">Classic NLP</a>
+            <div class="space-x-1 md:space-x-2">
+                <a href="index.html" class="nav-link text-gray-700">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 active">Sparse Embeddings</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>IV. Sparse Embeddings and Lexical Semantics</h1>
+        <p>
+            Before the advent of dense word embeddings from neural networks, NLP relied on sparse vector
+            representations derived from co-occurrence statistics in large corpora. These methods
+            operationalize the distributional hypothesis: words appearing in similar contexts tend to
+            have similar meanings. This section covers foundational concepts like TF-IDF, cosine similarity,
+            and Pointwise Mutual Information (PMI).
+        </p>
+
+        <section id="lexical-vs-vector">
+            <h2>A. Lexical Semantics vs. Vector Semantics</h2>
+            <ul>
+                <li>
+                    <strong>Lexical Semantics:</strong> This is the linguistic study of word meaning. It deals with
+                    concepts such as lemmas (canonical form), word senses (different meanings, e.g., "mouse"
+                    as rodent vs. computer device), synonyms ("dog" vs. "hound"), word similarity ("cat" and "dog"),
+                    and word relatedness ("tea" and "cup"). A key task is Word Sense Disambiguation (WSD).
+                </li>
+                <li>
+                    <strong>Vector Semantics:</strong> This approach represents word meaning numerically using vectors
+                    (embeddings) in a multi-dimensional space. The core idea is that a word's meaning can be
+                    inferred from its contexts.
+                </li>
+            </ul>
+        </section>
+
+        <section id="term-document">
+            <h2>B. Term-Document Matrices</h2>
+            <p>
+                One of the earliest forms of sparse vector representation is the term-document matrix.
+            </p>
+            <ul>
+                <li>Rows typically represent unique terms (words) in the vocabulary.</li>
+                <li>Columns represent documents in a collection.</li>
+                <li>Each cell (t,d) contains a value indicating the importance or frequency of term t in document d.</li>
+            </ul>
+            <p>
+                If raw counts are used, each document is a vector where most dimensions are zero (hence "sparse" embeddings).
+                Raw counts are often not discriminative as frequent words (e.g., "the") dominate.
+            </p>
+            <div class="note">
+                <p><strong>Scalability (Term-Document Matrices):</strong> These matrices can become extremely large for large vocabularies and many documents (high dimensionality and sparsity). Storing and processing them efficiently requires specialized sparse matrix libraries and techniques. However, the concept is fundamental for information retrieval and topic modeling.</p>
+            </div>
+        </section>
+
+        <section id="tf-idf">
+            <h2>C. Term Weighting: Term Frequency-Inverse Document Frequency (TF-IDF)</h2>
+            <p>
+                TF-IDF is a widely used statistical measure that evaluates how important a word is to a document
+                in a collection. It combines local term frequency with global inverse document frequency.
+            </p>
+            <h3>1. Term Frequency (TF)</h3>
+            <p>Measures how frequently a term $t$ appears in a document $d$.</p>
+            <ul>
+                <li>Raw TF: $tf_{t,d} = \text{count}(t,d)$.</li>
+                <li>Log-normalized TF: $tf_{t,d} = \log_2(\text{count}(t,d)+1)$. This dampens the effect of very high raw counts.</li>
+            </ul>
+            <h3>2. Inverse Document Frequency (IDF)</h3>
+            <p>
+                Measures the global importance of a term $t$. It diminishes the weight of frequent terms
+                (like stop words) and increases the weight of rare terms.
+            </p>
+            $$ idf_t = \log_2\left(\frac{N}{df_t}\right) $$
+            <p>where $N$ is the total number of documents, and $df_t$ is the document frequency of term $t$ (number of documents containing $t$). The logarithm (often base 2) prevents rare terms from getting excessively high weights.</p>
+            <h3>3. TF-IDF Score</h3>
+            <p>The TF-IDF score for a term $t$ in a document $d$ is the product of its TF and IDF values:</p>
+            $$ w_{t,d} = tf_{t,d} \times idf_t $$
+            <p>A high TF-IDF score means a term is frequent in a specific document (high TF) and rare across the corpus (high IDF).</p>
+            <p>TF-IDF vectors are central to information retrieval for ranking documents by query relevance.</p>
+
+            <div class="example-box">
+                <h5>Simplified Example: Step-by-Step TF-IDF Calculation</h5>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Step</th>
+                            <th>Action/Formula</th>
+                            <th>Example Calculation (Hypothetical)</th>
+                            <th>Explanation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Calculate Term Frequency (TF) for term $t$ in document $d$. Using log normalization: $tf_{t,d} = \log_2(\text{count}(t,d)+1)$</td>
+                            <td>Term "NLP" appears 7 times in Doc A. $tf_{\text{NLP},A} = \log_2(7+1) = \log_2(8) = 3$.</td>
+                            <td>Measures local importance. Log normalization dampens high counts.</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Calculate Document Frequency ($df_t$) for term $t$.</td>
+                            <td>Term "NLP" appears in 10 documents out of a corpus of 1000 documents. $df_{\text{NLP}} = 10$.</td>
+                            <td>Counts how many documents contain the term.</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Calculate Inverse Document Frequency (IDF) for term $t$. $idf_t = \log_2(N/df_t)$</td>
+                            <td>Total documents $N=1000$. $idf_{\text{NLP}} = \log_2(1000/10) = \log_2(100) \approx 6.64$.</td>
+                            <td>Measures global rarity. Rare terms get higher IDF.</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Calculate TF-IDF Score for term $t$ in document $d$. $w_{t,d} = tf_{t,d} \times idf_t$</td>
+                            <td>$w_{\text{NLP},A} = 3 \times 6.64 = 19.92$.</td>
+                            <td>Combines local and global importance.</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Interpretation</td>
+                            <td>A high TF-IDF score (like 19.92 for "NLP" in Doc A) suggests "NLP" is a significant, characteristic term for Doc A.</td>
+                            <td>Identifies terms that best characterize a document relative to the collection.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="note">
+                <p><strong>Scalability (TF-IDF):</strong>
+                    Calculating TF is straightforward per document. Calculating IDF requires a full pass over the corpus to get document frequencies ($df_t$) for all terms. This can be done efficiently with MapReduce or similar frameworks for large corpora. Once $df_t$ values are known, IDF calculation is fast. The resulting TF-IDF matrix is sparse and can be very large, requiring sparse matrix representations.
+                </p>
+            </div>
+        </section>
+
+        <section id="cosine-similarity">
+            <h2>D. Measuring Vector Similarity: Cosine Similarity</h2>
+            <p>
+                Once documents or words are represented as vectors (e.g., TF-IDF vectors), their similarity
+                can be measured. Cosine similarity measures the cosine of the angle between two vectors,
+                indicating orientation similarity, irrespective of magnitudes.
+            </p>
+            <p>The formula for cosine similarity between two vectors $v$ and $w$ is:</p>
+            $$ \text{cosine}(v,w) = \frac{v \cdot w}{\|v\| \|w\|} = \frac{\sum_{i=1}^{N} v_i w_i}{\sqrt{\sum_{i=1}^{N} v_i^2} \sqrt{\sum_{i=1}^{N} w_i^2}} $$
+            <p>
+                The dot product $v \cdot w$ tends to be larger for longer vectors. Dividing by the product
+                of vector magnitudes (Euclidean norms $\|v\|$ and $\|w\|$) normalizes for length.
+                Values range from -1 (opposite) to 1 (same). For non-negative vectors like TF-IDF, the range is 0 to 1.
+            </p>
+            <div class="note">
+                <p><strong>Scalability (Cosine Similarity):</strong> Calculating cosine similarity between two vectors is efficient. However, for tasks like finding the most similar documents in a large collection (all-pairs similarity), it becomes $O(D^2 \times V)$ where D is number of documents and V is vector dimension, which is computationally expensive. Techniques like Locality Sensitive Hashing (LSH) or approximate nearest neighbor search are used to scale this for large datasets by quickly finding candidate similar pairs without computing all pairwise similarities.
+                </p>
+            </div>
+        </section>
+
+        <section id="pmi">
+            <h2>E. Word Association: Pointwise Mutual Information (PMI)</h2>
+            <p>
+                Pointwise Mutual Information (PMI) measures how much more (or less) two events co-occur
+                than expected if they were independent. In NLP, it's used to measure association strength
+                between two words, $w$ (target word) and $c$ (context word).
+            </p>
+            <p>The PMI between $w$ and $c$ is:</p>
+            $$ \text{PMI}(w,c) = \log_2 \frac{P(w,c)}{P(w)P(c)} $$
+            <ul>
+                <li>$P(w,c)$ is the probability of $w$ and $c$ co-occurring.</li>
+                <li>$P(w)$ and $P(c)$ are their individual probabilities.</li>
+            </ul>
+            <p><strong>Interpretation:</strong></p>
+            <ul>
+                <li>$\text{PMI}(w,c) > 0$: Co-occur more frequently than by chance (association).</li>
+                <li>$\text{PMI}(w,c) \approx 0$: Co-occur about as frequently as by chance.</li>
+                <li>$\text{PMI}(w,c) < 0$: Co-occur less frequently than by chance (negative PMI can be unreliable for sparse data).</li>
+            </ul>
+            <h3>Positive PMI (PPMI):</h3>
+            <p>To address unreliability of negative PMI, Positive PMI is often used:</p>
+            $$ \text{PPMI}(w,c) = \max(0, \text{PMI}(w,c)) $$
+            <p>This discards negative associations.</p>
+
+            <div class="example-box">
+                <h5>Simplified Example: PMI Calculation</h5>
+                <p>Given counts from a corpus (total context counts = 11716):</p>
+                <ul>
+                    <li>count(word=information, context=data) = 3982</li>
+                    <li>count(word=information) = 7703</li>
+                    <li>count(context=data) = 5673</li>
+                </ul>
+                <p>Then:</p>
+                <ul>
+                    <li>$P(\text{information, data}) = \frac{3982}{11716} \approx 0.3399$</li>
+                    <li>$P(\text{information}) = \frac{7703}{11716} \approx 0.6575$</li>
+                    <li>$P(\text{data}) = \frac{5673}{11716} \approx 0.4842$</li>
+                </ul>
+                $$ \text{PMI}(\text{information, data}) = \log_2 \frac{0.3399}{0.6575 \times 0.4842} = \log_2 \frac{0.3399}{0.3183} = \log_2(1.0678) \approx 0.0944 $$
+                <p>Since this is positive, $\text{PPMI}(\text{information, data}) \approx 0.0944$.</p>
+            </div>
+            <p>
+                PPMI values are often used to create word-context matrices (rows=target words, cols=context words, cells=PPMI score).
+                These sparse, high-dimensional matrices can be subjected to dimensionality reduction (like SVD)
+                to produce lower-dimensional, dense word embeddings (e.g., foundational for Word2Vec, GloVe).
+            </p>
+            <div class="note">
+                <p><strong>Scalability (PMI/PPMI):</strong> Calculating co-occurrence counts $P(w,c)$, and individual counts $P(w)$, $P(c)$ requires a full pass over a large corpus, which can be done with MapReduce. The resulting word-context matrix is typically very large and sparse. Applying SVD or other dimensionality reduction techniques to this large matrix is computationally intensive but crucial for creating dense embeddings. Techniques like randomized SVD can help scale this step.
+                </p>
+            </div>
+            <p>While TF-IDF remains a strong baseline for document retrieval, PMI-based co-occurrence statistics were pivotal in moving towards capturing more nuanced semantic relationships between words.</p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> Classic NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation: Classic NLP".</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

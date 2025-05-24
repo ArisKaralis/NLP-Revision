@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequence Labelling - Classic NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #9333ea; /* Purple-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #f3e8ff; /* Purple-100 */ color: #7e22ce; /* Purple-700 */ }
+        .nav-link.active { background-color: #9333ea; /* Purple-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #faf5ff; /* Purple-50 */ border: 1px solid #e9d5ff; /* Purple-200 */ border-left-width: 4px; border-left-color: #a855f7; /* Purple-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #7e22ce; /* Purple-700 */ margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">Classic NLP</a>
+            <div class="space-x-1 md:space-x-2">
+                <a href="index.html" class="nav-link text-gray-700">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 active">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700">Sparse Embeddings</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>III. Sequence Labelling</h1>
+        <p>
+            Sequence labelling is a fundamental NLP task that involves assigning a categorical label to each
+            token in a given input sequence. This framework encompasses critical tasks such as
+            Part-of-Speech (POS) tagging and Named Entity Recognition (NER).
+        </p>
+
+        <section id="overview-tasks">
+            <h2>A. Overview of Sequence Labelling Tasks</h2>
+            <h3>1. Part-of-Speech (POS) Tagging</h3>
+            <p>
+                POS tagging is the process of assigning a grammatical part-of-speech category—such as noun,
+                verb, adjective, adverb, preposition, etc.—to each word in a sentence. This task is crucial
+                because POS information provides valuable clues about a word's syntactic function and, to some
+                extent, its meaning within the sentence.
+            </p>
+            <div class="example-box">
+                <h5>Simplified Example: POS Tagging Context</h5>
+                <p>Nouns are often preceded by determiners (e.g., "<strong>the</strong> river"), and verbs are often preceded by nouns (subjects).</p>
+            </div>
+            <p>POS tagging is a foundational step for many downstream NLP applications, including syntactic parsing, information extraction, and question answering.</p>
+
+            <h4>Tagsets:</h4>
+            <p>Different tagsets are used for POS tagging, varying in granularity.</p>
+            <ul>
+                <li>
+                    <strong>Universal Dependencies (UD) Tagset:</strong> Provides a common framework across multiple
+                    languages, defining 17 major POS tags: ADJ (adjective), ADP (adposition), ADV (adverb),
+                    AUX (auxiliary), CCONJ (coordinating conjunction), DET (determiner), INTJ (interjection),
+                    NOUN (noun), NUM (numeral), PART (particle), PRON (pronoun), PROPN (proper noun),
+                    PUNCT (punctuation), SCONJ (subordinating conjunction), SYM (symbol), VERB (verb), and X (other).
+                </li>
+                <li>
+                    <strong>Penn Treebank Tagset:</strong> Widely used for English and is more fine-grained,
+                    containing approximately 45 tags. For example, it distinguishes between singular nouns (NN),
+                    plural nouns (NNS), singular proper nouns (NNP), and plural proper nouns (NNPS).
+                </li>
+            </ul>
+            <div class="example-box">
+                <h5>Simplified Example: Penn Treebank Tags</h5>
+                <p>"At/IN the/DT same/JJ time/NN ,/, it/PRP develops/VBZ multinational/JJ operations/NNS ./."</p>
+                <p>(IN: Preposition, DT: Determiner, JJ: Adjective, NN: Noun, singular, PRP: Personal pronoun, VBZ: Verb, 3rd person singular present, NNS: Noun, plural)</p>
+            </div>
+
+            <h4>Word Classes:</h4>
+            <p>Words are often categorized into open classes and closed classes.</p>
+            <ul>
+                <li><strong>Open classes</strong> (e.g., NOUN, VERB, ADJ, ADV, PROPN, INTJ) readily admit new words.</li>
+                <li><strong>Closed classes</strong> (e.g., ADP, AUX, DET, PRON, CCONJ, SCONJ) have a largely fixed membership and primarily serve grammatical functions.</li>
+            </ul>
+
+            <h3>2. Named Entity Recognition (NER)</h3>
+            <p>
+                NER is the task of identifying and classifying named entities in text into predefined categories
+                such as persons, organizations, locations, dates, monetary values, percentages, etc.
+            </p>
+            <div class="example-box">
+                <h5>Simplified Example: NER</h5>
+                <p>In the sentence "<strong>United Airlines</strong> said it has increased fares by <strong>$6</strong> on <strong>Friday</strong>...",</p>
+                <ul>
+                    <li>"United Airlines" is tagged as an <strong>ORGANIZATION</strong>.</li>
+                    <li>"Friday" as a <strong>TIME</strong> expression.</li>
+                    <li>"$6" as <strong>MONEY</strong>.</li>
+                </ul>
+            </div>
+            <h4>Entity Types and Tagsets:</h4>
+            <p>Common entity types include PER (Person), ORG (Organization), LOC (Location), and GPE (Geo-Political Entity, e.g., countries, cities). The Automatic Content Extraction (ACE) program defined a set of 7 core types, often extended for specific domains.</p>
+            <h4>Challenges in NER:</h4>
+            <ul>
+                <li>Entities can span multiple words (e.g., "Stanford University").</li>
+                <li>Ambiguity: The same name can refer to different entity types depending on context (e.g., "Washington" can be a person, location, organization, or GPE).</li>
+            </ul>
+
+            <h3>BIO / BIOES Tagging Scheme for Spans:</h3>
+            <p>To handle multi-token entities in sequence labelling, encoding schemes like BIO or BIOES are commonly used. This transforms span identification into a token-level tagging problem.</p>
+            <ul>
+                <li>
+                    <strong>BIO Scheme:</strong>
+                    <ul>
+                        <li><strong>B-<em>tag</em>:</strong> Marks the beginning of an entity of type <em>tag</em>.</li>
+                        <li><strong>I-<em>tag</em>:</strong> Marks a token inside an entity of type <em>tag</em>.</li>
+                        <li><strong>O:</strong> Marks a token outside any entity.</li>
+                    </ul>
+                    <div class="example-box">
+                        <h5>Simplified Example: BIO Scheme</h5>
+                        <p>"Jane/B-PER Villanueva/I-PER of/O United/B-ORG Airlines/I-ORG"</p>
+                    </div>
+                </li>
+                <li>
+                    <strong>BIOES Scheme:</strong> An extension of BIO that explicitly marks the end of entities and single-token entities.
+                    <ul>
+                        <li><strong>B-<em>tag</em>:</strong> Beginning of an entity.</li>
+                        <li><strong>I-<em>tag</em>:</strong> Inside an entity.</li>
+                        <li><strong>O:</strong> Outside any entity.</li>
+                        <li><strong>E-<em>tag</em>:</strong> End of an entity.</li>
+                        <li><strong>S-<em>tag</em>:</strong> Single-token entity.</li>
+                    </ul>
+                     <div class="example-box">
+                        <h5>Simplified Example: BIOES Scheme</h5>
+                        <p>"Jane/B-PER Villanueva/E-PER ... Chicago/S-LOC"</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section id="crfs">
+            <h2>B. Conditional Random Fields (CRFs) for Sequence Labelling</h2>
+            <p>
+                Conditional Random Fields (CRFs) are a type of discriminative probabilistic model widely used for
+                sequence labelling tasks like POS tagging and NER. They model the conditional probability $P(Y|X)$
+                of a label sequence $Y=(y_1, ..., y_n)$ given an observed input sequence $X=(x_1, ..., x_n)$ directly.
+                This contrasts with generative models like Hidden Markov Models (HMMs), which model the joint probability $P(X,Y)$.
+            </p>
+            <h3>Linear Chain CRF Model:</h3>
+            <p>The probability of a label sequence Y given an input sequence X in a linear-chain CRF is defined as:</p>
+            $$ P(Y|X) = \frac{1}{Z(X)} \exp \left( \sum_{j=1}^{m} \sum_{i=1}^{n} \lambda_j f_j(y_{i-1}, y_i, X, i) \right) $$
+            <p>Alternatively, using a global feature vector formulation:</p>
+            $$ P(Y|X) = \frac{1}{Z(X)} \exp \left( \sum_{k=1}^{K} w_k F_k(X,Y) \right) $$
+            <p>where:</p>
+            <ul>
+                <li>$F_k(X,Y) = \sum_{i=1}^{n} f_k(y_{i-1}, y_i, X, i)$ is a global feature function for the entire sequence, which is a sum of local feature functions $f_k$ over all positions $i$.</li>
+                <li>$f_k(y_{i-1}, y_i, X, i)$ is a local feature function (often binary-valued) that depends on the current label $y_i$, the previous label $y_{i-1}$, the input sequence $X$, and the current position $i$.</li>
+                <li>$w_k$ (or $\lambda_j$) are the weights associated with each feature function, learned during training.</li>
+                <li>$Z(X) = \sum_{Y' \in \mathcal{Y}} \exp \left( \sum_{k=1}^{K} w_k F_k(X,Y') \right)$ is the partition function, a normalization factor that sums over all possible label sequences $Y'$. It ensures probabilities sum to one.</li>
+            </ul>
+            <p>The core strength of CRFs is their ability to incorporate a rich set of arbitrary, overlapping features from the input sequence without making strong independence assumptions, unlike HMMs.</p>
+
+            <h3>Feature Engineering in CRFs:</h3>
+            <p>The performance of a CRF heavily relies on the quality of engineered features. These features capture relevant information from $X$ that might indicate a label $y_i$ at position $i$, often considering $y_{i-1}$.</p>
+            <h4>Example Local Feature Templates for NER:</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature Type</th>
+                        <th>Specific Feature Example</th>
+                        <th>Rationale / What it Captures</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Word-based</td>
+                        <td><code>word[i].lower() = "london"</code></td>
+                        <td>Identity of the current word (lowercase).</td>
+                    </tr>
+                    <tr>
+                        <td>Word-based</td>
+                        <td><code>word[i-1] = "mr."</code></td>
+                        <td>Identity of the previous word.</td>
+                    </tr>
+                    <tr>
+                        <td>POS-based</td>
+                        <td><code>postag[i] = "NNP"</code></td>
+                        <td>Part-of-speech of the current word (e.g., proper noun often indicates an entity).</td>
+                    </tr>
+                    <tr>
+                        <td>POS-based</td>
+                        <td><code>postag[i-1] = "DT"</code></td>
+                        <td>Part-of-speech of the previous word (e.g., determiner before a noun).</td>
+                    </tr>
+                    <tr>
+                        <td>Orthographic/Shape</td>
+                        <td><code>word[i].istitle() = True</code></td>
+                        <td>Word capitalization (e.g., proper nouns are often title-cased).</td>
+                    </tr>
+                    <tr>
+                        <td>Orthographic/Shape</td>
+                        <td><code>word[i].isupper() = True</code></td>
+                        <td>Word is all uppercase (e.g., acronyms like "IBM").</td>
+                    </tr>
+                    <tr>
+                        <td>Orthographic/Shape</td>
+                        <td><code>word[i].suffix(3) = "ton"</code></td>
+                        <td>Last 3 characters of the word (can capture morphological clues or common endings of names/locations).</td>
+                    </tr>
+                    <tr>
+                        <td>Gazetteer</td>
+                        <td><code>is_in_city_gazetteer(word[i]) = True</code></td>
+                        <td>Membership in a predefined list of cities.</td>
+                    </tr>
+                    <tr>
+                        <td>Contextual Window</td>
+                        <td><code>word[i+1].lower() = "inc."</code></td>
+                        <td>Word identity in the local context.</td>
+                    </tr>
+                    <tr>
+                        <td>Label Transition (Implicit)</td>
+                        <td>$f(y_{i-1}=\text{B-PER}, y_i=\text{I-PER}, X, i)=1$</td>
+                        <td>Captures valid transitions between entity tags (e.g., an I-PER tag should follow a B-PER or another I-PER tag).</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="note">
+                <p><strong>Scalability (Feature Engineering):</strong> The number of features can become very large. Efficient feature extraction and representation are crucial. Feature selection or regularization techniques might be needed to manage complexity and prevent overfitting, especially with high-dimensional feature spaces. For large datasets, generating these features can be time-consuming.</p>
+            </div>
+
+            <h3>Training CRFs:</h3>
+            <p>
+                CRF training involves finding feature weights $w_k$ that maximize the conditional log-likelihood of the annotated training data. This is typically done using iterative numerical optimization algorithms like L-BFGS or Stochastic Gradient Descent (SGD). Gradient calculation requires computing expected feature counts, involving inference algorithms (like forward-backward adapted for CRFs).
+            </p>
+            <div class="note">
+                <p><strong>Scalability (Training):</strong> Training CRFs can be computationally expensive, especially with large datasets and many features. L-BFGS is often preferred for its convergence properties but can be memory-intensive. SGD is more scalable to large datasets but might require more tuning. Distributed training approaches can be used for very large models/datasets.</p>
+            </div>
+
+            <h3>Inference in CRFs:</h3>
+            <p>
+                Once trained, the task is to find the most probable label sequence $\hat{Y}$ for a new input $X$:
+                $$ \hat{Y} = \underset{Y \in \mathcal{Y}}{\text{argmax}} P(Y|X) $$
+                This is equivalent to maximizing the sum of weighted features:
+                $$ \hat{Y} = \underset{Y \in \mathcal{Y}}{\text{argmax}} \sum_{k=1}^{K} w_k F_k(X,Y) = \underset{Y \in \mathcal{Y}}{\text{argmax}} \sum_{i=1}^{n} \sum_{k=1}^{K} w_k f_k(y_{i-1}, y_i, X, i) $$
+                This optimal sequence can be found efficiently using the <strong>Viterbi algorithm</strong>, a dynamic programming approach.
+            </p>
+             <div class="note">
+                <p><strong>Scalability (Inference):</strong> The Viterbi algorithm is efficient for linear-chain CRFs, with complexity proportional to the sequence length and the square of the number of labels. This makes inference generally fast and scalable for individual sequences.</p>
+            </div>
+        </section>
+
+        <section id="evaluation">
+            <h2>C. Evaluation of Sequence Labellers</h2>
+            <ul>
+                <li>
+                    <strong>POS Tagging:</strong> Typically evaluated by token-level <strong>accuracy</strong> (percentage of tokens assigned the correct POS tag).
+                </li>
+                <li>
+                    <strong>NER:</strong> More complex due to entity spans. Standard metrics are <strong>precision, recall, and F1-score</strong>, based on correctly identified and classified entities.
+                    <ul>
+                        <li><strong>Micro-averaged F1:</strong> Sums true positives, false positives, and false negatives over all entity types before computing F1.</li>
+                        <li><strong>Macro-averaged F1:</strong> Computes F1 for each entity type independently, then averages these scores. The 'O' (Outside) tag is often excluded as it would dominate the average.</li>
+                    </ul>
+                </li>
+                <li>Policies for handling <strong>partial matches</strong> (e.g., system predicts "United" when gold is "United Airlines") must be defined.</li>
+                <li><strong>Cross-validation</strong> (e.g., N-fold) is important to assess model generalization.</li>
+            </ul>
+            <p>
+                CRFs represented a significant advancement by allowing flexible feature engineering and global normalization. While deep learning models have largely superseded them in performance, the principles remain relevant. Some modern neural architectures even incorporate a CRF layer at the output.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> Classic NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation: Classic NLP".</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

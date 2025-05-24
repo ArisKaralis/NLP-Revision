@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Models - Classic NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #2563eb; /* Blue-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #dbeafe; /* Blue-100 */ color: #1e40af; /* Blue-800 */ }
+        .nav-link.active { background-color: #2563eb; /* Blue-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #f0fdf4; /* Green-50 */ border: 1px solid #bbf7d0; /* Green-200 */ border-left-width: 4px; border-left-color: #22c55e; /* Green-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #166534; /* Green-700 */ margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">Classic NLP</a>
+            <div class="space-x-1 md:space-x-2">
+                <a href="index.html" class="nav-link text-gray-700">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 active">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700">Sparse Embeddings</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>II. Language Models: N-Grams</h1>
+        <p>
+            Language modeling is a core NLP task focused on assigning probabilities to sequences of words.
+            One of the earliest and most foundational approaches involves n-gram models. These models predict
+            the next word in a sequence based on the preceding 'n-1' words.
+        </p>
+
+        <section id="ngram-definition">
+            <h2>A. Definition and Types of N-Grams</h2>
+            <p>
+                An n-gram is a continuous sequence of 'n' items (tokens) from a text or speech sample.
+                These items can be characters, words, or even part-of-speech tags. The integer 'n' dictates
+                the sequence length.
+            </p>
+            <h3>Common types include:</h3>
+            <ul>
+                <li><strong>Unigrams (1-grams):</strong> Single words. They operate on the assumption that word appearances are independent: $P(w_1, w_2, w_3, w_4) = P(w_1)P(w_2)P(w_3)P(w_4)$. The probability of the next word doesn't depend on previous words.</li>
+                <li><strong>Bigrams (2-grams):</strong> Sequences of two words. Here, the probability of a word depends only on the preceding word (this is known as the Markov assumption).</li>
+                <li><strong>Trigrams (3-grams):</strong> Sequences of three words, where a word's probability depends on the two preceding words.</li>
+                <li><strong>Higher-order n-grams:</strong> Sequences of four or more words (e.g., 4-grams, 5-grams).</li>
+            </ul>
+            <div class="example-box">
+                <h5>Simplified Example: N-Grams</h5>
+                <p>For the sentence "the cat sat on the mat", with start <code>&lt;s&gt;</code> and end <code>&lt;/s&gt;</code> tokens:</p>
+                <p><strong>Unigrams:</strong> <code>[&lt;s&gt;, the, cat, sat, on, the, mat, &lt;/s&gt;]</code></p>
+                <p><strong>Bigrams:</strong> <code>[&lt;s&gt; the, the cat, cat sat, sat on, on the, the mat, mat &lt;/s&gt;]</code></p>
+            </div>
+
+            <h3>How N-Grams Scale & Applications:</h3>
+            <p>N-gram models are instrumental in various NLP applications:</p>
+            <ul>
+                <li><strong>Speech Recognition:</strong> E.g., "back soon-ish" is more probable than "bassoon dish".</li>
+                <li><strong>Spelling Correction.</strong></li>
+                <li><strong>Machine Translation:</strong> E.g., "briefed reporters on" is more fluent than "briefed to reporters".</li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability Note (Choice of 'n'):</strong></p>
+                <ul>
+                    <li><strong>Smaller 'n' (e.g., bigrams, trigrams):</strong>
+                        <br><strong>Pros:</strong> Require less data to train, less prone to sparsity (unseen n-grams), computationally less expensive. Trigram models are a common compromise.
+                        <br><strong>Cons:</strong> Capture less context, may not model long-range dependencies well.
+                    </li>
+                    <li><strong>Larger 'n' (e.g., 4-grams, 5-grams):</strong>
+                        <br><strong>Pros:</strong> Capture more context, potentially more accurate predictions if sufficient data exists.
+                        <br><strong>Cons:</strong> Suffer more from data sparsity, computationally more expensive, require much larger training corpora.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="mle">
+            <h2>B. Parameter Estimation: Maximum Likelihood Estimation (MLE)</h2>
+            <p>
+                The parameters of an n-gram model (the conditional probabilities) are usually estimated using
+                Maximum Likelihood Estimation (MLE). MLE calculates the probability of an n-gram as its
+                observed frequency in a training corpus, normalized by the frequency of its prefix
+                (the first n-1 words).
+            </p>
+            <p>For a general n-gram, the probability of word $w_n$ given the preceding $n-1$ words $w_{n-N+1:n-1}$ is:</p>
+            $$P(w_n | w_{n-N+1:n-1}) = \frac{C(w_{n-N+1:n-1}w_n)}{C(w_{n-N+1:n-1})}$$
+            <p>where $C(\cdot)$ is the count of a sequence in the training corpus.</p>
+            <p>For bigrams (N=2), this simplifies to:</p>
+            $$P(w_n | w_{n-1}) = \frac{C(w_{n-1}w_n)}{C(w_{n-1})}$$
+            <p>The probability of an entire word sequence $w_{1:n}$ under a bigram model is approximated by multiplying the conditional probabilities:</p>
+            $$P(w_{1:n}) \approx \prod_{k=1}^{n} P(w_k | w_{k-1})$$
+            <p>(assuming $w_0$ is a start-of-sentence symbol <code>&lt;s&gt;</code>).</p>
+
+            <div class="example-box">
+                <h5>Simplified Example: MLE Calculation (Berkeley Restaurant Project Corpus)</h5>
+                <p>Consider a corpus with these unigram counts: i (2533), want (927), to (2417), eat (746), chinese (158), food (1093).</p>
+                <p>And these bigram counts: (i want): 827, (want to): 608, (to eat): 686, (eat chinese): 16, (chinese food): 82.</p>
+                <p>The MLE probability $P(\text{want} | \text{i})$ is: $P(\text{want} | \text{i}) = \frac{C(\text{i want})}{C(\text{i})} = \frac{827}{2533} \approx 0.33$</p>
+                <p>Similarly, $P(\text{chinese} | \text{want})$ is: $P(\text{chinese} | \text{want}) = \frac{C(\text{want chinese})}{C(\text{want})} = \frac{6}{927} \approx 0.0065$</p>
+                <p>The probability of a sentence like "<code>&lt;s&gt;</code> i want chinese food <code>&lt;/s&gt;</code>" would be:
+                $P(\text{i} | \text{&lt;s&gt;}) \times P(\text{want} | \text{i}) \times P(\text{chinese} | \text{want}) \times P(\text{food} | \text{chinese}) \times P(\text{&lt;/s&gt;} | \text{food})$
+                <br>Using example probabilities from the source, this could be $0.25 \times 0.33 \times 0.0065 \times 0.52 \times 0.68 \approx 0.000190$.
+                </p>
+            </div>
+            <div class="note">
+                <p><strong>Scalability Note (MLE):</strong> Calculating these counts is straightforward and scalable. For very large corpora, distributed computing frameworks (like MapReduce) can be used to count n-grams efficiently. The main challenge with MLE at scale is not the counting itself, but the subsequent issue of data sparsity.</p>
+            </div>
+        </section>
+
+        <section id="smoothing">
+            <h2>C. Data Sparsity and Smoothing</h2>
+            <p>
+                A major challenge with MLE for n-grams is <strong>data sparsity</strong>. Many valid n-grams won't appear
+                in the training corpus, leading to zero probability estimates. This is a big problem because a zero
+                probability for any part of a sequence makes the entire sequence's probability zero. Longer n-grams
+                suffer more from this because they are rarer.
+            </p>
+            <p>
+                <strong>Smoothing</strong> (or discounting) techniques address this by redistributing some probability mass
+                from observed n-grams to unobserved ones. Effective smoothing is crucial for a model's ability to
+                generalize to unseen data.
+            </p>
+            <h3>Overview of Common Smoothing Techniques:</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Technique</th>
+                        <th>Formula / Concept</th>
+                        <th>Key Idea</th>
+                        <th>Advantage</th>
+                        <th>Disadvantage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Laplace (Add-One)</strong></td>
+                        <td>$P_{\text{Laplace}}(w_i) = \frac{C(w_i)+1}{N+V}$ (unigrams). <br> Adjusted count: $c_i^* = (C(w_i)+1) \frac{N}{N+V}$</td>
+                        <td>Add 1 to all n-gram counts.</td>
+                        <td>Simple; ensures no zero probabilities.</td>
+                        <td>Often overestimates unseen events, alters seen probabilities, especially with large V.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Add-k Smoothing</strong></td>
+                        <td>$P_{\text{Add-k}}(w_n | w_{n-1}) = \frac{C(w_{n-1}w_n)+k}{C(w_{n-1})+kV}$</td>
+                        <td>Add a fractional count k (0&lt;k&lt;1).</td>
+                        <td>More flexible; k can be tuned.</td>
+                        <td>Still has issues for LMs, poor variances.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Backoff (General)</strong></td>
+                        <td>Use higher-order if available, else lower-order.</td>
+                        <td>Hierarchical use of n-gram orders.</td>
+                        <td>Intuitive; uses more context if possible.</td>
+                        <td>Abrupt probability changes if not well discounted.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stupid Backoff</strong></td>
+                        <td>If count$(w_{i-n+1}^i) > 0$: use MLE. Else if $n>1$: $\alpha \times S(w_i|w_{i-n+2}^{i-1})$. Else (unigrams): $S(w_i) = \frac{\text{count}(w_i)}{N}$. ($\alpha \approx 0.4$)</td>
+                        <td>Simple recursive backoff, fixed weight $\alpha$. Not normalized.</td>
+                        <td>Inexpensive; effective for very large LMs.</td>
+                        <td>Not a well-formed probability distribution.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Interpolation</strong></td>
+                        <td>$\sum \lambda_i P_i(\text{ngram})$ e.g., $\lambda_1 P(w_n) + \lambda_2 P(w_n|w_{n-1}) + \dots$</td>
+                        <td>Weighted average of different n-gram orders.</td>
+                        <td>Smoothly combines info from all levels.</td>
+                        <td>Requires learning $\lambda$ weights.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="example-box">
+                <h5>Simplified Explanation: Laplace Smoothing Distortion</h5>
+                <p>
+                    Laplace smoothing adds one to all counts. While this solves the zero-probability problem, it can significantly
+                    change probabilities, especially with large vocabularies (V). For instance, if $C(\text{want to})$ was 608,
+                    and it became an effective count of 238 after Laplace smoothing, $P(\text{to}|\text{want})$ might drop
+                    from 0.66 to 0.26, a large distortion.
+                </p>
+            </div>
+
+            <h3>Backoff vs. Interpolation for Scaling:</h3>
+            <ul>
+                <li><strong>Backoff:</strong> Uses a higher-order n-gram if its count is non-zero; otherwise, it "backs off" to a lower-order n-gram (e.g., trigram to bigram, then to unigram). "Stupid Backoff" is a specific backoff strategy that performs well for large language models by using the lower-order n-gram probability multiplied by a fixed weight (e.g., 0.4) if the higher-order count is zero. It's "stupid" because it doesn't ensure a true probability distribution but is computationally cheap.</li>
+                <li><strong>Interpolation:</strong> Always combines probabilities from multiple n-gram orders, weighted by lambdas that sum to 1 and can be learned from data.</li>
+            </ul>
+            <p>More sophisticated methods like <strong>Katz backoff</strong> (uses Good-Turing discounting) and <strong>Kneser-Ney smoothing</strong> offer better performance by more carefully estimating discounts and backoff probabilities.</p>
+
+            <div class="note">
+                <p><strong>Scalability Note (Smoothing Techniques):</strong></p>
+                <ul>
+                    <li><strong>Laplace and Add-k:</strong> Easy to implement and scale (simple count adjustments). Performance might not be optimal.</li>
+                    <li><strong>Stupid Backoff:</strong> Designed for scale, useful for very large LMs due to computational efficiency.</li>
+                    <li><strong>Interpolation & Advanced Methods (Katz, Kneser-Ney):</strong> Can be more computationally intensive to train (learning lambdas, complex discounting) but generally yield better results. The choice depends on the performance vs. computational resource trade-off. Efficient data structures are key for large datasets.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="practical-considerations">
+            <h2>D. Practical Considerations and Variants</h2>
+            <ul>
+                <li>
+                    <strong>Log Probabilities:</strong> N-gram probabilities can be very small. To avoid numerical underflow, computations are done using log probabilities. Addition in log space is equivalent to multiplication in linear space: $p_1 \times p_2 \times p_3 \times p_4 = \exp(\log p_1 + \log p_2 + \log p_3 + \log p_4)$.
+                    <div class="note" style="margin-left: 1.5rem; margin-top:0.5rem; margin-bottom:0.5rem; padding: 0.5rem;"><strong>Scaling Implication:</strong> Standard numerical stability trick, crucial for any probabilistic model, including large-scale ones.</div>
+                </li>
+                <li>
+                    <strong>N-gram Order:</strong> Longer n-grams (4-grams, 5-grams) capture more context but face more sparsity and are computationally heavier. Trigrams are often a practical compromise.
+                </li>
+                <li>
+                    <strong>Class-based N-grams (Brown Clustering):</strong> Words are grouped into classes (e.g., based on Brown clustering). N-gram probabilities are then estimated over these classes. This helps with sparsity by generalizing over similar words (e.g., estimating $P(\text{to Shanghai})$ using $P(\text{to CITY_CLASS})$ based on "to London", "to Beijing").
+                    <div class="note" style="margin-left: 1.5rem; margin-top:0.5rem; margin-bottom:0.5rem; padding: 0.5rem;"><strong>Scaling Implication:</strong> Reduces vocabulary size, easing probability estimation and handling sparsity with large vocabularies. The clustering step itself needs to be scalable.</div>
+                </li>
+                <li>
+                    <strong>Skip-grams:</strong> N-grams where words aren't necessarily adjacent but can be separated by a fixed number of words (skip distance k). For "the rain in Spain", 1-skip-2-grams include "the in" and "rain Spain". These capture wider contexts with less sparsity than strict higher-order n-grams and are foundational to models like word2vec.
+                    <div class="note" style="margin-left: 1.5rem; margin-top:0.5rem; margin-bottom:0.5rem; padding: 0.5rem;"><strong>Scaling Implication:</strong> Increases possible n-grams, but can be more robust to sparsity than high-order contiguous n-grams for broader context.</div>
+                </li>
+            </ul>
+            <p>
+                The <strong>Markov assumption</strong> (probability of a word depends only on a fixed, limited history) is a core aspect of n-gram models. It provides tractability but limits the ability to capture long-range dependencies in text.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> Classic NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation: Classic NLP".</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active'); // Tailwind 'active' class handles styling
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
