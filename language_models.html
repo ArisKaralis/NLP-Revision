@@ -9,6 +9,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="logo.png">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .katex-display { display: block; margin: 1em 0; text-align: center; }
@@ -23,7 +24,7 @@
         .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
         .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
         .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
-        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem;}
         .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
         .content-section tr:nth-child(even) { background-color: #f9fafb; }
         .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
@@ -33,13 +34,17 @@
         .note strong { color: #4f46e5; /* Indigo-600 */ }
         .example-box { background-color: #f0fdf4; /* Green-50 */ border: 1px solid #bbf7d0; /* Green-200 */ border-left-width: 4px; border-left-color: #22c55e; /* Green-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
         .example-box h5 { font-weight: 600; color: #166534; /* Green-700 */ margin-bottom: 0.5rem; }
+        .formula-box { background-color: #f3f4f6; padding: 1rem; border-radius: 0.375rem; margin-bottom:1rem; text-align:center; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
     <nav class="bg-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
-            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <a href="index.html" class="flex items-center text-xl font-bold text-blue-600">
+                <img src="logo.png" alt="NLP Fundamentals Logo" class="h-8 w-auto mr-2">
+                <span>NLP Fundamentals</span>
+            </a>
             <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
@@ -50,6 +55,7 @@
                 <a href="language_models.html" class="nav-link text-gray-700 active block md:inline-block">Language Models</a>
                 <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
                 <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="basic_text_processing_foundations.html" class="nav-link text-gray-700 block md:inline-block">Basic Text Processing</a>
                 <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
                 <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
                 <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
@@ -58,7 +64,7 @@
                 <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
                 <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
                 <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
-                <a href="lab_regex.html" class="nav-link text-gray-700 active block md:inline-block">Regex Lab</a>
+                <a href="lab_regex.html" class="nav-link text-gray-700 block md:inline-block">Regex Lab</a>
                 <a href="lab_crf.html" class="nav-link text-gray-700 block md:inline-block">CRF Lab</a>
                 <a href="lab_bert.html" class="nav-link text-gray-700 block md:inline-block">BERT Lab</a>
                 <a href="lab_llama.html" class="nav-link text-gray-700 block md:inline-block">Llama Lab</a>
@@ -126,12 +132,18 @@
                 (the first n-1 words).
             </p>
             <p>For a general n-gram, the probability of word $w_n$ given the preceding $n-1$ words $w_{n-N+1:n-1}$ is:</p>
-            $$P(w_n | w_{n-N+1:n-1}) = \frac{C(w_{n-N+1:n-1}w_n)}{C(w_{n-N+1:n-1})}$$
+            <div class="formula-box">
+                $P(w_n | w_{n-N+1:n-1}) = \frac{C(w_{n-N+1:n-1}w_n)}{C(w_{n-N+1:n-1})}$
+            </div>
             <p>where $C(\cdot)$ is the count of a sequence in the training corpus.</p>
             <p>For bigrams (N=2), this simplifies to:</p>
-            $$P(w_n | w_{n-1}) = \frac{C(w_{n-1}w_n)}{C(w_{n-1})}$$
+            <div class="formula-box">
+                $P(w_n | w_{n-1}) = \frac{C(w_{n-1}w_n)}{C(w_{n-1})}$
+            </div>
             <p>The probability of an entire word sequence $w_{1:n}$ under a bigram model is approximated by multiplying the conditional probabilities:</p>
-            $$P(w_{1:n}) \approx \prod_{k=1}^{n} P(w_k | w_{k-1})$$
+            <div class="formula-box">
+                $P(w_{1:n}) \approx \prod_{k=1}^{n} P(w_k | w_{k-1})$
+            </div>
             <p>(assuming $w_0$ is a start-of-sentence symbol <code>&lt;s&gt;</code>).</p>
 
             <div class="example-box">
@@ -163,55 +175,96 @@
                 from observed n-grams to unobserved ones. Effective smoothing is crucial for a model's ability to
                 generalize to unseen data.
             </p>
-            <h3>Overview of Common Smoothing Techniques:</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Technique</th>
-                        <th>Formula / Concept</th>
-                        <th>Key Idea</th>
-                        <th>Advantage</th>
-                        <th>Disadvantage</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Laplace (Add-One)</strong></td>
-                        <td>$P_{\text{Laplace}}(w_i) = \frac{C(w_i)+1}{N+V}$ (unigrams). <br> Adjusted count: $c_i^* = (C(w_i)+1) \frac{N}{N+V}$</td>
-                        <td>Add 1 to all n-gram counts.</td>
-                        <td>Simple; ensures no zero probabilities.</td>
-                        <td>Often overestimates unseen events, alters seen probabilities, especially with large V.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Add-k Smoothing</strong></td>
-                        <td>$P_{\text{Add-k}}(w_n | w_{n-1}) = \frac{C(w_{n-1}w_n)+k}{C(w_{n-1})+kV}$</td>
-                        <td>Add a fractional count k (0&lt;k&lt;1).</td>
-                        <td>More flexible; k can be tuned.</td>
-                        <td>Still has issues for LMs, poor variances.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Backoff (General)</strong></td>
-                        <td>Use higher-order if available, else lower-order.</td>
-                        <td>Hierarchical use of n-gram orders.</td>
-                        <td>Intuitive; uses more context if possible.</td>
-                        <td>Abrupt probability changes if not well discounted.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Stupid Backoff</strong></td>
-                        <td>If count$(w_{i-n+1}^i) > 0$: use MLE. Else if $n>1$: $\alpha \times S(w_i|w_{i-n+2}^{i-1})$. Else (unigrams): $S(w_i) = \frac{\text{count}(w_i)}{N}$. ($\alpha \approx 0.4$)</td>
-                        <td>Simple recursive backoff, fixed weight $\alpha$. Not normalized.</td>
-                        <td>Inexpensive; effective for very large LMs.</td>
-                        <td>Not a well-formed probability distribution.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Interpolation</strong></td>
-                        <td>$\sum \lambda_i P_i(\text{ngram})$ e.g., $\lambda_1 P(w_n) + \lambda_2 P(w_n|w_{n-1}) + \dots$</td>
-                        <td>Weighted average of different n-gram orders.</td>
-                        <td>Smoothly combines info from all levels.</td>
-                        <td>Requires learning $\lambda$ weights.</td>
-                    </tr>
-                </tbody>
-            </table>
+
+            <h4 class="mt-6">Kneser-Ney Smoothing</h4>
+            <p>
+                Kneser-Ney smoothing is an advanced and often one of the best-performing smoothing methods for n-gram language models, particularly for bigrams and trigrams. Its core idea is based on the "diversity" of contexts in which a word appears.
+            </p>
+            <p>
+                Instead of relying solely on the raw frequency of a word, Kneser-Ney considers how many <em>different</em> preceding words a given word $w_i$ follows. A word that completes many different bigrams (i.e., appears in diverse contexts) is considered more likely to appear in a new, unseen context.
+            </p>
+            <p>Key principles of Kneser-Ney smoothing:</p>
+            <ul>
+                <li><strong>Absolute Discounting:</strong> It subtracts a fixed discount $D$ (typically between 0 and 1, often around 0.75) from the counts of observed n-grams. This reserves some probability mass for unseen n-grams.</li>
+                <li>
+                    <strong>Continuation Probability ($P_{CONT}$):</strong> The discounted probability mass is distributed to lower-order n-grams. However, for the lower-order distribution (e.g., unigram for a bigram model), Kneser-Ney uses a "continuation probability" instead of the standard MLE unigram probability. The continuation probability $P_{CONT}(w_i)$ for a word $w_i$ is proportional to the number of different unique words $w_{k-1}$ that $w_i$ follows in the training corpus (i.e., the number of unique bigram types $w_{k-1}w_i$ that end with $w_i$).
+                    <div class="formula-box">
+                        $P_{CONT}(w_i) = \frac{|\{w' : C(w'w_i) > 0\}|}{|\{(w_a, w_b) : C(w_a w_b) > 0\}|}$
+                    </div>
+                    The numerator is the count of unique preceding words for $w_i$, and the denominator is the total number of unique bigram types in the corpus.
+                </li>
+            </ul>
+            <p>The interpolated Kneser-Ney probability for a bigram $P_{KN}(w_i | w_{i-1})$ is conceptually:
+            </p>
+            <div class="formula-box">
+                $P_{KN}(w_i | w_{i-1}) = \frac{\max(0, C(w_{i-1}w_i) - D)}{C(w_{i-1})} + \lambda(w_{i-1}) P_{CONT}(w_i)$
+            </div>
+            <p>
+                Where $C(w_{i-1}w_i)$ is the count of the bigram, $C(w_{i-1})$ is the count of the prefix, $D$ is the discount, and $\lambda(w_{i-1})$ is a normalization constant (interpolation weight) that depends on $w_{i-1}$. This formula is recursive and can be extended to higher-order n-grams.
+            </p>
+            <p>
+                Kneser-Ney smoothing's strength lies in its more sophisticated way of handling the probability of unseen events by considering the diversity of word usage.
+            </p>
+
+
+            <h3 class="mt-8">Overview of Common Smoothing Techniques:</h3>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Technique</th>
+                            <th>Formula / Concept</th>
+                            <th>Key Idea</th>
+                            <th>Advantage</th>
+                            <th>Disadvantage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Laplace (Add-One)</strong></td>
+                            <td>$P_{\text{Laplace}}(w_i) = \frac{C(w_i)+1}{N+V}$ (unigrams). <br> Adjusted count: $c_i^* = (C(w_i)+1) \frac{N}{N+V}$</td>
+                            <td>Add 1 to all n-gram counts.</td>
+                            <td>Simple; ensures no zero probabilities.</td>
+                            <td>Often overestimates unseen events, alters seen probabilities, especially with large V.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Add-k Smoothing</strong></td>
+                            <td>$P_{\text{Add-k}}(w_n | w_{n-1}) = \frac{C(w_{n-1}w_n)+k}{C(w_{n-1})+kV}$</td>
+                            <td>Add a fractional count k (0&lt;k&lt;1).</td>
+                            <td>More flexible; k can be tuned.</td>
+                            <td>Still has issues for LMs, poor variances.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Backoff (General)</strong></td>
+                            <td>Use higher-order if available, else use lower-order.</td>
+                            <td>Hierarchical use of n-gram orders.</td>
+                            <td>Intuitive; uses more context if possible.</td>
+                            <td>Abrupt probability changes if not well discounted.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stupid Backoff</strong></td>
+                            <td>If count$(w_{i-n+1}^i) > 0$: use MLE. Else if $n>1$: $\alpha \times S(w_i|w_{i-n+2}^{i-1})$. Else (unigrams): $S(w_i) = \frac{\text{count}(w_i)}{N}$. ($\alpha \approx 0.4$)</td>
+                            <td>Simple recursive backoff, fixed weight $\alpha$. Not normalized.</td>
+                            <td>Inexpensive; effective for very large LMs.</td>
+                            <td>Not a well-formed probability distribution.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Interpolation</strong></td>
+                            <td>$\sum \lambda_i P_i(\text{ngram})$ e.g., $\lambda_1 P(w_n) + \lambda_2 P(w_n|w_{n-1}) + \dots$</td>
+                            <td>Weighted average of different n-gram order probabilities.</td>
+                            <td>Smoothly combines info from all levels.</td>
+                            <td>Requires learning $\lambda$ weights.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kneser-Ney</strong></td>
+                            <td>$P_{KN}(w_i | w_{i-1}) = \frac{\max(0, C(w_{i-1}w_i) - D)}{C(w_{i-1})} + \lambda(w_{i-1}) P_{CONT}(w_i)$</td>
+                            <td>Absolute discounting + continuation probability based on word usage diversity.</td>
+                            <td>Often best performance for n-gram LMs; handles unseen n-grams well.</td>
+                            <td>More complex to implement than simpler methods.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div class="example-box">
                 <h5>Simplified Explanation: Laplace Smoothing Distortion</h5>
                 <p>
@@ -234,7 +287,7 @@
                 <ul>
                     <li><strong>Laplace and Add-k:</strong> Easy to implement and scale (simple count adjustments). Performance might not be optimal.</li>
                     <li><strong>Stupid Backoff:</strong> Designed for scale, useful for very large LMs due to computational efficiency.</li>
-                    <li><strong>Interpolation & Advanced Methods (Katz, Kneser-Ney):</strong> Can be more computationally intensive to train (learning lambdas, complex discounting) but generally yield better results. The choice depends on the performance vs. computational resource trade-off. Efficient data structures are key for large datasets.</li>
+                    <li><strong>Interpolation & Advanced Methods (Katz, Kneser-Ney):</strong> Can be more computationally intensive to train (learning lambdas, complex discounting like in Kneser-Ney which requires counting unique contexts) but generally yield better results. The choice depends on the performance vs. computational resource trade-off. Efficient data structures are key for large datasets. Kneser-Ney, while effective, requires more complex counting statistics (e.g., number of unique preceding words for each word) than simpler methods.</li>
                 </ul>
             </div>
         </section>
@@ -267,8 +320,8 @@
 
     <footer class="bg-gray-800 text-white py-8 mt-12">
         <div class="container mx-auto px-6 text-center">
-            <p>&copy; <span id="currentYear"></span> Classic NLP Fundamentals. For educational purposes.</p>
-            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation: Classic NLP".</p>
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
         </div>
     </footer>
 
@@ -288,18 +341,26 @@
             // Set current year in footer
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-            // Active Nav Link Highlighting
+            // Active Nav Link Highlighting & Mobile Menu Toggle
             const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
             const navLinks = document.querySelectorAll('nav a.nav-link');
             navLinks.forEach(link => {
                 if (link.getAttribute('href') === currentLocation) {
-                    link.classList.add('active'); // Tailwind 'active' class handles styling
+                    link.classList.add('active'); 
                     link.classList.remove('text-gray-700');
                 } else {
                     link.classList.remove('active');
                     link.classList.add('text-gray-700');
                 }
             });
+            
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
         });
     </script>
 
