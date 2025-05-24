@@ -106,13 +106,206 @@
                 </ul>
             </div>
             <div class="code-description">
-                <h5>CRF Model Training Functions (all use <code>lbfgs</code> algorithm):</h5>
+                <h5>CRF Model Training Functions:</h5>
+                <p>The core of the training process in Tasks 1-4 involves instantiating and fitting a <code>sklearn_crfsuite.CRF</code> model. Task 5 uses a similar CRF model but wraps it in a hyperparameter search.</p>
                 <ul>
-                    <li><strong><code>task1_train_crf_model(X_train, Y_train, max_iter, labels)</code>:</strong> <code>c1=0.1</code> (L1 penalty), <code>c2=0.1</code> (L2 penalty), <code>max_iterations=max_iter</code>, <code>all_possible_transitions=False</code> (only observed transitions).</li>
-                    <li><strong><code>task3_train_crf_model(...)</code>:</strong> Same as task1 but <code>c1=200</code> (stronger L1 regularization for sparsity).</li>
-                    <li><strong><code>task4_train_crf_model(...)</code>:</strong> Same as task1 but <code>all_possible_transitions=True</code> (learns weights for unobserved transitions).</li>
-                    <li><strong><code>task5_train_crf_model(...)</code>:</strong> Uses <code>RandomizedSearchCV</code> for <code>c1</code>, <code>c2</code>. Optimizes for weighted flat F1, 3-fold CV, 50 candidates. Base CRF uses <code>all_possible_transitions=True</code>.</li>
+                    <li>
+                        <strong><code>task1_train_crf_model(X_train, Y_train, max_iter, labels)</code> (Basis for Tasks 1, 2, 3, 4):</strong>
+                        <p>This function trains the CRF model using <code>sklearn_crfsuite.CRF</code>. Let's break down its components:</p>
+                        <pre><code class="language-python">
+crf = sklearn_crfsuite.CRF(
+    algorithm='lbfgs',
+    c1=0.1,  # L1 penalty
+    c2=0.1,  # L2 penalty
+    max_iterations=max_iter,
+    all_possible_transitions=False # For Task 1 & 2. Task 4 sets this to True.
+)
+crf.fit(X_train, Y_train)
+                        </code></pre>
+                        <ul>
+                            <li><code>sklearn_crfsuite.CRF(...)</code>: This initializes the Conditional Random Field model. The goal of training is to find the optimal set of feature weights ($\lambda_k$ in the CRF formula) that maximize the conditional log-likelihood of the training data.</li>
+                            <li><code>algorithm='lbfgs'</code>: This specifies the optimization algorithm used to find the best feature weights. <strong>L-BFGS (Limited-memory Broyden–Fletcher–Goldfarb–Shanno)</strong> is a popular quasi-Newton method.
+                                <ul>
+                                    <li>It approximates the inverse Hessian matrix (second derivatives) to steer the search for the optimal weights, making it faster than gradient descent alone for many problems.</li>
+                                    <li>"Limited-memory" means it doesn't store the full dense approximation of the inverse Hessian, but rather a few vectors that implicitly represent it. This makes it suitable for problems with a large number of variables (features), which is common in NLP.</li>
+                                    <li>The L-BFGS algorithm iteratively updates the weights to minimize the negative log-likelihood (which is equivalent to maximizing the log-likelihood) of the CRF model given the training data and features.</li>
+                                </ul>
+                            </li>
+                            <li><code>c1=0.1</code>: This is the coefficient for L1 regularization. L1 regularization adds a penalty equal to the absolute value of the magnitude of coefficients. This can lead to sparse solutions where some feature weights become zero, effectively performing feature selection.</li>
+                            <li><code>c2=0.1</code>: This is the coefficient for L2 regularization. L2 regularization adds a penalty equal to the square of the magnitude of coefficients. This tends to shrink weights towards zero but rarely makes them exactly zero, preventing overfitting by discouraging overly complex models where individual features have too much influence.</li>
+                            <li><code>max_iterations=max_iter</code>: The maximum number of iterations the L-BFGS algorithm will run.</li>
+                            <li><code>all_possible_transitions=False</code>: If <code>False</code> (Tasks 1, 2, 3), the model only considers transitions between labels that were observed in the training data. If <code>True</code> (Task 4, and base CRF in Task 5), it learns weights for all possible transitions between labels, even if they weren't seen.</li>
+                            <li><code>crf.fit(X_train, Y_train)</code>: This method executes the L-BFGS optimization algorithm to learn the feature weights from the training feature sequences (<code>X_train</code>) and their corresponding label sequences (<code>Y_train</code>).</li>
+                        </ul>
+                        <p>Tasks 2, 3, and 4 use the same fundamental training logic as Task 1 but may vary parameters like <code>c1</code> (Task 3) or <code>all_possible_transitions</code> (Task 4) passed to the <code>sklearn_crfsuite.CRF</code> constructor.</p>
+                    </li>
+                    <li>
+                        <strong><code>task3_train_crf_model(...)</code>:</strong>
+                        <p>Identical to <code>task1_train_crf_model</code> but sets <code>c1=200</code>, significantly increasing the L1 regularization penalty to encourage a much sparser model.</p>
+                    </li>
+                    <li>
+                        <strong><code>task4_train_crf_model(...)</code>:</strong>
+                        <p>Identical to <code>task1_train_crf_model</code> but sets <code>all_possible_transitions=True</code>, allowing the model to learn weights for transitions between labels not explicitly observed in the training set.</p>
+                    </li>
+                    <li>
+                        <strong><code>task5_train_crf_model(X_train, Y_train, max_iter, labels)</code>:</strong>
+                        <p>This function implements hyperparameter optimization using <code>sklearn.model_selection.RandomizedSearchCV</code> to find the best <code>c1</code> and <code>c2</code> values.</p>
+                        <pre><code class="language-python">
+# Base CRF model for the search
+crf = sklearn_crfsuite.CRF(
+    algorithm='lbfgs', 
+    max_iterations=max_iter, 
+    all_possible_transitions=True # Note: Base model here uses True
+)
+
+# Define the hyperparameter space to search
+params_space = {
+    'c1': scipy.stats.expon(scale=0.5),  # Sample c1 from an exponential distribution
+    'c2': scipy.stats.expon(scale=0.05), # Sample c2 from an exponential distribution
+}
+
+# Define the scoring metric
+f1_scorer = make_scorer(sklearn_crfsuite.metrics.flat_f1_score, 
+                        average='weighted', labels=labels)
+
+# Setup RandomizedSearchCV
+rs = sklearn.model_selection.RandomizedSearchCV(
+    crf, params_space, 
+    cv=3,  # 3-fold cross-validation
+    verbose=1, 
+    n_jobs=-1, # Use all available CPU cores
+    n_iter=50, # Number of parameter settings that are sampled
+    scoring=f1_scorer
+)
+rs.fit(X_train, Y_train) # Perform the search
+
+# ... (rest of the code for printing results and plotting) ...
+
+crf = rs.best_estimator_ # Get the model with the best found parameters
+                        </code></pre>
+                        <ul>
+                            <li><code>sklearn_crfsuite.CRF(...)</code>: A base CRF model is initialized, again using L-BFGS. Note that <code>all_possible_transitions</code> is set to <code>True</code> for the base model in this search.</li>
+                            <li><code>params_space</code>: This dictionary defines the search space for hyperparameters. <code>c1</code> and <code>c2</code> values are sampled from exponential distributions (<code>scipy.stats.expon</code>). An exponential distribution is often used for regularization parameters because it tends to sample smaller values more frequently but can still explore larger values. The <code>scale</code> parameter influences the mean of the distribution.</li>
+                            <li><code>f1_scorer = make_scorer(...)</code>: Since <code>RandomizedSearchCV</code> needs a scoring function to evaluate parameter combinations, <code>make_scorer</code> is used to create one. It utilizes <code>sklearn_crfsuite.metrics.flat_f1_score</code>, which calculates the F1 score entity by entity and then averages them. The <code>average='weighted'</code> parameter means the F1 score for each label is weighted by its support (number of true instances for that label) when calculating the overall average. This is the metric the search aims to maximize.</li>
+                            <li><code>RandomizedSearchCV(...)</code>:
+                                <ul>
+                                    <li><code>crf</code>: The estimator (CRF model) to tune.</li>
+                                    <li><code>params_space</code>: The distributions from which to sample parameters.</li>
+                                    <li><code>cv=3</code>: Specifies 3-fold cross-validation. The training data is split into 3 parts; the model trains on 2 parts and validates on the 3rd, rotating through the parts. This helps get a more robust estimate of performance for each parameter combination.</li>
+                                    <li><code>verbose=1</code>: Controls the verbosity of messages during the search.</li>
+                                    <li><code>n_jobs=-1</code>: Uses all available CPU cores to parallelize the search if possible (each parameter combination and CV fold can often be trained independently).</li>
+                                    <li><code>n_iter=50</code>: The number of different parameter combinations that will be sampled and evaluated. Unlike GridSearchCV which tries all combinations, RandomizedSearchCV samples a fixed number.</li>
+                                    <li><code>scoring=f1_scorer</code>: The custom F1 scorer defined above.</li>
+                                </ul>
+                            </li>
+                            <li><code>rs.fit(X_train, Y_train)</code>: Starts the randomized search process. It will sample 50 combinations of <code>c1</code> and <code>c2</code>, train a CRF model for each using 3-fold cross-validation, and evaluate it using the weighted F1 score.</li>
+                            <li>The subsequent lines in the original <code>task5_train_crf_model</code> function print the best parameters found (<code>rs.best_params_</code>), the corresponding best F1 score (<code>rs.best_score_</code>), and the size of the best model. It also includes optional code to visualize the F1 scores across the sampled <code>c1</code> and <code>c2</code> values using <code>matplotlib</code>, helping to understand the hyperparameter landscape.</li>
+                            <li><code>crf = rs.best_estimator_</code>: Finally, the function returns the CRF model that was trained with the hyperparameter combination that yielded the highest weighted F1 score during the cross-validated search.</li>
+                        </ul>
+                    </li>
                 </ul>
+            </div>
+
+            <div class="code-description mt-4">
+                <h4>Detailed Look at CRF Training</h4>
+                <p>The core of the CRF training in this lab revolves around the <code>sklearn_crfsuite.CRF</code> estimator, which uses the L-BFGS algorithm for optimization.</p>
+
+                <h5>The <code>sklearn_crfsuite.CRF</code> Estimator</h5>
+                <p><code>sklearn_crfsuite.CRF</code> provides an interface similar to scikit-learn estimators for training and using Conditional Random Fields. Key aspects include:</p>
+                <ul>
+                    <li><strong>Feature Input:</strong> It expects features for each token in a sequence, typically as a list of dictionaries per sequence.</li>
+                    <li><strong>Optimization:</strong> It internally handles the complex process of finding the optimal weights for the features and transitions that maximize the likelihood of the training data.</li>
+                    <li>For more details, refer to the <a href="https://sklearn-crfsuite.readthedocs.io/en/latest/index.html" target="_blank" class="text-rose-600 hover:text-rose-800 underline">sklearn-crfsuite documentation</a>.</li>
+                </ul>
+
+                <h5>The L-BFGS Optimization Algorithm</h5>
+                <p>L-BFGS (Limited-memory Broyden–Fletcher–Goldfarb–Shanno) is a popular quasi-Newton optimization algorithm. It's well-suited for problems with a large number of variables, like training CRFs where each feature and potential label transition has a weight to be learned.</p>
+                <ul>
+                    <li><strong>How it works:</strong> L-BFGS approximates the inverse Hessian matrix (which describes the curvature of the loss function) to find the search direction for updating weights. Unlike standard BFGS, it doesn't store the full dense Hessian approximation, but rather a limited history of updates to vectors, making it memory-efficient.</li>
+                    <li><strong>In CRFs:</strong> It iteratively adjusts the model's feature weights to minimize a loss function (typically the negative log-likelihood of the training data, often with regularization terms).</li>
+                </ul>
+
+                <h5>Standard Training (Tasks 1-4 using <code>task1_train_crf_model</code> as an example)</h5>
+                <p>For tasks 1 through 4 (with variations in features or specific parameters like <code>c1</code> or <code>all_possible_transitions</code>), the training approach is direct. Let's look at the <code>task1_train_crf_model</code> code:</p>
+                <pre><code class="language-python">
+def task1_train_crf_model( X_train, Y_train, max_iter, labels ) :
+    # train the basic CRF model
+    crf = sklearn_crfsuite.CRF(
+        algorithm='lbfgs',
+        c1=0.1,
+        c2=0.1,
+        max_iterations=max_iter,
+        all_possible_transitions=False,
+    )
+    crf.fit(X_train, Y_train)
+    return crf
+                </code></pre>
+                <p>Key parameters here:</p>
+                <ul>
+                    <li><code>algorithm='lbfgs'</code>: Explicitly selects the L-BFGS optimizer.</li>
+                    <li><code>c1=0.1</code>: Coefficient for L1 regularization. L1 regularization encourages sparsity by pushing some feature weights to zero, effectively performing feature selection. A value of 0.1 provides moderate L1 regularization.</li>
+                    <li><code>c2=0.1</code>: Coefficient for L2 regularization. L2 regularization penalizes large weights, helping to prevent overfitting by encouraging smaller, more distributed weights. A value of 0.1 provides moderate L2 regularization.</li>
+                    <li><code>max_iterations=max_iter</code>: The maximum number of iterations the L-BFGS algorithm will run. Training stops if convergence is reached earlier or this limit is hit.</li>
+                    <li><code>all_possible_transitions=False</code>: When set to <code>False</code>, the model only considers transitions between labels that were observed in the training data. If <code>True</code>, it would learn weights for all possible transitions between any two labels, even if never seen.</li>
+                </ul>
+                <p>The <code>crf.fit(X_train, Y_train)</code> call then executes the L-BFGS algorithm to learn the weights based on the provided training features (<code>X_train</code>) and corresponding labels (<code>Y_train</code>).</p>
+
+                <h5>Hyperparameter Tuning with <code>RandomizedSearchCV</code> (Task 5 using <code>task5_train_crf_model</code>)</h5>
+                <p>Task 5 employs a more sophisticated approach to find optimal regularization parameters (<code>c1</code> and <code>c2</code>) using randomized search with cross-validation.</p>
+                <pre><code class="language-python">
+def task5_train_crf_model( X_train, Y_train, max_iter, labels ) :
+    # randomized search to discover best parameters for CRF model
+    crf = sklearn_crfsuite.CRF(
+        algorithm='lbfgs', 
+        max_iterations=max_iter, 
+        all_possible_transitions=True  # Note: Base CRF here uses True
+    )
+    params_space = {
+        'c1': scipy.stats.expon(scale=0.5),
+        'c2': scipy.stats.expon(scale=0.05),
+    }
+
+    # optimize for micro F1 score
+    f1_scorer = make_scorer( sklearn_crfsuite.metrics.flat_f1_score, average='weighted', labels=labels )
+
+    print( 'starting randomized search for hyperparameters' )
+    n_folds = 3
+    n_candidates = 50
+    rs = sklearn.model_selection.RandomizedSearchCV(
+        crf, params_space, 
+        cv=n_folds, verbose=1, n_jobs=-1, 
+        n_iter=n_candidates, scoring=f1_scorer
+    )
+    rs.fit(X_train, Y_train)
+
+    # ... (output and visualization code omitted for brevity) ...
+
+    # return the best model
+    crf = rs.best_estimator_
+    return crf
+                </code></pre>
+                <p>Key components of this approach:</p>
+                <ul>
+                    <li><strong>Base CRF Model:</strong> A <code>sklearn_crfsuite.CRF</code> instance is created, notably with <code>all_possible_transitions=True</code>. This means the hyperparameter search is performed on a model that considers all potential label transitions.</li>
+                    <li><strong><code>params_space</code>:</strong> Defines the search space for hyperparameters.
+                        <ul></ul>
+                            <li><code>'c1': scipy.stats.expon(scale=0.5)</code>: Values for <code>c1</code> (L1 regularization) are sampled from an exponential distribution with a scale parameter of 0.5. This distribution tends to produce smaller values more frequently but can also sample larger values.</li>
+                            <li><code>'c2': scipy.stats.expon(scale=0.05)</code>: Values for <code>c2</code> (L2 regularization) are sampled from an exponential distribution with a smaller scale of 0.05, suggesting a search biased towards smaller L2 penalties.</li>
+                        </ul>
+                    </li>
+                    <li><strong><code>f1_scorer</code>:</strong> Specifies the metric to optimize. <code>make_scorer(sklearn_crfsuite.metrics.flat_f1_score, average='weighted', labels=labels)</code> creates a scorer that calculates the weighted flat F1-score. "Flat" means it considers all labels in a flattened sequence, and "weighted" means the F1-score for each label is averaged, weighted by the number of true instances for each label. This is a common metric for sequence labeling tasks.</li>
+                    <li><strong><code>RandomizedSearchCV</code>:</strong>
+                        <ul>
+                            <li><code>cv=n_folds</code> (e.g., 3): Performs 3-fold cross-validation. The training data is split into 3 parts; the model trains on 2 parts and validates on the 3rd, rotating which part is used for validation. This helps get a more robust estimate of performance for each hyperparameter combination.</li>
+                            <li><code>n_iter=n_candidates</code> (e.g., 50): Specifies the number of different hyperparameter combinations to try. For each iteration, a random combination of <code>c1</code> and <code>c2</code> is drawn from <code>params_space</code>.</li>
+                            <li><code>scoring=f1_scorer</code>: Uses the defined F1 scorer to evaluate each combination.</li>
+                            <li><code>n_jobs=-1</code>: Uses all available CPU cores for parallel processing, speeding up the search.</li>
+                        </ul>
+                    </li>
+                    <li><strong><code>rs.fit(X_train, Y_train)</code>:</strong> Executes the randomized search. It trains and evaluates <code>n_candidates</code> models, each with different <code>c1</code> and <code>c2</code> values, using <code>n_folds</code> cross-validation.</li>
+                    <li><strong><code>rs.best_estimator_</code>:</strong> After the search, this attribute holds the CRF model that was trained on the full training data (<code>X_train</code>, <code>Y_train</code>) using the hyperparameter combination that yielded the best average F1 score during cross-validation.</li>
+                </ul>
+                <p>The visualization code (using <code>matplotlib</code>) then helps to understand how different combinations of <code>c1</code> and <code>c2</code> affected the F1 score, providing insights into the sensitivity of the model to these regularization parameters.</p>
             </div>
 
 
