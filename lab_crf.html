@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab: Conditional Random Fields (CRFs) - NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #e11d48; /* Rose-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; color: #1f2937; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #ffe4e6; /* Rose-100 */ color: #be123c; /* Rose-700 */ }
+        .nav-link.active { background-color: #e11d48; /* Rose-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #fff1f2; /* Rose-50 */ border: 1px solid #fecdd3; /* Rose-200 */ border-left-width: 4px; border-left-color: #fda4af; /* Rose-300 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #be123c; /* Rose-700 */ margin-bottom: 0.5rem; }
+        .formula-box { background-color: #f3f4f6; padding: 1rem; border-radius: 0.375rem; margin-bottom:1rem; text-align:center; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex md:flex-nowrap md:overflow-x-auto space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="regex.html" class="nav-link text-gray-700 block md:inline-block">Regex Foundations</a>
+                <a href="basic_text_processing_foundations.html" class="nav-link text-gray-700 block md:inline-block">Basic Text Processing</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+                <a href="lab_regex.html" class="nav-link text-gray-700 block md:inline-block">Regex Lab</a>
+                <a href="lab_crf.html" class="nav-link text-gray-700 active block md:inline-block">CRF Lab</a>
+                <a href="lab_bert.html" class="nav-link text-gray-700 block md:inline-block">BERT Lab</a>
+                <a href="lab_llama.html" class="nav-link text-gray-700 block md:inline-block">Llama Lab</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Lab 2: Conditional Random Fields (CRFs) for Sequence Labeling</h1>
+        <p>
+            Conditional Random Fields (CRFs) are a class of statistical modeling methods often applied
+            to structured prediction tasks, most notably sequence labeling in NLP. They offer a
+            probabilistic framework for segmenting and labeling sequential data.
+        </p>
+
+        <section id="lab-crf-intro">
+            <h2>2.1. Introduction to CRFs</h2>
+            <h3 id="lab-crf-definition">2.1.1. Definition: Discriminative Probabilistic Models for P(y|x)</h3>
+            <p>
+                CRFs are discriminative undirected probabilistic graphical models used to encode known
+                relationships between observations and construct consistent interpretations. Unlike generative
+                models (like Hidden Markov Models, HMMs) that model the joint probability $P(x,y)$
+                (where $x$ is the observation sequence and $y$ is the label sequence), CRFs directly model
+                the conditional probability $P(y|x)$. This means they focus on predicting the label
+                sequence $y$ given the observation sequence $x$, without needing to model the distribution
+                of the observations themselves.
+            </p>
+            <p>The conditional probability for a linear-chain CRF is typically defined as:</p>
+            <div class="formula-box">
+                $P(y|x) = \frac{1}{Z(x)} \exp\left(\sum_{t=1}^{T} \sum_{k} \lambda_k f_k(y_{t-1}, y_t, x, t)\right)$
+            </div>
+            <p>Where:</p>
+            <ul>
+                <li>$y = (y_1, y_2, \ldots, y_T)$ is the sequence of labels.</li>
+                <li>$x = (x_1, x_2, \ldots, x_T)$ is the sequence of observations.</li>
+                <li>$f_k(y_{t-1}, y_t, x, t)$ is a feature function that depends on the current label $y_t$, the previous label $y_{t-1}$, the observation sequence $x$, and the current position $t$.</li>
+                <li>$\lambda_k$ is a weight associated with feature function $f_k$, learned during training.</li>
+                <li>$Z(x)$ is the partition function, a normalization factor that sums over all possible label sequences: $Z(x) = \sum_{y'} \exp\left(\sum_{t=1}^{T} \sum_{k} \lambda_k f_k(y'_{t-1}, y'_t, x, t)\right)$.</li>
+            </ul>
+
+            <h3 id="lab-crf-advantages">2.1.2. Advantages over Generative Models (e.g., HMMs)</h3>
+            <ul>
+                <li><strong>Relaxed Independence Assumptions:</strong> HMMs make strong independence assumptions about observations. CRFs can relax these, allowing features to depend on arbitrary, overlapping aspects of the entire observation sequence $x$.</li>
+                <li><strong>Direct Modeling of Conditional Probability:</strong> By modeling $P(y|x)$ directly, CRFs focus on discrimination between label sequences rather than modeling $P(x)$.</li>
+                <li><strong>Rich, Overlapping Features:</strong> CRFs can handle a large number of arbitrary, non-independent features (word identity, capitalization, affixes, context).</li>
+                <li><strong>Avoids Label Bias Problem:</strong> Global normalization $Z(x)$ in CRFs considers all possible label sequences, helping to avoid label bias.</li>
+            </ul>
+
+            <h3 id="lab-crf-applications">2.1.3. Core Applications: NER, POS Tagging</h3>
+            <p>CRFs have been successfully applied to:</p>
+            <ul>
+                <li><strong>Named Entity Recognition (NER):</strong> Identifying persons, organizations, locations, etc. (Focus of this lab).</li>
+                <li><strong>Part-of-Speech (POS) Tagging:</strong> Assigning grammatical categories to words.</li>
+                <li><strong>Shallow Parsing (Chunking):</strong> Identifying non-recursive syntactic constituents.</li>
+                <li>Other areas like bioinformatics and text segmentation.</li>
+            </ul>
+        </section>
+
+        <section id="lab-crf-linear-chain">
+            <h2>2.2. Linear-Chain CRF Architecture</h2>
+            <p>
+                For many NLP tasks with sequential data (like text), the linear-chain CRF is most common.
+                The label $y_t$ at position $t$ is assumed to depend only on the label $y_{t-1}$ at the
+                previous position and the global observation sequence $x$. This chain structure makes
+                inference (e.g., Viterbi algorithm) and training (e.g., forward-backward for marginals)
+                computationally tractable.
+            </p>
+            <h3 id="lab-crf-features">2.2.1. Feature Functions: Observation and Transition Features</h3>
+            <p>The power of CRFs comes from their feature functions $f_k$:</p>
+            <ul>
+                <li><strong>Observation Features (State Features):</strong> Relate an observation at position $t$ in $x$ to a label $y_t$. They look at characteristics of $x_t$ (word identity, capitalization, suffix) and its context.
+                    <div class="example-box"><h5>Example Observation Feature:</h5>If current word is "Paris" and current label is "B-LOC".</div>
+                </li>
+                <li><strong>Transition Features:</strong> Relate a pair of adjacent labels, $y_{t-1}$ and $y_t$. They model the likelihood of transitioning from one label to another, helping enforce label sequence consistency.
+                    <div class="example-box"><h5>Example Transition Feature:</h5>If previous label $y_{t-1}$ was "B-PERSON" and current label $y_t$ is "I-PERSON".</div>
+                </li>
+            </ul>
+            <p>Weights $\lambda_k$ are learned from labeled training data, typically by maximizing conditional log-likelihood.</p>
+
+            <h3 id="lab-crf-iob">2.2.2. IOB Tagging Scheme</h3>
+            <p>For tasks like NER, the Inside-Outside-Beginning (IOB) scheme (or variants BIO, BIOES) marks multi-token entity boundaries:</p>
+            <ul>
+                <li><strong>B-LBL:</strong> Token is beginning of entity type LBL (e.g., B-PERSON).</li>
+                <li><strong>I-LBL:</strong> Token is inside entity type LBL (e.g., I-PERSON).</li>
+                <li><strong>O:</strong> Token is outside any named entity.</li>
+            </ul>
+            <div class="example-box">
+                <h5>Example: IOB Tagging</h5>
+                <p>"George (B-PERSON) Washington (I-PERSON) was (O) president (O)."</p>
+                <p>Lab example: <code>('Hong', 'NNP', 'B-GPE'), ('Kong', 'NNP', 'I-GPE')</code>.</p>
+            </div>
+        </section>
+
+        <section id="lab-crf-experiments">
+            <h2>2.3. Analysis of CRF Lab Experiments (crf_results.txt)</h2>
+            <p>
+                The lab experiments explore NER using CRFs with 12751 training sentences, 76 test sentences,
+                and max 20 training iterations. Different feature engineering strategies (<code>word2features_func</code>)
+                and CRF training model functions (<code>train_crf_model_func</code>) are evaluated.
+            </p>
+
+            <h3 id="lab-crf-task1">2.3.2. Task 1 Analysis: Baseline Feature Engineering</h3>
+            <p><strong>Configuration:</strong> <code>word2features_func = task1_word2features</code>, <code>train_crf_model_func = task1_train_crf_model</code>.</p>
+            <p><strong>Example Training Feature:</strong> <code>{'word': 'have', 'postag': 'VBP', '-1:word.lower()': 'people', '-1:postag': 'NNS', '+1:word.lower()': 'long', '+1:postag': 'RB'}</code>. Features include current word/POS, and previous/next word (lowercase)/POS.</p>
+            <p><strong>Performance Highlights (F1):</strong> B-GPE (0.69), I-GPE (0.00), B-PERSON (0.51), I-PERSON (0.68), B-ORG (0.40), I-ORG (0.53). Overall Micro F1: 0.54.</p>
+            <p><strong>Top Observation Features (Examples from crf_results.txt):</strong></p>
+            <ul>
+                <li>For $y=\text{'B-DATE'}$, <code>word:today</code> (+2.506), <code>postag:NN</code> (+1.519).</li>
+                <li>For $y=\text{'B-GPE'}$, <code>word:US</code> (+2.947), <code>postag:NNP</code> (+2.155).</li>
+                <li>For $y=\text{'B-PERSON'}$, <code>postag:NNP</code> (+3.344), <code>-1:word.lower():president</code> (+1.955).</li>
+                <li>For $y=\text{'O'}$, <code>EOS</code> (+6.676), <code>BOS</code> (+3.138), <code>postag:NNP</code> (-4.241, strong negative).</li>
+            </ul>
+            <p><strong>Label Transition Weights (Examples):</strong> Strong positive for B-DATE $\rightarrow$ I-DATE (+6.261), O $\rightarrow$ O (+5.649). O $\rightarrow$ B-PERSON (+3.415) is a likely start. B-PERSON $\rightarrow$ B-GPE (-0.847) is unlikely.</p>
+            <p><strong>Interpretation:</strong> Moderate baseline performance, relying on lexical cues and POS tags. Fails on many less common/nuanced entities (F1=0.00 for I-GPE, B-CARDINAL, etc.). High B-GPE recall (0.83) vs. precision (0.59) suggests over-tagging. Demonstrates fundamental feature-based sequence labeling.</p>
+
+            <h3 id="lab-crf-task2">2.3.3. Task 2 Analysis: Enhanced Feature Engineering</h3>
+            <p><strong>Configuration:</strong> <code>word2features_func = task2_word2features</code> (adds word case, digit check, suffixes, POS prefixes for current/prev/next words), <code>train_crf_model_func = task1_train_crf_model</code>.</p>
+            <p><strong>Example Training Feature:</strong> <code>{'word': 'have', 'postag': 'VBP', 'word.lower()': 'have', 'word.isupper()': False, ..., 'word.suffix': 'ave', 'postag[:2]': 'VB', ...}</code>.</p>
+            <p><strong>Performance Highlights (F1):</strong> B-GPE (0.69, no change), I-GPE (0.00, no change), B-PERSON (0.69, up), I-PERSON (0.81, up), B-ORG (0.46, up), I-ORG (0.64, up). Overall Micro F1: 0.66 (up from 0.54).</p>
+            <p><strong>Top Observation Features (Examples):</strong> <code>word.suffix:day</code> (+2.210 for B-DATE), <code>word.lower():us</code> (+1.688 for B-GPE), <code>word.istitle()</code> (+1.201 for B-PERSON) show utility. Weights generally lower, suggesting distributed reliance on more features.</p>
+            <p><strong>Label Transition Weights:</strong> Generally slightly lower magnitudes than Task 1 (e.g., B-DATE $\rightarrow$ I-DATE +4.275).</p>
+            <p><strong>Interpretation:</strong> Granular orthographic/morphological features significantly boost NER, especially for PERSON and ORG. <code>word.istitle()</code> is strong for proper nouns. Confirms superior features lead to better CRF performance.</p>
+
+            <h3 id="lab-crf-task3">2.3.4. Task 3 Analysis: Alternative Training Model</h3>
+            <p><strong>Configuration:</strong> <code>word2features_func = task2_word2features</code> (rich features), <code>train_crf_model_func = task3_train_crf_model</code>.</p>
+            <p><strong>Performance:</strong> Dramatic decline. B-GPE F1 (0.43), B-PERSON F1 (0.12). Overall Micro F1: 0.18 (down from 0.66 in Task 2).</p>
+            <p><strong>Feature/Transition Weights:</strong> Magnitudes considerably smaller than Task 2.</p>
+            <p><strong>Interpretation:</strong> Since features are identical to Task 2, the poor performance points to <code>task3_train_crf_model</code> being suboptimal or poorly configured (insufficient iterations, poor convergence, unsuitable optimization/regularization). Low weights suggest failure to learn strong feature-label associations. A powerful feature set is insufficient if the training process is flawed.</p>
+
+            <h3 id="lab-crf-task4">2.3.5. Task 4 Analysis: Another Training Model Variation</h3>
+            <p><strong>Configuration:</strong> <code>word2features_func = task2_word2features</code> (rich features), <code>train_crf_model_func = task4_train_crf_model</code>.</p>
+            <p><strong>Performance:</strong> Mixed. Better than Task 3, but overall Micro F1 (0.59) lower than Task 2 (0.66). B-GPE F1 (0.69, same as T2), B-PERSON F1 (0.59, worse), I-PERSON F1 (0.82, slightly better), B-ORG F1 (0.08, much worse).</p>
+            <p><strong>Feature/Transition Weights:</strong> Magnitudes higher than Task 3, closer to Task 2.</p>
+            <p><strong>Interpretation:</strong> Different learning outcome. Superior I-PERSON F1 suggests better learning of person continuation patterns. Extremely low B-ORG F1 is a concern. Illustrates different trainers/configurations can excel in different facets. Highlights importance of per-class evaluation.</p>
+
+            <h3 id="lab-crf-task5">2.3.6. Task 5 Analysis: Hyperparameter Tuning</h3>
+            <p><strong>Configuration:</strong> <code>word2features_func = task2_word2features</code> (rich features), <code>train_crf_model_func = task5_train_crf_model</code>. Randomized search for c1 (L1 reg) & c2 (L2 reg) (50 candidates, 3-fold CV, max_iter=20).</p>
+            <p><strong>Best Hyperparameters Found:</strong> c1 = 0.154, c2 = 0.025.</p>
+            <p><strong>Best Micro F1 during search:</strong> 0.4907.</p>
+            <p><strong>Performance (final model with best params):</strong> B-GPE F1 (0.61), B-PERSON F1 (0.36). Overall Micro F1: 0.40. Significantly worse than Task 2 and even Task 1.</p>
+            <p><strong>Interpretation:</strong> HPO did not improve performance. "Best" search F1 (0.49) was already low. Final model (0.40) worse. Potential issues: <code>task5_train_crf_model</code> might be less effective; search space/candidates insufficient; overfitting to CV splits; max_iterations too low. Numerous <code>UndefinedMetricWarning</code> messages during HPO signal instability. HPO is not a guaranteed fix; base model quality, search thoroughness, and methodology are key. Misconfigured regularization can severely degrade performance.</p>
+
+            <h4>Comparative Performance Table of CRF Tasks (Key F1 Scores)</h4>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>word2features_func</th>
+                            <th>train_crf_model_func</th>
+                            <th>Micro F1</th>
+                            <th>Macro F1</th>
+                            <th>Weighted F1</th>
+                            <th>B-GPE F1</th>
+                            <th>I-GPE F1</th>
+                            <th>B-PERSON F1</th>
+                            <th>I-PERSON F1</th>
+                            <th>B-ORG F1</th>
+                            <th>I-ORG F1</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Task 1</td><td>task1_word2features</td><td>task1_train_crf_model</td><td>0.54</td><td>0.09</td><td>0.56</td><td>0.69</td><td>0.00</td><td>0.51</td><td>0.68</td><td>0.40</td><td>0.53</td></tr>
+                        <tr><td>Task 2</td><td>task2_word2features</td><td>task1_train_crf_model</td><td>0.66</td><td>0.11</td><td>0.70</td><td>0.69</td><td>0.00</td><td>0.69</td><td>0.81</td><td>0.46</td><td>0.64</td></tr>
+                        <tr><td>Task 3</td><td>task2_word2features</td><td>task3_train_crf_model</td><td>0.18</td><td>0.03</td><td>0.15</td><td>0.43</td><td>0.00</td><td>0.12</td><td>0.16</td><td>0.00</td><td>0.22</td></tr>
+                        <tr><td>Task 4</td><td>task2_word2features</td><td>task4_train_crf_model</td><td>0.59</td><td>0.10</td><td>0.62</td><td>0.69</td><td>0.00</td><td>0.59</td><td>0.82</td><td>0.08</td><td>0.46</td></tr>
+                        <tr><td>Task 5</td><td>task2_word2features</td><td>task5_train_crf_model</td><td>0.40</td><td>0.07</td><td>0.37</td><td>0.61</td><td>0.00</td><td>0.36</td><td>0.11</td><td>0.41</td><td>0.41</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Task 2 (enhanced features, <code>task1_train_crf_model</code> trainer) yielded best overall performance.</p>
+        </section>
+
+        <section id="lab-crf-variations">
+            <h2>2.4. CRF Variations</h2>
+            <ul>
+                <li><strong>Higher-Order CRFs:</strong> Extend dependencies beyond adjacent labels (e.g., $y_t$ depends on $y_{t-1}, y_{t-2}$). Captures more complex patterns but increases computational complexity.</li>
+                <li><strong>BiLSTM-CRF:</strong> Popular hybrid. BiLSTM learns rich contextualized features, fed to a CRF layer that models label dependencies and predicts optimal label sequence. BiLSTM excels at automatic feature extraction; CRF layer enforces sequence constraints.</li>
+                <li><strong>Dynamic CRFs (DCRFs) & Latent-Dynamic CRFs (LDCRFs):</strong> Advanced extensions incorporating latent variables or modeling more complex graphical structures. LDCRFs assume hidden state variables associated with labels. Training can be challenging.</li>
+            </ul>
+        </section>
+
+        <section id="lab-crf-uses-limitations">
+            <h2>2.5. Uses and Limitations of CRFs in NLP</h2>
+            <h4>Uses (Recap):</h4>
+            <p>NER, POS Tagging, Shallow Parsing, Bioinformatics, Text Segmentation, Information Extraction.</p>
+            <h4>Limitations:</h4>
+            <ul>
+                <li><strong>Training Time:</strong> Can be computationally intensive and slow, especially with large datasets/features. Complexity can be quadratic in label set size and nearly quadratic in training sample size for linear chains.</li>
+                <li><strong>Feature Engineering:</strong> Performance heavily depends on manually designed features (time-consuming, requires domain expertise). Key motivation for shift to deep learning.</li>
+                <li><strong>Overfitting:</strong> Prone with many features if regularization is inadequate or features are noisy.</li>
+                <li><strong>Complexity with Large Label/Feature Sets:</strong> Cost scales, potentially impractical without approximations.</li>
+                <li><strong>Difficulty with Very Long-Range Dependencies:</strong> Standard linear-chain CRFs might struggle, as primary dependencies are local.</li>
+            </ul>
+            <p>Computational demands and feature engineering burden drove exploration of deep learning models (LSTMs, Transformers) which offer automatic feature learning.</p>
+            <div class="note">
+                <p><strong>Scalability (CRF Lab Insights):</strong> The lab experiments highlight that feature engineering is critical. While CRFs can handle many features, training time can be a bottleneck (max_iter=20 in labs). The choice of training algorithm and hyperparameters (Task 3 vs. Task 2, Task 5 results) significantly impacts performance and convergence, affecting practical scalability. For larger datasets than used in the lab, the computational cost of training a CRF with a rich feature set would be a major consideration.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals & Labs. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes and "NLP Labs Detailed Notes".</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

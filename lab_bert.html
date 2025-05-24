@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab: BERT - NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #0284c7; /* Sky-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f0f9ff; /* Sky-50 */ border: 1px solid #e0f2fe; /* Sky-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; color: #0c4a6e; /* Sky-800 */ }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; }
+        .content-section th { background-color: #f0f9ff; /* Sky-50 */ font-weight: 600; color: #075985; /* Sky-700 */ }
+        .content-section tr:nth-child(even) { background-color: #f0f9ff; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #e0f2fe; /* Sky-100 */ color: #0369a1; /* Sky-700 */ }
+        .nav-link.active { background-color: #0284c7; /* Sky-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #f0f9ff; /* Sky-50 */ border: 1px solid #bae6fd; /* Sky-200 */ border-left-width: 4px; border-left-color: #38bdf8; /* Sky-400 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #0369a1; /* Sky-700 */ margin-bottom: 0.5rem; }
+        .lab-results-box { background-color: #fffef0; /* Yellow-50 adjusted */ border: 1px solid #fef9c3; /* Yellow-100 */ padding: 1.5rem; margin-top: 1.5rem; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .lab-results-box h4 { font-size: 1.25rem; color: #a16207; /* Amber-700 */ margin-bottom: 1rem; }
+        .lab-results-box pre { background-color: #fefce8; /* Yellow-50 */ border-color: #fef9c3; /* Yellow-100 */ color: #713f12 /* Amber-800 */; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex md:flex-nowrap md:overflow-x-auto space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="regex.html" class="nav-link text-gray-700 block md:inline-block">Regex</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="basic_text_processing_foundations.html" class="nav-link text-gray-700 block md:inline-block">Basic Text Processing</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+                <a href="lab_regex.html" class="nav-link text-gray-700 block md:inline-block">Regex Lab</a>
+                <a href="lab_crf.html" class="nav-link text-gray-700 block md:inline-block">CRF Lab</a>
+                <a href="lab_bert.html" class="nav-link text-gray-700 active block md:inline-block">BERT Lab</a>
+                <a href="lab_llama.html" class="nav-link text-gray-700 block md:inline-block">Llama Lab</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Lab 3: BERT (Bidirectional Encoder Representations from Transformers)</h1>
+        <p>
+            BERT, introduced by Devlin et al. (2018), marked a significant advancement in NLP by
+            leveraging the Transformer architecture to learn deep bidirectional representations
+            from unlabeled text.
+        </p>
+
+        <section id="lab-bert-architecture">
+            <h2>3.1. BERT Architecture</h2>
+            <h3 id="lab-bert-transformer-encoder">3.1.1. Transformer Encoder Foundation</h3>
+            <p>
+                BERT's architecture is fundamentally a multi-layer bidirectional Transformer encoder.
+                It processes the entire input sequence at once, allowing each token to incorporate
+                context from both its left and right neighbors in all layers.
+            </p>
+            <p>BERT models are typically released in two main sizes:</p>
+            <ul>
+                <li><strong>BERT<sub>BASE</sub>:</strong> 12 Transformer encoder layers (L=12), hidden size 768 (H=768), 12 self-attention heads (A=12), ~110M parameters.</li>
+                <li><strong>BERT<sub>LARGE</sub>:</strong> 24 Transformer encoder layers (L=24), hidden size 1024 (H=1024), 16 self-attention heads (A=16), ~340M parameters.</li>
+            </ul>
+
+            <h3 id="lab-bert-multi-head">3.1.2. Multi-Head Self-Attention Mechanism</h3>
+            <p>
+                The heart of each Transformer encoder layer is multi-head self-attention. It allows
+                the model to weigh the importance of different words when computing a word's representation.
+                "Multi-head" means this attention process is performed multiple times in parallel, each
+                with different learned linear projections, enabling joint attention to different
+                representational subspaces. BERT's bidirectionality here is crucial for deep contextual understanding.
+            </p>
+
+            <h3 id="lab-bert-input-repr">3.1.3. Input Representation: Token, Segment, and Position Embeddings</h3>
+            <p>BERT requires a specific input representation combining three types of embeddings for each token:</p>
+            <ul>
+                <li><strong>Token Embeddings:</strong> WordPiece embeddings (~30,000 subword units). Handles OOV words. Special <code>[UNK]</code> token for unknown subwords.</li>
+                <li><strong>Segment Embeddings:</strong> Learned embeddings distinguish sentences in a pair (Segment A / Segment B).</li>
+                <li><strong>Position Embeddings:</strong> Learned absolute position embeddings for token order (up to max sequence length, e.g., 512).</li>
+            </ul>
+            <p>These three are summed element-wise. Special tokens are also used:</p>
+            <ul>
+                <li><strong><code>[CLS]</code> (Classification):</strong> Prepended to every input. Its final hidden state is used as aggregate sequence representation for classification tasks.</li>
+                <li><strong><code>[SEP]</code> (Separator):</strong> Separates sentences in a pair or marks end of a single sentence.</li>
+            </ul>
+        </section>
+
+        <section id="lab-bert-pretraining">
+            <h2>3.2. BERT Pre-training Objectives</h2>
+            <p>BERT is pre-trained on large unlabeled text corpora (BooksCorpus, English Wikipedia) using two novel unsupervised tasks:</p>
+            <h3 id="lab-bert-mlm">3.2.1. Masked Language Model (MLM)</h3>
+            <p>Key to BERT's bidirectionality. Standard unidirectional LMs predict next word, limiting right-context incorporation.</p>
+            <ul>
+                <li>15% of tokens in each sequence are randomly selected for masking.</li>
+                <li>Of these: 80% replaced with <code>[MASK]</code>, 10% with a random token, 10% unchanged.</li>
+                <li>Objective: Predict original vocabulary ID of selected tokens based on surrounding unmasked context.</li>
+                <li>Strategy mitigates pre-train/fine-tune mismatch (<code>[MASK]</code> not in fine-tuning). Forces learning rich contextual representations for every token.</li>
+            </ul>
+            <div class="example-box">
+                <h5>Simplified Example: MLM</h5>
+                <p>Input: "The quick brown <code>[MASK]</code> jumps over the lazy <code>[MASK]</code>."</p>
+                <p>BERT predicts the original words for the <code>[MASK]</code> tokens (e.g., "fox", "dog") based on the surrounding context.</p>
+            </div>
+
+            <h3 id="lab-bert-nsp">3.2.2. Next Sentence Prediction (NSP)</h3>
+            <p>Designed to help BERT understand relationships between sentences (for QA, NLI).</p>
+            <ul>
+                <li>Model receives a pair of sentences (A, B).</li>
+                <li>50% of cases: B is actual next sentence (label: IsNext).</li>
+                <li>50% of cases: B is random sentence (label: NotNext).</li>
+                <li>Prediction based on final hidden state of <code>[CLS]</code> token.</li>
+            </ul>
+            <p><em>Note: The utility of NSP has been debated; subsequent models like RoBERTa found removing it could improve performance, suggesting MLM alone might be sufficient with other modifications.</em></p>
+        </section>
+
+        <section id="lab-bert-tensors">
+            <h2>3.3. Tensor Dimensions and Key Parameters</h2>
+            <p>Understanding tensor dimensions in BERT is crucial for practical implementation.</p>
+            <h4>Input Tensors:</h4>
+            <ul>
+                <li><code>input_ids</code>: Shape (batch_size, sequence_length), integer token indices.</li>
+                <li><code>attention_mask</code>: Shape (batch_size, sequence_length), binary (1 for actual tokens, 0 for padding).</li>
+                <li><code>token_type_ids</code> (Segment IDs): Shape (batch_size, sequence_length), binary (0 for sentence A, 1 for B).</li>
+            </ul>
+            <h4>Output Tensors:</h4>
+            <ul>
+                <li><code>last_hidden_state</code>: Shape (batch_size, sequence_length, hidden_size), sequence of hidden states from final layer.</li>
+                <li><code>pooler_output</code>: Shape (batch_size, hidden_size), final hidden state of <code>[CLS]</code> token, further processed (linear layer + Tanh). Used for sequence classification.</li>
+                <li><code>hidden_states</code> (optional): Tuple of tensors (output of embeddings + output of each layer), each (batch_size, sequence_length, hidden_size).</li>
+            </ul>
+            <h4>Key Architectural Parameters (Typical for BERT<sub>BASE</sub>):</h4>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead><tr><th>Parameter</th><th>Description</th><th>Typical Value (BERT<sub>BASE</sub>)</th></tr></thead>
+                    <tbody>
+                        <tr><td>vocab_size</td><td>Number of unique tokens</td><td>30522</td></tr>
+                        <tr><td>hidden_size</td><td>Dimensionality of encoder layers & pooler</td><td>768</td></tr>
+                        <tr><td>num_hidden_layers</td><td>Number of Transformer encoder layers</td><td>12</td></tr>
+                        <tr><td>num_attention_heads</td><td>Number of attention heads per layer</td><td>12</td></tr>
+                        <tr><td>intermediate_size</td><td>Dimensionality of FFN intermediate layer</td><td>3072</td></tr>
+                        <tr><td>max_position_embeddings</td><td>Maximum sequence length</td><td>512</td></tr>
+                        <tr><td>type_vocab_size</td><td>Vocab size for token_type_ids</td><td>2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="lab-bert-finetuning-tasks">
+            <h2>3.4. Sequence of Tasks: Fine-tuning BERT for Downstream Applications</h2>
+            <p>The standard paradigm for applying BERT is fine-tuning:</p>
+            <ol>
+                <li><strong>Load Pre-trained Model and Tokenizer:</strong> E.g., <code>bert-base-uncased</code> from Hugging Face Transformers.</li>
+                <li><strong>Prepare Task-Specific Data:</strong> Labeled dataset for the target task (e.g., sentiment-labeled sentences).</li>
+                <li><strong>Tokenize Data:</strong> Convert text to BERT's input format (<code>input_ids</code>, <code>attention_mask</code>, <code>token_type_ids</code>), including sub-word tokenization, special tokens, padding/truncation.</li>
+                <li><strong>Add Task-Specific Head:</strong>
+                    <ul>
+                        <li>Sequence Classification: Linear layer + softmax on <code>[CLS]</code> output.</li>
+                        <li>Token Classification (NER): Linear layer + softmax on each token's final hidden state.</li>
+                        <li>(Hugging Face models like <code>BertForSequenceClassification</code> often include these heads).</li>
+                    </ul>
+                </li>
+                <li><strong>Fine-tune:</strong> Train entire model (BERT layers + new head) end-to-end on task data.
+                    <ul>
+                        <li>Use data loader for batches.</li>
+                        <li>Optimizer: AdamW is common.</li>
+                        <li>Loss function: E.g., CrossEntropyLoss for classification.</li>
+                        <li>Iterate for epochs with low learning rate (e.g., 2e-5 to 5e-5) to avoid disrupting pre-trained weights.</li>
+                    </ul>
+                </li>
+                <li><strong>Evaluate and Deploy:</strong> Assess on a held-out test set.</li>
+            </ol>
+            <p>Fine-tuning leverages transfer learning; BERT's pre-trained linguistic knowledge allows high performance even with smaller task-specific datasets.</p>
+        </section>
+
+        <section id="lab-bert-common-apps">
+            <h2>3.5. Common Applications</h2>
+            <p>BERT excels in Natural Language Understanding (NLU) tasks:</p>
+            <ul>
+                <li>Text Classification (sentiment, spam, topic)</li>
+                <li>Named Entity Recognition (NER)</li>
+                <li>Question Answering (QA) (e.g., SQuAD)</li>
+                <li>Natural Language Inference (NLI)</li>
+                <li>Sentence Pair Classification (semantic similarity, paraphrase ID)</li>
+            </ul>
+        </section>
+
+        <section id="lab-bert-experiment-results">
+            <h2>3.7. BERT Lab: Fine-tuning for Sequence Classification (Example Results)</h2>
+            <p>The lab likely involved fine-tuning BERT for a sequence classification task (e.g., sentiment analysis or NLI). Below is an interpretation of typical training log outputs.</p>
+            
+            <div class="lab-results-box">
+                <h4>Experiment Setup (Inferred)</h4>
+                <p>The experiment probably involved fine-tuning a pre-trained BERT model (e.g., <code>bert-base-uncased</code>) on a dataset like GLUE (e.g., SST-2 for sentiment) or IMDb for sequence classification. The goal was to classify sequences (sentences or sentence pairs) into a predefined number of categories.</p>
+
+                <h4>Model Head Architecture Snippet (Typical for Sequence Classification)</h4>
+                <p>The output suggests a standard BERT sequence classification head:</p>
+                <pre><code>
+(bert): BertModel(...)
+(dropout): Dropout(p=0.1, inplace=False)
+(classifier): Linear(in_features=768, out_features=2, bias=True) 
+                </code></pre>
+                <p>(Where <code>BertModel</code> contains the Transformer encoders, and the <code>classifier</code> is a linear layer for 2 output classes, taking the <code>[CLS]</code> token's representation from <code>BertPooler</code> which includes a Dense layer and Tanh activation, as hinted by <code>(poolec): BertPooLect (dense): Linear(...) (activation): Tanh()</code> from the provided log.)</p>
+                
+                <h4>Training and Evaluation Log Summary</h4>
+                <p>A warning about <code>BertTokenizerFast</code> and the <code>웅</code> token (likely a typo for <code>[UNK]</code> or a specific non-standard token in the log) suggests to use <code>[UNK]</code> instead. This is a tokenizer-specific note.</p>
+                <p>The model was trained for 5 epochs. Here's a summary of the evaluation metrics per epoch:</p>
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Epoch</th>
+                                <th>Train Loss (approx.)</th>
+                                <th>Eval Loss</th>
+                                <th>Eval F1</th>
+                                <th>Learning Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1.0</td><td>N/A (initial)</td><td>0.2227</td><td>0.9170</td><td>1.60e-05</td></tr>
+                            <tr><td>2.0</td><td>0.1359</td><td>0.3026</td><td>0.9239</td><td>1.20e-05</td></tr>
+                            <tr><td>3.0</td><td>0.0747</td><td>0.3675</td><td>0.9219</td><td>8.00e-06</td></tr>
+                            <tr><td>4.0</td><td>0.0402</td><td>0.4700</td><td>0.9212</td><td>4.00e-06</td></tr>
+                            <tr><td>5.0</td><td>0.0242</td><td>0.4938</td><td>0.9226</td><td>0.0</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <h5 class="mt-4">Final Training Metrics (after 5 epochs):</h5>
+                <ul>
+                    <li>Total Training Runtime: ~4098 seconds (~1 hour 8 minutes)</li>
+                    <li>Training Samples per Second: ~25.5</li>
+                    <li>Training Steps per Second: ~1.6</li>
+                    <li>Final Training Loss: 0.1039</li>
+                </ul>
+                <h5>Final Evaluation Metrics (after 5 epochs, likely using best checkpoint from epoch 2):</h5>
+                <ul>
+                    <li>Evaluation Loss: 0.3026 (This matches epoch 2's eval_loss, suggesting it was the best)</li>
+                    <li>Evaluation F1 Score: 0.9239 (This matches epoch 2's eval_f1)</li>
+                    <li>Evaluation Runtime: ~250.5 seconds</li>
+                    <li>Evaluation Samples per Second: ~99.8</li>
+                </ul>
+
+                <h4>Observations and Interpretation</h4>
+                <ul>
+                    <li><strong>Training Progression:</strong> The training loss consistently decreased over epochs (0.1359 $\rightarrow$ 0.0242), indicating the model was learning from the training data.</li>
+                    <li><strong>Evaluation Performance:</strong>
+                        <ul>
+                            <li>The evaluation F1 score peaked at epoch 2 (0.9239) and then remained relatively stable or slightly decreased.</li>
+                            <li>The evaluation loss reached its minimum at epoch 1 (0.2227) and then started to increase from epoch 2 onwards (0.3026 $\rightarrow$ 0.4938).</li>
+                        </ul>
+                    </li>
+                    <li><strong>Overfitting:</strong> The divergence between decreasing training loss and increasing evaluation loss after epoch 1/2 suggests that the model started overfitting to the training data. While F1 score (a classification metric) remained high, the increasing validation loss is a common sign of overfitting.</li>
+                    <li><strong>Best Model:</strong> Based on the evaluation F1 score, the model from epoch 2 would likely be chosen as the best performing model for this task. The final evaluation report confirms this by using metrics from epoch 2.</li>
+                    <li><strong>Learning Rate:</strong> The learning rate was decayed over epochs, which is a standard practice.</li>
+                    <li><strong>Efficiency:</strong> The training throughput was about 25.5 examples/second, while evaluation was faster at ~99.8 examples/second.</li>
+                </ul>
+                <p>These results are typical for a BERT fine-tuning process, showing initial improvement on the validation set followed by potential overfitting if training continues for too long or if regularization is insufficient. Early stopping based on validation F1 or loss would be a common strategy here.</p>
+            </div>
+        </section>
+
+        <section id="lab-bert-advantages-limitations">
+            <h2>3.6. Advantages and Limitations of BERT</h2>
+            <h4>Advantages:</h4>
+            <ul>
+                <li><strong>Deep Bidirectional Context:</strong> Richer language understanding than unidirectional/shallowly bidirectional models.</li>
+                <li><strong>State-of-the-Art Performance:</strong> Set new benchmarks on many NLU tasks.</li>
+                <li><strong>Effective Transfer Learning:</strong> Fine-tunes well with limited task-specific data.</li>
+                <li><strong>Versatility:</strong> Adaptable to many downstream tasks with minimal architectural changes.</li>
+                <li><strong>Improved Handling of Ambiguity:</strong> Deep contextual understanding aids sense disambiguation.</li>
+            </ul>
+            <h4>Limitations:</h4>
+            <ul>
+                <li><strong>Computational Cost:</strong> Pre-training is extremely expensive. Fine-tuning is less so but still demanding.</li>
+                <li><strong>Fixed Sequence Length:</strong> Typically max 512 tokens. Longer docs need truncation or complex strategies (losing long-range context).</li>
+                <li><strong><code>[MASK]</code> Token Discrepancy:</strong> <code>[MASK]</code> used in MLM pre-training isn't present in fine-tuning/inference.</li>
+                <li><strong>Not Natively Generative:</strong> Primarily an encoder for understanding. Decoder models (GPT, Llama) are more natural for free-form generation.</li>
+                <li><strong>NSP Task Efficacy Debate:</strong> Contribution of NSP questioned by some successor models.</li>
+                <li><strong>Domain Specificity:</strong> May need substantial domain-specific fine-tuning or continued pre-training for specialized domains.</li>
+                <li><strong>Interpretability:</strong> Decision-making can be opaque, like many deep neural nets.</li>
+            </ul>
+            <p>
+                BERT was pivotal, setting new standards and inspiring further research into Transformer-based pre-trained models.
+                Understanding its architecture and impact is crucial for modern NLP.
+            </p>
+            <div class="note">
+                <p><strong>Scalability (BERT Lab Insights):</strong> The lab results demonstrate the fine-tuning process. Scalability here refers to the ability to fine-tune on datasets of various sizes. While pre-training is a massive one-time cost, fine-tuning is more accessible. The provided logs show training on 25,000 examples took over an hour, highlighting that even fine-tuning requires non-trivial compute, especially for larger BERT variants or more epochs. The fixed sequence length (512 tokens) remains a practical constraint for very long documents.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals & Labs. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes and "NLP Labs Detailed Notes".</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

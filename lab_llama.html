@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab: Llama - NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #7c3aed; /* Violet-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f5f3ff; /* Violet-50 */ border: 1px solid #ede9fe; /* Violet-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; color: #5b21b6; /* Violet-800 */ }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; }
+        .content-section th { background-color: #f5f3ff; /* Violet-50 */ font-weight: 600; color: #6d28d9; /* Violet-700 */ }
+        .content-section tr:nth-child(even) { background-color: #f5f3ff; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #ede9fe; /* Violet-100 */ color: #6d28d9; /* Violet-700 */ }
+        .nav-link.active { background-color: #7c3aed; /* Violet-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #f5f3ff; /* Violet-50 */ border: 1px solid #ddd6fe; /* Violet-200 */ border-left-width: 4px; border-left-color: #8b5cf6; /* Violet-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #6d28d9; /* Violet-700 */ margin-bottom: 0.5rem; }
+        .lab-results-box { background-color: #fefce8; /* Yellow-50 */ border: 1px solid #fef9c3; /* Yellow-100 */ padding: 1.5rem; margin-top: 1.5rem; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .lab-results-box h4 { font-size: 1.25rem; color: #ca8a04; /* Yellow-600 */ margin-bottom: 1rem; }
+        .lab-results-box pre { background-color: #fffbeb; /* Yellow-50 */ border-color: #fde68a; /* Yellow-200 */ color: #713f12 /* Amber-800 */; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex md:flex-nowrap md:overflow-x-auto space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="regex.html" class="nav-link text-gray-700 block md:inline-block">Regex</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="basic_text_processing_foundations.html" class="nav-link text-gray-700 block md:inline-block">Basic Text Processing</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+                <a href="lab_regex.html" class="nav-link text-gray-700 block md:inline-block">Regex Lab</a>
+                <a href="lab_crf.html" class="nav-link text-gray-700 block md:inline-block">CRF Lab</a>
+                <a href="lab_bert.html" class="nav-link text-gray-700 block md:inline-block">BERT Lab</a>
+                <a href="lab_llama.html" class="nav-link text-gray-700 active block md:inline-block">Llama Lab</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Lab 4: Llama (Large Language Model Meta AI)</h1>
+        <p>
+            Llama (Large Language Model Meta AI) represents a family of large language models (LLMs)
+            developed by Meta AI. These models are known for their strong generative capabilities and
+            have been released in various sizes, with later versions (Llama 2, Llama 3) being made
+            available more openly for research and commercial use, albeit with certain conditions.
+        </p>
+
+        <section id="lab-llama-architecture">
+            <h2>4.1. Llama Architecture</h2>
+            <h3 id="lab-llama-decoder-only">4.1.1. Transformer Decoder-Only Model (Autoregressive Nature)</h3>
+            <p>
+                Llama models are based on the Transformer decoder-only architecture. This makes them
+                inherently autoregressive, generating text one token at a time. The prediction of each
+                subsequent token is conditioned on the sequence of tokens generated thus far, as well
+                as the initial input prompt. Code Llama, a specialized version, also follows this
+                standard Transformer architecture and autoregressive generation.
+            </p>
+
+            <h3 id="lab-llama-components">4.1.2. Key Architectural Components</h3>
+            <p>Llama incorporates several architectural modifications:</p>
+            <ul>
+                <li><strong>SwiGLU Activation Function:</strong> Used in feed-forward network (FFN) layers (often specified as <code>hidden_act="silu"</code>, Sigmoid Linear Unit/Swish). Shown to improve performance.</li>
+                <li><strong>Rotary Positional Embeddings (RoPE):</strong> Injects relative positional information by rotating parts of query/key vectors in self-attention based on absolute positions. Effective for longer sequences. (<code>rope_theta</code> parameter in LlamaConfig).</li>
+                <li><strong>RMSNorm (Root Mean Square Layer Normalization):</strong> Applied before attention blocks and FFNs (pre-normalization). Simpler and more efficient than standard LayerNorm. (<code>rms_norm_eps</code> in LlamaConfig).</li>
+                <li><strong>Grouped-Query Attention (GQA):</strong> In larger Llama 2 models (34B, 70B). Multiple query heads share key/value projections, reducing KV cache size during inference and improving scalability. (<code>num_key_value_heads</code> in LlamaConfig; if < <code>num_attention_heads</code> and > 1). MQA if <code>num_key_value_heads</code> = 1.</li>
+            </ul>
+
+            <h3 id="lab-llama-sizes">4.1.3. Model Sizes and Variations</h3>
+            <ul>
+                <li><strong>Llama 1:</strong> 7B, 13B, 33B, 65B parameters.</li>
+                <li><strong>Llama 2:</strong> 7B, 13B, 70B parameters (34B mentioned). Trained on 40% more data than Llama 1, doubled context length.</li>
+                <li><strong>Llama 3:</strong> Initially 8B, 70B instruct models.</li>
+                <li><strong>Llama 3.1:</strong> 8B, 70B, and 405B parameter models.</li>
+                <li><strong>Llama 3.2:</strong> Includes Mixture-of-Experts (MoE) models like "Scout" (17B active/109B total) and "Maverick" (17B active/400B total).</li>
+                <li><strong>Code Llama:</strong> Specialized for code, 7B, 13B, 34B parameters.</li>
+            </ul>
+        </section>
+
+        <section id="lab-llama-tensors">
+            <h2>4.2. Tensor Dimensions and Key Parameters</h2>
+            <p>Tensor dimensions are characteristic of decoder-only Transformers.</p>
+            <h4>Input Tensors:</h4>
+            <ul>
+                <li><code>input_ids</code>: Shape (batch_size, sequence_length), integer token indices.</li>
+            </ul>
+            <h4>Intermediate Tensors (Conceptual):</h4>
+            <ul>
+                <li>Token Embeddings: Shape (batch_size, sequence_length, hidden_size).</li>
+                <li>Hidden States (output of each decoder layer): Shape (batch_size, sequence_length, hidden_size).</li>
+            </ul>
+            <h4>Output Tensors:</h4>
+            <ul>
+                <li><code>logits</code>: Shape (batch_size, sequence_length, vocab_size), raw prediction scores for each token in vocab, for each position. For generation, logits for the last token are typically used.</li>
+            </ul>
+            <h4>Key Architectural Parameters (Example: Llama 2 7B):</h4>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead><tr><th>Parameter</th><th>Description</th><th>Typical Value (Llama 2 7B)</th></tr></thead>
+                    <tbody>
+                        <tr><td>vocab_size</td><td>Number of unique tokens</td><td>32000</td></tr>
+                        <tr><td>hidden_size</td><td>Dimensionality of hidden representations</td><td>4096</td></tr>
+                        <tr><td>intermediate_size</td><td>Dimensionality of FFN (MLP) layer</td><td>11008</td></tr>
+                        <tr><td>num_hidden_layers</td><td>Number of Transformer decoder layers</td><td>32</td></tr>
+                        <tr><td>num_attention_heads</td><td>Number of attention heads per layer</td><td>32</td></tr>
+                        <tr><td>num_key_value_heads</td><td>Number of key/value heads (for GQA/MQA)</td><td>32 (MHA by default)</td></tr>
+                        <tr><td>max_position_embeddings</td><td>Maximum sequence length</td><td>4096 (Llama 2)</td></tr>
+                        <tr><td>rms_norm_eps</td><td>Epsilon value for RMSNorm</td><td>1e-6 (Llama 1: 1e-5)</td></tr>
+                        <tr><td>rope_theta</td><td>Base period for RoPE</td><td>10000.0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="lab-llama-usage">
+            <h2>4.3. Sequence of Tasks: Utilizing Llama Models</h2>
+            <h3 id="lab-llama-pretrained">4.3.1. Using Pre-trained Models (Foundation Models)</h3>
+            <p>
+                Llama models are pre-trained on massive text datasets (Llama 1: 1.4T tokens, Llama 2: 2T, Llama 3: 15T).
+                These foundation models have substantial general knowledge and can be used directly via prompting.
+            </p>
+
+            <h3 id="lab-llama-prompting">4.3.2. Prompt Engineering: Zero-shot and Few-shot Learning</h3>
+            <ul>
+                <li>
+                    <strong>Zero-shot Learning:</strong> Model given task description/question, generates response without examples.
+                    Llama often exhibits strong zero-shot capabilities.
+                    <div class="example-box"><h5>Example: Zero-shot Translation</h5><p>Prompt: "Translate the following English text to French: 'Hello, world.'"</p></div>
+                </li>
+                <li>
+                    <strong>Few-shot Learning:</strong> Prompt includes a few examples (demonstrations) of the task.
+                    Model performs "in-context learning." Quality depends on example choice, format, distribution.
+                    <div class="example-box">
+                        <h5>Example: Few-shot Sentiment Classification</h5>
+                        <p>Prompt:</p>
+                        <pre><code>Text: "I loved this movie, it was fantastic!" Sentiment: Positive
+Text: "The food was terrible and the service was slow." Sentiment: Negative
+Text: "The product is okay, not great but not bad either." Sentiment:</code></pre>
+                        <p>(Model completes the last sentiment).</p>
+                    </div>
+                    This "in-context learning" is a hallmark of LLMs.
+                </li>
+            </ul>
+
+            <h3 id="lab-llama-finetuning">4.3.3. Fine-tuning Approaches</h3>
+            <p>When prompting is insufficient or specialized behavior is needed:</p>
+            <ul>
+                <li>
+                    <strong>Supervised Fine-Tuning (SFT):</strong> Pre-trained LLM further trained on smaller, task-specific labeled dataset.
+                </li>
+                <li>
+                    <strong>Instruction Tuning:</strong> SFT on (instruction, output) pairs to teach model to follow instructions. Datasets can be human-crafted, transformed from existing NLP datasets, or synthetically generated via LLM distillation (e.g., Alpaca). Improves instruction following, controllability, and domain adaptation.
+                </li>
+                <li>
+                    <strong>Reinforcement Learning from Human Feedback (RLHF):</strong> Advanced fine-tuning to align with human preferences (safety, helpfulness). Llama 2-Chat uses SFT then RLHF.
+                    <ol>
+                        <li>Collect human preference data (ranking model responses).</li>
+                        <li>Train a "reward model" to predict human preferences.</li>
+                        <li>Use reward model to fine-tune LLM with RL (e.g., PPO) to maximize predicted reward.</li>
+                    </ol>
+                </li>
+            </ul>
+            <p>Frameworks like LlamaFactory aim to simplify efficient fine-tuning (LoRA, Freeze-tuning).</p>
+            <div class="note">
+                <p><strong>Scalability (Llama Usage):</strong> Using pre-trained Llama for inference (prompting) depends on model size and sequence length; larger models/longer sequences require more GPU memory/compute. Fine-tuning is less costly than pre-training but still significant, especially for large Llama variants or extensive SFT/RLHF. Techniques like LoRA or QLoRA (Quantized LoRA) are crucial for making fine-tuning accessible with limited resources by only updating a small subset of parameters.</p>
+            </div>
+        </section>
+
+        <section id="lab-llama-apps">
+            <h2>4.4. Common Applications</h2>
+            <p>Llama models are applied to diverse NLP tasks:</p>
+            <ul>
+                <li>Text Generation (creative writing, emails, marketing copy)</li>
+                <li>Summarization</li>
+                <li>Translation (primarily English-centric, performance varies)</li>
+                <li>Chatbots and Conversational AI (Llama 2-Chat)</li>
+                <li>Code Generation and Understanding (Code Llama)</li>
+                <li>Reasoning Tasks (problem-solving, logical deduction)</li>
+                <li>Question Answering</li>
+            </ul>
+        </section>
+
+        <section id="lab-llama-experiment-results">
+            <h2>4.6. Llama Lab Experiment Insights</h2>
+            <p>The lab experiments involved interacting with a Llama model, likely a smaller variant, to observe its generative capabilities and architecture details. Key observations from typical Llama lab explorations include:</p>
+
+            <div class="lab-results-box">
+                <h4>Batch Instruction Responses:</h4>
+                <p>The model was prompted with a batch of diverse instructions. Here's a summary of the responses:</p>
+                <div class="example-box">
+                    <h5>Prompt: "Tell me about alpacas."</h5>
+                    <pre><code>--- Response for: Tell me about alpacas. ---
+Inferred Answer:
+Alpacas are a type of camelid that originated in the Andes Mountains of South America. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are smaller. Alpacas are very similar to llamas, but alpacas are ...</code></pre>
+                    <p><em>Observation: The model starts with a factual statement but then falls into a repetitive loop, a common issue with some generative models if not properly constrained or if decoding parameters (like temperature) are too low.</em></p>
+                </div>
+                <div class="example-box">
+                    <h5>Prompt: "What is the capital of France?"</h5>
+                    <pre><code>--- Response for: What is the capital of France? ---
+Inferred Answer:
+The capital of France is Paris.
+### Explanation:
+The capital of France is Paris. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is the capital of France. Paris is ...</code></pre>
+                    <p><em>Observation: The model correctly answers the question but then includes an "Explanation" section that also becomes highly repetitive. This indicates the model might be trying to elaborate or provide justification but gets stuck.</em></p>
+                </div>
+                <div class="example-box">
+                    <h5>Prompt: "Summarize the plot of 'Romeo and Juliet' in three sentences."</h5>
+                    <pre><code>--- Response for: Summarize the plot of 'Romeo and Juliet' in three sentences. ---
+Inferred Answer:
+Romeo and Juliet is a tragedy written by William Shakespeare in 1595. The plot of the play revolves around two star-crossed lovers, Romeo Montague and Juliet Capulet. Romeo and Juliet fall in love with each other, but their families do not approve of their relationship. Romeo and Juliet's families are feuding with each other. Romeo's family is Montague and Juliet's family is Capulet. Romeo and Juliet's families are feuding with each other. Romeo's family is Montague and Juliet's family is Capulet. Romeo and Juliet's families are feuding with each other. Romeo's family is Montague and Juliet's family is Capulet. Romeo and Juliet's families are feuding with each other. Romeo's family is Montague and Juliet's family is Capulet. Romeo and Juliet's families are feuding with each other. Romeo's family is Montague and Juliet's ...</code></pre>
+                    <p><em>Observation: The model starts with a good summary but exceeds the three-sentence constraint and then also falls into repetition, restating facts about the feuding families. This highlights challenges in adhering to length constraints and maintaining novelty in generation.</em></p>
+                </div>
+            </div>
+
+            <div class="lab-results-box">
+                <h4>Model Architecture & Tensor Exploration:</h4>
+                <p>The lab involved exploring the architecture of a Llama model, likely a smaller version (e.g., 3B parameters suggested by 3200 hidden size and 26 layers, though parameters are not explicitly stated in this output). Key details from the exploration:</p>
+                <pre><code>--- Model Architecture ---
+LlamaForCausalLM(
+  (model): LlamaModel(
+    (embed_tokens): Embedding(32000, 3200, padding_idx=0)
+    (layers): ModuleList(
+      (0-25): 26 x LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=3200, out_features=3200, bias=False)
+          (k_proj): Linear(in_features=3200, out_features=3200, bias=False)
+          (v_proj): Linear(in_features=3200, out_features=3200, bias=False)
+          (o_proj): Linear(in_features=3200, out_features=3200, bias=False)
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=3200, out_features=8640, bias=False)
+          (up_proj): Linear(in_features=3200, out_features=8640, bias=False)
+          (down_proj): Linear(in_features=8640, out_features=3200, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((3200,), eps=1e-06)
+        (post_attention_layernorm): LlamaRMSNorm((3200,), eps=1e-06)
+      )
+    )
+    (norm): LlamaRMSNorm((3200,), eps=1e-06)
+    (rotary_emb): LlamaRotaryEmbedding()
+  )
+  (lm_head): Linear(in_features=3200, out_features=32000, bias=False)
+)
+
+--- Embedding Layer (model.model.embed_tokens) ---
+Embedding(32000, 3200, padding_idx=0)
+Number of decoder layers (model.model.layers): 26
+
+--- First Decoder Layer (model.model.layers[0]) ---
+LlamaDecoderLayer(
+  (self_attn): LlamaAttention(...)
+  (mlp): LlamaMLP(...)
+  (input_layernorm): LlamaRMSNorm((3200,), eps=1e-06)
+  (post_attention_layernorm): LlamaRMSNorm((3200,), eps=1e-06)
+)
+
+--- Tensor Exploration ---
+Input for Embedding Layer (Vocab Index 1):
+Input tensor (indices): tensor([1], device='cuda:0'), Shape: torch.Size([1])
+Output from Embedding Layer (Vocab Index 1):
+Shape: torch.Size([1, 3200]), Content (repr): tensor([[ 0.0103,  0.0029,  0.0006, ...]], device='cuda:0', dtype=torch.float16)
+
+Output from lm_head (logits):
+Shape: torch.Size([1, 32000]), Content (repr): tensor([[ 0.0027, -0.0108, -0.0024, ...]], device='cuda:0', dtype=torch.float16)
+                </code></pre>
+                <p><strong>Architectural Observations:</strong></p>
+                <ul>
+                    <li>The model is indeed a <code>LlamaForCausalLM</code>, confirming its decoder-only, autoregressive nature.</li>
+                    <li><strong>Embedding Layer:</strong> Vocabulary size of 32000, embedding dimension (hidden size) of 3200.</li>
+                    <li><strong>Decoder Layers:</strong> 26 decoder layers are present. Each layer contains self-attention and MLP blocks, with LlamaRMSNorm for normalization. The MLP uses SiLU (SwiGLU variant) activation.</li>
+                    <li><strong>LM Head:</strong> A final linear layer maps the hidden state (3200 dimensions) to vocabulary logits (32000 dimensions).</li>
+                    <li><strong>Tensor Flow:</strong> The exploration shows how a token index is converted to a dense embedding, processed through layers (details of self-attn and MLP outputs shown for one path), and finally results in logits over the vocabulary.</li>
+                </ul>
+                <p><em>Lab Interpretation: These architectural details align with known Llama configurations. The tensor exploration demonstrates the data flow from discrete token IDs to continuous vector representations and finally to output probabilities for the next token. The repetitive generation observed in the batch instructions could be due to the specific model variant used, its fine-tuning state (or lack thereof for general tasks), or the decoding strategy employed (e.g., greedy decoding or low temperature leading to less randomness).</em></p>
+            </div>
+        </section>
+
+        <section id="lab-llama-advantages-limitations">
+            <h2>4.5. Advantages and Limitations</h2>
+            <h4>Advantages:</h4>
+            <ul>
+                <li><strong>Strong Generative Abilities:</strong> Coherent, contextually relevant, human-quality text.</li>
+                <li><strong>Few-shot and Zero-shot Learning:</strong> Performs tasks with minimal/no examples via pre-trained knowledge.</li>
+                <li><strong>Openness (Llama 2 & 3 with caveats):</strong> Fosters research and accessibility (but with restrictions for large companies/training other LLMs).</li>
+                <li><strong>Improved Safety/Helpfulness (Llama 2-Chat):</strong> Via instruction tuning and RLHF.</li>
+                <li><strong>Efficiency for Size:</strong> Often competitive performance for their parameter count.</li>
+                <li><strong>Increased Context Length:</strong> Later versions support longer contexts (Llama 2: 4096 tokens, Llama 3.1: up to 10M).</li>
+                <li><strong>Specialized Versions:</strong> E.g., Code Llama for programming.</li>
+            </ul>
+            <h4>Limitations:</h4>
+            <ul>
+                <li><strong>Hallucinations:</strong> Can generate factually incorrect or nonsensical text confidently. High-certainty hallucinations are a challenge.</li>
+                <li><strong>Bias:</strong> Can reflect/amplify societal biases from training data.</li>
+                <li><strong>Computational Resources:</strong> Training and inference for larger models require substantial GPU/memory.</li>
+                <li><strong>Safety Concerns:</strong> Can generate harmful content or be misused despite safety tuning. "Acceptable Use Policy" for Llama 2.</li>
+                <li><strong>Knowledge Cutoff:</strong> Knowledge limited to training data period. No real-time info.</li>
+                <li><strong>Language Dominance:</strong> Primarily English-trained; weaker for other languages.</li>
+                <li><strong>Overly Cautious Responses:</strong> Side effect of safety tuning.</li>
+                <li><strong>Transparency/Reproducibility:</strong> Complex fine-tuning (RLHF) can lack transparency.</li>
+            </ul>
+            <p>
+                The "open" release of Llama models, while fostering innovation, also means derivatives can be
+                created without the same safety testing, necessitating responsible development practices.
+            </p>
+             <div class="note">
+                <p><strong>Scalability (Llama Lab Insights):</strong> The lab would focus on interacting with Llama models (prompting, possibly fine-tuning smaller versions if resources allow). The key scalability insight is the trade-off between model size (7B, 13B, 70B, etc.) and performance vs. computational cost (GPU memory for loading weights, inference speed). Techniques like quantization and efficient fine-tuning methods (LoRA) are essential for making these large models usable in practice on less powerful hardware. The context window length is also a scalability factor for processing long documents. The observed repetitive outputs in the lab might also relate to simple decoding strategies used for efficiency, which can be improved with more sophisticated sampling methods at a higher computational cost.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals & Labs. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes and "NLP Labs Detailed Notes".</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
