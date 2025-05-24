@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regular Expressions (Regex) - NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #d97706; /* Amber-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code.regex { background-color: #fef3c7; /* Amber-100 */ color: #b45309; /* Amber-700 */ padding: 0.2em 0.4em; border-radius: 3px; font-family: 'Courier New', Courier, monospace; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #fef3c7; /* Amber-100 */ color: #b45309; /* Amber-700 */ }
+        .nav-link.active { background-color: #d97706; /* Amber-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #fffbeb; /* Amber-50 */ border: 1px solid #fde68a; /* Amber-200 */ border-left-width: 4px; border-left-color: #f59e0b; /* Amber-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #b45309; /* Amber-700 */ margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="regex.html" class="nav-link text-gray-700 block md:inline-block">Regex</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="basic_text_processing_foundations.html" class="nav-link text-gray-700 block md:inline-block">Basic Text Processing</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Section 1.1: Regular Expressions (Regex)</h1>
+        <p>
+            Regular expressions, commonly abbreviated as regex, constitute a formal language designed for
+            specifying text strings. Their primary function is to enable sophisticated pattern matching
+            within textual data. Regex operates as a deterministic tool, meaning it follows explicitly
+            defined instructions to produce predictable outputs, without reliance on statistical models
+            or complex learning algorithms.
+        </p>
+        <p>
+            The utility of regular expressions is widespread in Natural Language Processing (NLP) and
+            general text manipulation. They offer a concise and highly efficient method for describing
+            search patterns and executing text processing operations that would otherwise necessitate
+            more elaborate and verbose programming. Regex is fundamental for tasks such as data validation,
+            information extraction from unstructured or semi-structured text, and the implementation of
+            rule-based components within larger NLP systems. Common applications include preprocessing
+            text by removing punctuation or normalizing case, extracting specific data formats like
+            phone numbers or email addresses, and performing find-and-replace operations based on
+            defined patterns.
+        </p>
+
+        <section id="regex-syntax">
+            <h2>Core Syntax and Concepts</h2>
+            <p>The syntax of regular expressions is built upon a set of core components and conventions that allow for the definition of complex search patterns.</p>
+
+            <h3>Basic Patterns (Literals)</h3>
+            <p>The simplest form of a regular expression involves literal characters. Most characters in a regex pattern match themselves directly in the input text. For example, the regex <code class="regex">/hello/</code> will find and match the exact sequence of characters "hello". Sequences of such literal regexps match corresponding sequences of characters.</p>
+
+            <h3>Character Sets <code class="regex">[]</code></h3>
+            <p>Square brackets are used to define a character set, representing a disjunction where any single character within the set can cause a match at that position.</p>
+            <ul>
+                <li><code class="regex">/[abc]/</code>: This pattern will match a single occurrence of 'a', 'b', or 'c'.</li>
+                <li><code class="regex">/[A-Z]/</code>: This matches any single uppercase letter from 'A' to 'Z'. The dash <code class="regex">-</code> within square brackets indicates a range of characters.</li>
+                <li><code class="regex">/[0-9]/</code>: Similarly, this matches any single digit from '0' to '9'.</li>
+            </ul>
+
+            <h3>Negation <code class="regex">[^...]</code></h3>
+            <p>If the caret <code class="regex">^</code> is the first character immediately following the opening square bracket, it signifies negation. The set will then match any character that is not explicitly listed or included in the specified range within the brackets. For instance, <code class="regex">/[^0-9]/</code> will match any character that is not a digit. <code class="regex">/[^aeiou]/</code> would match any non-lowercase vowel character.</p>
+
+            <h3>Predefined Character Classes (Aliases)</h3>
+            <p>For convenience, regex provides shorthand aliases for commonly used character sets, typically involving a backslash followed by a character.</p>
+            <ul>
+                <li><code class="regex">\d</code>: Matches any digit. Equivalent to <code class="regex">[0-9]</code>.</li>
+                <li><code class="regex">\D</code>: Matches any non-digit character. Equivalent to <code class="regex">[^0-9]</code>.</li>
+                <li><code class="regex">\w</code>: Matches any "word character" (alphanumeric plus underscore). Equivalent to <code class="regex">[a-zA-Z0-9_]</code>.</li>
+                <li><code class="regex">\W</code>: Matches any non-word character.</li>
+                <li><code class="regex">\s</code>: Matches any whitespace character (space, tab <code class="regex">\t</code>, newline <code class="regex">\n</code>, carriage return <code class="regex">\r</code>, form feed <code class="regex">\f</code>).</li>
+                <li><code class="regex">\S</code>: Matches any non-whitespace character.</li>
+            </ul>
+
+            <h3>Wildcard <code class="regex">.</code></h3>
+            <p>The dot (or period) character acts as a wildcard, matching any single character except for a newline character. For example, the pattern <code class="regex">/beg.n/</code> would match "begin", "began", "begun", or "beg'n".</p>
+
+            <h3>Anchors</h3>
+            <p>Anchors are special metacharacters that assert a condition about the position in the string where a match must occur, but do not match characters themselves.</p>
+            <ul>
+                <li><code class="regex">^</code>: Matches the beginning of a line (or string, depending on mode).</li>
+                <li><code class="regex">$</code>: Matches the end of a line (or string, depending on mode).</li>
+                <li><code class="regex">\b</code>: Matches a word boundary (position between <code class="regex">\w</code> and <code class="regex">\W</code>, or string ends). E.g., <code class="regex">/\bcat\b/</code> matches "cat" in "the cat sat" but not in "catalog".</li>
+                <li><code class="regex">\B</code>: Matches a non-word boundary.</li>
+            </ul>
+
+            <h3>Repetition Operators (Quantifiers)</h3>
+            <p>Quantifiers specify how many times the preceding item must occur.</p>
+            <ul>
+                <li><code class="regex">?</code>: Optional (zero or one time). E.g., <code class="regex">/colou?r/</code> matches "color" and "colour".</li>
+                <li><code class="regex">*</code> (Kleene Star): Zero or more times. E.g., <code class="regex">/ab*c/</code> matches "ac", "abc", "abbc".</li>
+                <li><code class="regex">+</code> (Kleene Plus): One or more times. E.g., <code class="regex">/ab+c/</code> matches "abc", "abbc", but not "ac".</li>
+                <li><code class="regex">{n}</code>: Exactly n times. E.g., <code class="regex">/a{3}/</code> matches "aaa".</li>
+                <li><code class="regex">{n,m}</code>: At least n, no more than m times. E.g., <code class="regex">/\d{2,4}/</code> matches 2 to 4 digits.</li>
+                <li><code class="regex">{n,}</code>: n or more times.</li>
+            </ul>
+
+            <h3>Greedy vs. Non-Greedy (Lazy) Matching</h3>
+            <p>By default, quantifiers are "greedy" (match longest possible string). E.g., <code class="regex">/.+!/</code> on "Hooray! Hooray! Hooray!" matches the whole string.
+            To make them "non-greedy" (match shortest possible), append <code class="regex">?</code> to the quantifier (e.g., <code class="regex">*?</code>, <code class="regex">+?</code>). E.g., <code class="regex">/.+?!/</code> on the same string matches only "Hooray!".</p>
+
+            <h3>Grouping and Capturing <code class="regex">()</code></h3>
+            <p>Parentheses serve two purposes:</p>
+            <ol>
+                <li><strong>Grouping:</strong> Apply quantifiers/alternation to a sequence. E.g., <code class="regex">/(very )*cool/</code> matches "cool", "very cool".</li>
+                <li><strong>Capturing:</strong> Matched substring is captured. Can be accessed by number (e.g., <code class="regex">\1</code>) or name. E.g., <code class="regex">/I am a (\w+) person, do you like \1s?/</code> matches "I am a cat person, do you like cats?".</li>
+            </ol>
+            <p><strong>Non-capturing group <code class="regex">(?:...)</code>:</strong> Groups without capturing. E.g., <code class="regex">/(?:[a-z]\.)+/</code> matches "a.b.c." without capturing "a.", "b.", "c." individually.</p>
+
+            <h3>Alternation <code class="regex">|</code> (OR operator)</h3>
+            <p>Matches expression to its left OR right. E.g., <code class="regex">/cat|dog/</code> matches "cat" or "dog". Lower precedence than concatenation; use grouping for clarity: <code class="regex">/(gr(a|e)y)/</code> or <code class="regex">/(gray|grey)/</code>, not <code class="regex">/gra|ey/</code>.</p>
+
+            <h3>Special Escape Characters <code class="regex">\</code></h3>
+            <p>Metacharacters (e.g., <code class="regex">* . ( ) [ ] \ ^ $ |</code>) must be escaped with <code class="regex">\</code> to match literally (e.g., <code class="regex">/\./</code> for a period, <code class="regex">/\\/</code> for a backslash). Also introduces predefined classes (<code class="regex">\d</code>) and anchors (<code class="regex">\b</code>). In Python, use raw strings (e.g., <code class="regex">r"\d+"</code>).</p>
+
+            <h3>Lookaround Assertions</h3>
+            <p>Zero-width assertions; match position based on what precedes/follows, but don't consume characters.</p>
+            <ul>
+                <li><strong>Positive Lookahead <code class="regex">(?=...)</code>:</strong> Asserts subpattern <code class="regex">...</code> must match after current position. E.g., <code class="regex">/Windows (?=NT|XP)/</code> matches "Windows " if followed by "NT" or "XP".</li>
+                <li><strong>Negative Lookahead <code class="regex">(?!...)</code>:</strong> Asserts subpattern <code class="regex">...</code> must NOT match after current position. E.g., <code class="regex">/Windows (?!NT|XP)/</code>.</li>
+                <li><strong>Positive Lookbehind <code class="regex">(?&lt;=...)</code>:</strong> Asserts subpattern <code class="regex">...</code> must match before current position. E.g., <code class="regex">/(?&lt;=USD)\d+/</code> matches "100" in "USD100".</li>
+                <li><strong>Negative Lookbehind <code class="regex">(?&lt;!...)</code>:</strong> Asserts subpattern <code class="regex">...</code> must NOT match before current position. E.g., <code class="regex">/(?&lt;!\d)\d{3}/</code> matches "123" in "abc123xyz".</li>
+            </ul>
+            <div class="example-box">
+                <h5>Example: Lookaround for Password Validation</h5>
+                <p>To check a password (8-16 alphanumeric chars, >=1 digit, exactly 3 uppercase letters):</p>
+                <pre><code class="regex">^(?=.*\d)(?=(?:[^A-Z]*[A-Z]){3}[^A-Z]*$)\w{8,16}$</code></pre>
+                <p><strong>Breakdown:</strong></p>
+                <ul>
+                    <li><code class="regex">^</code>: Start of string.</li>
+                    <li><code class="regex">(?=.*\d)</code>: Positive lookahead for at least one digit.</li>
+                    <li><code class="regex">(?=(?:[^A-Z]*[A-Z]){3}[^A-Z]*$)</code>: Positive lookahead for exactly three uppercase letters.
+                        <ul>
+                            <li><code class="regex">(?:[^A-Z]*[A-Z])</code>: Non-capturing group: zero or more non-uppercase, then one uppercase.</li>
+                            <li><code class="regex">{3}</code>: The group occurs three times.</li>
+                            <li><code class="regex">[^A-Z]*$</code>: After 3rd uppercase, no more uppercase until end.</li>
+                        </ul>
+                    </li>
+                    <li><code class="regex">\w{8,16}</code>: Matches 8 to 16 word characters (the password itself).</li>
+                    <li><code class="regex">$</code>: End of string.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="regex-nlp-tasks">
+            <h2>Use in NLP Tasks</h2>
+            <p>Regular expressions are indispensable for a variety of foundational NLP tasks.</p>
+            <h4>Pattern Matching:</h4>
+            <ul>
+                <li><strong>Information Extraction:</strong> Identifying phone numbers, email addresses (<code class="regex">j.williams@soton.ac.uk</code>), IP addresses (<code class="regex">192.168.123.132</code>), dates.</li>
+                <li><strong>Finding Keywords/Phrases:</strong> Locating specific words or variations (e.g., "color" or "colour").</li>
+            </ul>
+            <h4>Text Normalization:</h4>
+            <ul>
+                <li><strong>Removing Punctuation:</strong> E.g., <code class="regex">/[^\w\s]/</code> removes non-word/non-whitespace characters.</li>
+                <li><strong>Replacing Typos/Variations:</strong> E.g., <code class="regex">sed -i 's/semget1/segment1/g'</code>.</li>
+            </ul>
+            <h4>Other Uses:</h4>
+            <ul>
+                <li><strong>File Processing:</strong> Splitting files, finding/replacing filenames.</li>
+                <li><strong>Code Manipulation:</strong> Replacing variable names.</li>
+            </ul>
+        </section>
+
+        <section id="regex-limitations">
+            <h2>Limitations of Pattern Matching (Regex)</h2>
+            <ul>
+                <li><strong>Complexity:</strong> Can become difficult to write, read, and debug for very complex patterns.</li>
+                <li><strong>Not for Parsing Structured Languages:</strong> Unsuitable for languages with arbitrary nesting (HTML, XML). Requires more powerful parsers.</li>
+                <li><strong>Ambiguity and Nuance:</strong> Cannot understand semantic meaning or context (e.g., distinguishing "bank" financial vs. "bank" river side).</li>
+                <li><strong>Overlapping Matches:</strong> Behavior can be complex and engine-dependent.</li>
+                <li><strong>Performance:</strong> Poorly written or overly complex regex can be slow on very large inputs.</li>
+                <li><strong>Maintenance:</strong> Hard to maintain complex regex.</li>
+            </ul>
+            <p>Despite limitations, regex remains a cornerstone of text processing.</p>
+            <div class="note">
+                <p><strong>Scalability (Regex):</strong> Regex engines are generally highly optimized (often implemented in C). Simple patterns are very fast. Complex patterns, especially those with nested quantifiers, extensive backtracking, or many alternations, can lead to "catastrophic backtracking" and poor performance on certain inputs. Careful regex design is crucial for scalability. For very large-scale text processing, applying regex line-by-line or in chunks is common.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
