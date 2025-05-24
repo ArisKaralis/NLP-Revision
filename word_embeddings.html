@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Embeddings - Neural NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #dc2626; /* Red-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #fee2e2; /* Red-100 */ color: #b91c1c; /* Red-700 */ }
+        .nav-link.active { background-color: #dc2626; /* Red-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #fff1f2; /* Red-50 */ border: 1px solid #fecdd3; /* Red-200 */ border-left-width: 4px; border-left-color: #f43f5e; /* Red-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #be123c; /* Red-700 */ margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 active block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Section 2.1: Word Embeddings – Capturing Semantic Meaning</h1>
+        <p>
+            Word embeddings are a cornerstone of modern NLP, providing a way to represent words as
+            dense vectors that capture their semantic and syntactic properties. They mark a significant
+            shift from sparse representations like one-hot encoding.
+        </p>
+
+        <section id="sparse-to-dense">
+            <h2>From Sparse to Dense Representations</h2>
+            <h4>One-Hot Encoding:</h4>
+            <p>
+                Traditionally, words were often represented using one-hot encoding. In this scheme, each
+                word in the vocabulary is assigned a unique index, and its vector representation is a
+                binary vector with a '1' at that index and '0's everywhere else. The dimensionality
+                of these vectors is equal to the size of the vocabulary.
+            </p>
+            <p><strong>Limitations:</strong></p>
+            <ul>
+                <li>Extremely sparse and high-dimensional, especially for large vocabularies.</li>
+                <li>Fails to capture any notion of semantic similarity; the dot product between any two distinct one-hot word vectors is zero (e.g., "cat" and "dog" are as unrelated as "cat" and "democracy").</li>
+                <li>Suffers from the "curse of dimensionality" and doesn't provide a useful semantic representation for neural models.</li>
+            </ul>
+
+            <h4>Dense Embeddings (Word Embeddings):</h4>
+            <p>
+                In contrast, dense embeddings represent words as short (e.g., 50 to 300 dimensions, though modern LLMs use much larger dimensions like 4096 for Llama 2) real-valued vectors. These vectors are "dense" because most of their components are non-zero.
+            </p>
+            <p>
+                The key idea is that these embeddings are learned from large amounts of text data in such a way that words with similar meanings or that appear in similar contexts will have similar embedding vectors (i.e., their vectors will be close together in the embedding space).
+            </p>
+            <p><strong>Advantages:</strong></p>
+            <ul>
+                <li>Capture semantic relationships (e.g., "king" is to "queen" as "man" is to "woman").</li>
+                <li>Computationally more efficient to work with than sparse vectors.</li>
+                <li>Provide a much richer semantic representation for downstream NLP tasks.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability (Dense Embeddings):</strong> Learning dense embeddings requires processing large text corpora. The size of the embedding matrix is Vocabulary Size × Embedding Dimension. While the dimension is much smaller than one-hot encoding, a large vocabulary still results in many parameters. Efficient training algorithms and distributed computing are often necessary for very large datasets. Once learned, using these embeddings is generally efficient.</p>
+            </div>
+        </section>
+
+        <section id="word2vec">
+            <h2>Word2Vec (Skip-gram with Negative Sampling - SGNS)</h2>
+            <p>
+                Word2Vec is a highly influential suite of models for learning word embeddings from raw text.
+                The Skip-gram model, particularly when trained with Negative Sampling (SGNS), is a popular variant.
+            </p>
+            <h4>Core Idea:</h4>
+            <p>
+                The Skip-gram model learns word embeddings by training a neural network to predict the context
+                words (surrounding words) given a target word. The underlying principle is the
+                <strong>distributional hypothesis</strong>: words that appear in similar contexts tend to have similar meanings.
+            </p>
+            <h4>Architecture:</h4>
+            <ul>
+                <li><strong>Input:</strong> A target word $w$.</li>
+                <li><strong>Output:</strong> The model aims to predict context words $c$ that are likely to appear within a defined window (e.g., $L$ words to the left and right) of the target word $w$.</li>
+                <li><strong>Two Embedding Matrices:</strong> Word2Vec uses two distinct embedding matrices ($|V| \times d$):
+                    <ul>
+                        <li>$W$ (Target/Input Embeddings): Vector for word $i$ as target.</li>
+                        <li>$C$ (Context/Output Embeddings): Vector for word $j$ as context.
+                        Typically, $W$ is used as the final word embeddings.</li>
+                    </ul>
+                </li>
+            </ul>
+            <h4>Training Principle (SGNS):</h4>
+            <ul>
+                <li><strong>Positive Examples:</strong> For a target word $w$, its actual context words $c_{pos}$ (within its window) serve as positive examples. The model aims to increase $P(+|w, c_{pos})$.</li>
+                <li><strong>Negative Examples:</strong> For each positive $(w, c_{pos})$ pair, $k$ "noise" or negative context words $(c_{neg_i})$ are randomly sampled from the vocabulary.</li>
+                <li><strong>Probability $P(+|w,c)$ (word $c$ is true context for $w$):</strong> Modeled using the dot product of their embeddings, passed through a sigmoid: $P(+|w,c) = \sigma(c \cdot w) = \frac{1}{1+e^{-(c \cdot w)}}$. Probability $P(-|w,c) = 1 - P(+|w,c) = \sigma(-(c \cdot w))$.</li>
+                <li><strong>Negative Sampling Distribution:</strong> Negative samples are often drawn using a weighted unigram frequency $P_\alpha(w') = \frac{\text{count}(w')^\alpha}{\sum_{w''} \text{count}(w'')^\alpha}$, with $\alpha=0.75$ being common. This gives frequent words a higher chance but boosts less frequent words relative to raw counts.</li>
+                <li><strong>Loss Function (Cross-Entropy based):</strong> Minimize negative log-likelihood:
+                $$L_{CE} = - \left[ \log P(+|w, c_{pos}) + \sum_{i=1}^{k} \log P(-|w, c_{neg_i}) \right]$$
+                $$L_{CE} = - \left[ \log \sigma(c_{pos} \cdot w) + \sum_{i=1}^{k} \log \sigma(-c_{neg_i} \cdot w) \right]$$
+                This encourages $w$ to be similar to $c_{pos}$ and dissimilar to $c_{neg_i}$.</li>
+            </ul>
+            <h4>Semantic Properties:</h4>
+            <ul>
+                <li><strong>Analogies:</strong> Captures linguistic regularities via vector arithmetic (e.g., $\vec{king} - \vec{man} + \vec{woman} \approx \vec{queen}$). Works best for frequent words and smaller context windows.</li>
+            </ul>
+            <h4>Context Window Size (L):</h4>
+            <ul>
+                <li><strong>Small L (e.g., 2-4 words each side):</strong> Captures more syntactic similarity and functionally similar words (e.g., "dog", "cat"). Better for analogies based on specific roles.</li>
+                <li><strong>Larger L (e.g., 5+ words each side):</strong> Captures broader topical relationships (e.g., "doctor", "hospital", "patient").</li>
+            </ul>
+             <div class="example-box">
+                <h5>Simplified Example: Word2Vec Analogy</h5>
+                <p>If we have vectors for "Paris", "France", and "Berlin", then $\vec{Paris} - \vec{France} + \vec{Germany}$ might result in a vector very close to $\vec{Berlin}$.</p>
+            </div>
+            <h4>Bias:</h4>
+            <p>
+                Word embeddings can learn and amplify societal biases present in the training data (e.g., gender stereotypes). Addressing this is an active research area.
+            </p>
+            <div class="note">
+                <p><strong>Scalability (Word2Vec SGNS):</strong> Training involves iterating through the corpus. Negative sampling makes it much more efficient than methods requiring softmax over the entire vocabulary. The complexity is roughly proportional to Corpus Size × Window Size × Embedding Dimension × (1 + Num Negative Samples). It's designed to be scalable to very large corpora.
+                </p>
+            </div>
+        </section>
+
+        <section id="glove">
+            <h2>GloVe (Global Vectors for Word Representation)</h2>
+            <p>
+                GloVe learns word embeddings by directly leveraging global word-word co-occurrence statistics
+                from the entire corpus.
+            </p>
+            <h4>Core Idea:</h4>
+            <p>
+                Combines advantages of global matrix factorization (like LSA) and local context window methods (like Word2Vec). It posits that ratios of co-occurrence probabilities hold meaningful information.
+            </p>
+            <h4>Mechanism:</h4>
+            <ul>
+                <li><strong>Co-occurrence Matrix ($X$):</strong> $X_{ij}$ is the number of times word $j$ (context) appears in the context of word $i$ (target).</li>
+                <li><strong>Focus on Co-occurrence Ratios:</strong> For words $i, j$ and probe word $k$, ratios like $P(k|i)/P(k|j)$ encode meaning. E.g., if $i$=ice, $j$=steam:
+                    <ul>
+                        <li>$k$=solid: ratio is large.</li>
+                        <li>$k$=gas: ratio is small.</li>
+                        <li>$k$=water or $k$=fashion: ratio is close to 1.</li>
+                    </ul>
+                </li>
+                <li><strong>Model Formulation:</strong> Learns word vectors $w_i, \tilde{w}_k$ (target and context) and biases $b_i, \tilde{b}_k$ such that $w_i^T \tilde{w}_k + b_i + \tilde{b}_k \approx \log(X_{ik})$.</li>
+                <li><strong>Loss Function (Weighted Least Squares):</strong>
+                $$J = \sum_{i,j=1}^{|V|} f(X_{ij}) (w_i^T \tilde{w}_j + b_i + \tilde{b}_j - \log X_{ij})^2$$
+                The weighting function $f(X_{ij})$ gives zero weight if $X_{ij}=0$, down-weights very frequent co-occurrences, and gives more weight to less frequent meaningful co-occurrences. A common $f(x) = (x/x_{max})^\alpha$ if $x < x_{max}$, else 1 (e.g., $x_{max}=100, \alpha=3/4$).</li>
+            </ul>
+            <h4>Comparison to Skip-gram:</h4>
+            <ul>
+                <li><strong>Global vs. Local Statistics:</strong> Word2Vec learns from local windows; GloVe directly incorporates global co-occurrence counts.</li>
+                <li><strong>Training Efficiency:</strong> GloVe trains on aggregated counts, potentially more efficient for very large corpora. Complexity depends on non-zero elements in $X$.</li>
+                <li><strong>Performance:</strong> Both produce high-quality embeddings; relative performance varies. GloVe's use of global stats is often cited as an advantage for broader semantics.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability (GloVe):</strong> Building the co-occurrence matrix $X$ requires a full pass over the corpus (scalable with MapReduce). Training involves optimizing the loss over the non-zero entries of $X$, which is often much smaller than the vocabulary squared. This makes GloVe efficient for large datasets.
+                </p>
+            </div>
+        </section>
+
+        <section id="fasttext">
+            <h2>FastText (Enriching Word Vectors with Subword Information)</h2>
+            <p>
+                FastText extends Word2Vec (skip-gram) by incorporating subword information, making it
+                effective for morphologically rich languages and OOV words.
+            </p>
+            <h4>Core Idea:</h4>
+            <p>
+                Represents a word as a bag of its character n-grams, plus the word itself. The word's vector
+                is the sum of its constituent character n-gram vectors.
+            </p>
+            <h4>Mechanism:</h4>
+            <ul>
+                <li><strong>Character n-gram Extraction:</strong> For each word, character n-grams (e.g., 3 to 6 chars) are extracted. Boundary symbols (&lt;, &gt;) are often added (e.g., "where" with n=3: &lt;wh, whe, her, ere, re&gt;, and &lt;where&gt;).</li>
+                <li><strong>Vector Representation:</strong> Each unique character n-gram (and whole word) has its own vector.</li>
+                <li><strong>Word Vector Composition:</strong> Vector for word $w$ is $\sum_{g \in G_w} \vec{z_g}$, where $G_w$ are its n-grams.</li>
+                <li><strong>Skip-gram Adaptation:</strong> Score $s(w,c) = \sum_{g \in G_w} \vec{z_g}^T \vec{v_c}$.</li>
+                <li><strong>Hashing Trick:</strong> Maps n-grams to a fixed number of buckets to bound model size.</li>
+            </ul>
+            <h4>Advantages:</h4>
+            <ul>
+                <li><strong>OOV Handling:</strong> Can generate vectors for OOV words from their n-grams.</li>
+                <li><strong>Morphologically Rich Languages:</strong> Performs well (e.g., Turkish, German) as inflected forms share n-grams (e.g., "run", "runs", "running").</li>
+                <li><strong>Rare Words:</strong> Better representations due to shared n-grams with frequent words.</li>
+            </ul>
+            <h4>Comparison to Word2Vec:</h4>
+            <p>Generally outperforms Word2Vec on similarity/analogy tasks, especially for morphology/OOV. More robust with smaller training data.</p>
+            <div class="note">
+                <p><strong>Scalability (FastText):</strong> Training is similar to Word2Vec SGNS but with added complexity of n-gram processing and hashing. The number of n-grams can be large, but hashing keeps the parameter count manageable. It remains scalable to large corpora.
+                </p>
+            </div>
+        </section>
+
+        <section id="dependency-based">
+            <h2>Dependency-Based Word Embeddings</h2>
+            <p>
+                Proposed by Levy & Goldberg, this modifies Word2Vec skip-gram by using syntactically
+                informed contexts from dependency parse trees, rather than linear bag-of-words contexts.
+            </p>
+            <h4>Core Idea:</h4>
+            <p>
+                A word's linguistic context is often better defined by its syntactic relationships (subject, object, modifiers) than linear proximity.
+            </p>
+            <h4>Mechanism:</h4>
+            <ul>
+                <li><strong>Dependency Parsing:</strong> Sentences are parsed to get dependency structures.</li>
+                <li><strong>Context Extraction:</strong> For a target word $w$, contexts are words it's syntactically related to via dependency arcs, typically as (related_word, dependency_relation_label). E.g., if "dog" is subject of "barks", context for "barks" could be (dog, nsubj).</li>
+                <li><strong>Skip-gram Training:</strong> Trained using these dependency-based (word, relation_label) pairs as contexts.</li>
+            </ul>
+            <h4>Differences from Original Skip-gram:</h4>
+            <ul>
+                <li><strong>Less Topical, More Functional Similarity:</strong> Standard skip-gram captures broad topics (e.g., "Hogwarts" similar to "Dumbledore"). Dependency-based captures functional/semantic type similarity (e.g., "Hogwarts" similar to other schools like "CalArts"; "Florida" similar to "Texas").</li>
+                <li><strong>Focused and Inclusive Contexts:</strong> Syntactic contexts can link distant but related words and filter out linearly close but unrelated words. Typed contexts refine similarities.</li>
+            </ul>
+            <h4>Performance:</h4>
+            <p>Excels at capturing functional similarity (words substitutable in similar syntactic roles).</p>
+             <div class="note">
+                <p><strong>Scalability (Dependency-Based WE):</strong> Requires a dependency parser to preprocess the entire corpus, which can be computationally intensive and a bottleneck for very large datasets. The quality of embeddings also depends on parser accuracy. The skip-gram training itself is scalable once contexts are extracted.
+                </p>
+            </div>
+        </section>
+
+        <section id="comparison-table">
+            <h2>Table 1: Comparison of Static Word Embedding Techniques</h2>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Word2Vec (SGNS)</th>
+                            <th>GloVe</th>
+                            <th>FastText</th>
+                            <th>Dependency-Based WE (Skip-Gram)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Core Idea</strong></td>
+                            <td>Predict context words given a target word.</td>
+                            <td>Factorize global word-word co-occurrence matrix.</td>
+                            <td>Represent words as sum of character n-gram vectors.</td>
+                            <td>Use syntactic dependencies as contexts.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Context Type</strong></td>
+                            <td>Linear bag-of-words window.</td>
+                            <td>Global co-occurrence counts within a window.</td>
+                            <td>Linear bag-of-words window (for n-gram context).</td>
+                            <td>Syntactic dependency relations from parse trees.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Training Objective</strong></td>
+                            <td>Maximize $P(\text{context } | \text{ target})$; Negative Sampling.</td>
+                            <td>Minimize weighted least squares error on log co-occurrences.</td>
+                            <td>Maximize $P(\text{context } | \text{ target})$; n-gram based.</td>
+                            <td>Maximize $P(\text{dependency context } | \text{ target})$; Negative Sampling.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OOV Handling</strong></td>
+                            <td>Typically poor (assigns generic OOV vector).</td>
+                            <td>Poor (requires word in pre-computed matrix).</td>
+                            <td>Good (composes vector from character n-grams).</td>
+                            <td>Poor (similar to Word2Vec).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Strengths</strong></td>
+                            <td>Simple, efficient, captures analogies well.</td>
+                            <td>Efficiently uses global stats, good for analogies.</td>
+                            <td>Handles OOV & morphology well, good for rare words.</td>
+                            <td>Captures functional/syntactic similarity, less topical.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Weaknesses</strong></td>
+                            <td>OOV issues, struggles with morphology.</td>
+                            <td>Less effective for very rare words if not in co-occurrence matrix.</td>
+                            <td>Can be slower to train due to n-gram processing.</td>
+                            <td>Requires parsed corpus, quality depends on parser.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Key Papers (Examples)</strong></td>
+                            <td>Mikolov et al. 2013a, 2013b</td>
+                            <td>Pennington et al. 2014</td>
+                            <td>Bojanowski et al. 2017</td>
+                            <td>Levy & Goldberg 2014</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mt-4">
+                The evolution from simple linear contexts to syntactic and subword-informed contexts, and the debate between local learning (Word2Vec) and global factorization (GloVe), highlight critical considerations in learning word embeddings. These advancements show that future improvements might arise from even more sophisticated methods of defining or learning meaningful contexts.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fine-tuning & Advanced LLM Techniques - Neural NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #65a30d; /* Lime-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #ecfccb; /* Lime-100 */ color: #4d7c0f; /* Lime-700 */ }
+        .nav-link.active { background-color: #65a30d; /* Lime-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #f7fee7; /* Lime-50 */ border: 1px solid #d9f99d; /* Lime-200 */ border-left-width: 4px; border-left-color: #84cc16; /* Lime-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #4d7c0f; /* Lime-700 */ margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 active block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Section 2.6: Fine-tuning and Advanced LLM Techniques</h1>
+        <p>
+            Pre-trained language models (PLMs) like BERT and Large Language Models (LLMs) like Llama 2
+            derive much of their utility from their adaptability to various downstream tasks through
+            fine-tuning or by leveraging advanced interaction techniques.
+        </p>
+
+        <section id="bert-finetuning">
+            <h2>BERT Fine-tuning (General Process)</h2>
+            <p>The standard procedure for adapting a pre-trained BERT model to a specific supervised task involves:</p>
+            <ol>
+                <li><strong>Model Initialization:</strong> Weights of BERT are initialized with parameters from pre-training.</li>
+                <li>
+                    <strong>Task-Specific Output Layer:</strong> A new, typically small, output layer is added. Its structure depends on the task:
+                    <ul>
+                        <li>Sequence classification (sentiment, NLI): Linear classifier on top of <code>[CLS]</code> token's final hidden state.</li>
+                        <li>Token classification (NER, SQuAD QA): Linear classifier on top of each token's final hidden state.</li>
+                    </ul>
+                </li>
+                <li><strong>Input Formatting:</strong> Downstream task data is formatted to match BERT's pre-training input (<code>[CLS]</code>, <code>[SEP]</code>, segment embeddings).</li>
+                <li><strong>End-to-End Fine-tuning:</strong> All parameters (BERT + new layer) are jointly fine-tuned on labeled task-specific data. This adapts learned representations. Fine-tuning is much less computationally expensive than pre-training.</li>
+            </ol>
+            <div class="note">
+                <p><strong>Scalability (BERT Fine-tuning):</strong> Significantly less resource-intensive than pre-training. Requires labeled data for the specific task, but often much less than needed to train a model from scratch. The main cost is GPU time for training epochs, which depends on dataset size and model variant (Base vs. Large).</p>
+            </div>
+        </section>
+
+        <section id="llama2-chat-finetuning">
+            <h2>Llama 2-Chat Fine-tuning</h2>
+            <p>
+                Llama 2-Chat models are specifically fine-tuned from pre-trained Llama 2 models to excel in
+                dialogue applications, with a strong emphasis on helpfulness and safety. This is a multi-stage process.
+            </p>
+            <h4>1. Supervised Fine-Tuning (SFT)</h4>
+            <ul>
+                <li><strong>Objective:</strong> Initial alignment of base Llama 2 towards following instructions and dialogue.</li>
+                <li><strong>Data:</strong> High-quality instruction-following data (prompt-answer pairs). Llama 2 paper emphasizes quality over quantity (~27,540 curated examples).</li>
+                <li><strong>Process:</strong> Model fine-tuned using an autoregressive objective; loss typically computed only on answer tokens.</li>
+            </ul>
+
+            <h4>2. Reinforcement Learning with Human Feedback (RLHF)</h4>
+            <p>Further refines model behavior based on human preferences.</p>
+            <ul>
+                <li>
+                    <strong>Human Preference Data Collection:</strong> Annotators choose preferred response between two model-generated outputs for a prompt, often rating preference degree. Focus on helpfulness and safety.
+                </li>
+                <li>
+                    <strong>Reward Modeling (RM):</strong> One or more RMs trained on preference data. RM takes prompt + response, outputs a scalar score for alignment with human preferences. Llama 2-Chat trains separate RMs for helpfulness and safety. RM architecture is similar to base LLM with a regression head. Binary ranking loss is common.
+                </li>
+                <li>
+                    <strong>Iterative Model Refinement (Policy Optimization):</strong> SFT model (policy) further fine-tuned using RL algorithms, with RM providing reward.
+                    <ul>
+                        <li><strong>Proximal Policy Optimization (PPO):</strong> Maximizes expected RM reward with a penalty (e.g., KL divergence) to prevent drastic deviation from SFT model, aiding stability.</li>
+                        <li><strong>Rejection Sampling Fine-tuning:</strong> Alternative/complementary. Sample K outputs from policy for a prompt. RM scores them; highest-scoring output selected. Model fine-tuned (SFT-like) on these "best-of-K" samples. Llama 2-Chat used this mainly with its largest model.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>3. Ghost Attention (GAtt)</h4>
+            <p>Technique for Llama 2-Chat to improve multi-turn dialogue consistency, especially remembering initial instructions (e.g., "act as a pirate").</p>
+            <ul>
+                <li><strong>Method:</strong> During fine-tuning (often SFT-like stage after RLHF), initial instruction synthetically concatenated to all user messages in training dialogues. Loss set to 0 for tokens from previous turns to avoid issues where intermediate assistant messages wouldn't have had access to this repeated instruction. This "hacks" data to remind model of overarching instruction.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability (Llama 2-Chat Fine-tuning):</strong> SFT is less costly than pre-training but still requires significant data and compute. RLHF is complex and iterative, involving human annotation (expensive and time-consuming), reward model training, and RL fine-tuning. Each step requires careful management and considerable resources. GAtt adds a data preprocessing step but doesn't fundamentally change the fine-tuning compute requirements otherwise.</p>
+            </div>
+        </section>
+
+        <section id="advanced-prompting">
+            <h2>Advanced Prompting and Reasoning Techniques</h2>
+            <p>These techniques focus on how to interact with pre-trained LLMs to elicit more complex behaviors, often without further fine-tuning.</p>
+            <h4>1. Chain-of-Thought (CoT) Prompting</h4>
+            <p>
+                Encourages LLM to generate a step-by-step reasoning process leading to an answer, instead of just the final answer. Often achieved by few-shot prompting with examples showing intermediate reasoning steps (e.g., for math word problems). Significantly improves performance on tasks requiring multi-step arithmetic, commonsense, or symbolic reasoning.
+            </p>
+            <div class="example-box">
+                <h5>Simplified Example: CoT Prompting</h5>
+                <p><strong>Standard Prompt:</strong> "Q: Roger has 5 tennis balls. He buys 2 more cans of tennis balls. Each can has 3 tennis balls. How many tennis balls does he have now? A:"</p>
+                <p><strong>CoT Prompt:</strong> "Q: Roger has 5 tennis balls. He buys 2 more cans of tennis balls. Each can has 3 tennis balls. How many tennis balls does he have now? A: Roger started with 5 balls. He bought 2 cans of 3 balls each, which is 2 * 3 = 6 balls. So he has 5 + 6 = 11 balls. The final answer is 11."</p>
+            </div>
+
+            <h4>2. Self-Consistency</h4>
+            <p>
+                Builds on CoT. Samples multiple diverse reasoning paths from LLM (e.g., using non-zero temperature). Final answer selected by majority vote over answers from these paths. Improves robustness and accuracy.
+            </p>
+
+            <h4>3. SELF-REFINE</h4>
+            <p>Iterative framework where an LLM improves its own generated output without additional training data or external feedback.</p>
+            <ol>
+                <li><strong>Generate:</strong> LLM produces initial output.</li>
+                <li><strong>Feedback:</strong> Same LLM prompted to provide feedback on its own output (errors, improvements).</li>
+                <li><strong>Refine:</strong> LLM uses original input, initial output, and its own feedback to generate refined output. Cycle can be repeated.</li>
+            </ol>
+        </section>
+
+        <section id="knowledge-augmentation">
+            <h2>Knowledge Augmentation</h2>
+            <p>Addresses limitation that LLM knowledge is static (frozen at pre-training) and may be incomplete/outdated.</p>
+            <h4>1. Retrieval-Augmented Generation (RAG)</h4>
+            <p>Enhances LLMs by allowing access to and incorporation of info from external knowledge source (non-parametric memory) during generation.</p>
+            <ul>
+                <li><strong>Components:</strong>
+                    <ul>
+                        <li><strong>Retriever:</strong> Given query/prompt, searches large corpus (e.g., Wikipedia) and retrieves relevant passages (e.g., using dense passage retriever like DPR).</li>
+                        <li><strong>Generator:</strong> Pre-trained Seq2Seq LLM (e.g., BART, Llama) takes original query + retrieved passages as combined input to generate final output.</li>
+                    </ul>
+                </li>
+                <li><strong>RAG-Sequence vs. RAG-Token:</strong> RAG-Sequence uses same retrieved docs for entire output. RAG-Token can retrieve different docs for generating each output token.</li>
+                <li><strong>Benefits:</strong> Reduces hallucinations by grounding in factual external docs, allows access to up-to-date/domain-specific info, improves factual accuracy and relevance.</li>
+            </ul>
+             <div class="example-box">
+                <h5>Simplified Example: RAG</h5>
+                <p><strong>Query:</strong> "What were the main findings of the Llama 2 paper?"</p>
+                <p><strong>Retriever:</strong> Fetches relevant sections from the Llama 2 paper (external document).</p>
+                <p><strong>Generator:</strong> Uses the query and fetched sections to synthesize an answer summarizing the findings.</p>
+            </div>
+
+            <h4>2. Generate-then-Read (GENREAD)</h4>
+            <p>Alternative to explicit retrieval. LLM first prompted to generate relevant contextual documents or background info based on input query.</p>
+            <ul>
+                <li><strong>Process:</strong>
+                    <ol>
+                        <li><strong>Generate Context:</strong> LLM generates one or more docs it deems relevant to query.</li>
+                        <li><strong>Read and Answer:</strong> Reader model (same or different LLM) uses these internally generated docs + original query to produce final answer.</li>
+                    </ol>
+                </li>
+                <li><strong>Rationale:</strong> Leverages LLM's internal knowledge to create tailored context, useful when external corpus is unavailable or context is highly specific.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability (Prompting & Augmentation):</strong> CoT, Self-Consistency, and SELF-REFINE increase inference cost as they involve generating more text or iterative steps. RAG adds the cost of retrieval (indexing a large corpus and performing search) and processing longer inputs for the generator. GENREAD also increases generation cost. These trade off increased computational cost at inference for improved performance, reasoning, or factuality without retraining the base LLM.</p>
+            </div>
+        </section>
+
+        <section id="comparison-table-advanced-llm">
+            <h2>Table 4: Advanced LLM Interaction and Augmentation Techniques</h2>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Technique</th>
+                            <th>Core Idea/Mechanism</th>
+                            <th>Key Benefit(s) for LLM Capability</th>
+                            <th>Relevant Models/Papers (Examples)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>SFT (Supervised Fine-Tuning)</strong></td>
+                            <td>Fine-tune PLM on (instruction, response) pairs.</td>
+                            <td>Initial alignment to follow instructions and perform specific tasks (e.g., dialogue).</td>
+                            <td>Llama 2-Chat</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RLHF (Reinforcement Learning from Human Feedback)</strong></td>
+                            <td>Train reward model on human preferences, then use RL to fine-tune LLM policy.</td>
+                            <td>Further align LLM with complex human preferences (helpfulness, safety, style).</td>
+                            <td>Llama 2-Chat, InstructGPT</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GAtt (Ghost Attention)</strong></td>
+                            <td>Synthetically repeat initial instruction in multi-turn dialogue training data; mask loss for prior turns.</td>
+                            <td>Improves multi-turn consistency and adherence to initial instructions in dialogue.</td>
+                            <td>Llama 2-Chat</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CoT (Chain-of-Thought) Prompting</strong></td>
+                            <td>Prompt LLM to generate step-by-step reasoning before the final answer.</td>
+                            <td>Enhances multi-step reasoning, arithmetic, and symbolic manipulation. Improves accuracy on complex tasks.</td>
+                            <td>Wei et al. 2022</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Self-Consistency</strong></td>
+                            <td>Sample multiple diverse reasoning paths (via CoT), select most frequent answer.</td>
+                            <td>Improves reasoning accuracy and robustness by aggregating multiple lines of thought.</td>
+                            <td>Wang et al. 2022</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SELF-REFINE</strong></td>
+                            <td>LLM iteratively generates output, provides feedback on it, then refines it.</td>
+                            <td>Improves output quality on various generation tasks without additional supervised data or RL.</td>
+                            <td>Madaan et al. 2023</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RAG (Retrieval-Augmented Generation)</strong></td>
+                            <td>Retrieve relevant documents from external corpus, then use LLM to generate output conditioned on query + documents.</td>
+                            <td>Reduces hallucination, provides access to up-to-date/domain-specific knowledge, improves factual accuracy.</td>
+                            <td>Lewis et al. 2020</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GENREAD (Generate-then-Read)</strong></td>
+                            <td>LLM first generates contextual documents for a query, then a reader model uses these to answer.</td>
+                            <td>Leverages LLM's internal knowledge to create tailored context, useful when external retrieval is hard or corpus is unavailable.</td>
+                            <td>Yu et al. 2023</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mt-4">
+                The fine-tuning process, especially complex multi-stage approaches like RLHF for Llama 2-Chat, highlights that transforming a general-purpose pre-trained LLM into a specialized, aligned, and safe conversational agent is a significant undertaking. Advanced prompting and knowledge augmentation techniques further extend the capabilities of these models, allowing them to perform more sophisticated reasoning and access information beyond their pre-training data.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

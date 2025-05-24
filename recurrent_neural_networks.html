@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recurrent Neural Networks - Neural NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #ea580c; /* Orange-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #ffedd5; /* Orange-100 */ color: #c2410c; /* Orange-700 */ }
+        .nav-link.active { background-color: #ea580c; /* Orange-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #fff7ed; /* Orange-50 */ border: 1px solid #fed7aa; /* Orange-200 */ border-left-width: 4px; border-left-color: #fb923c; /* Orange-400 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #c2410c; /* Orange-700 */ margin-bottom: 0.5rem; }
+        .formula-box { background-color: #f3f4f6; padding: 1rem; border-radius: 0.375rem; margin-bottom:1rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 active block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Section 2.2: Recurrent Neural Networks (RNNs) – Processing Sequences</h1>
+        <p>
+            Recurrent Neural Networks (RNNs) are a class of neural networks specifically designed to process
+            sequential data, such as text or time series. Unlike feedforward networks, RNNs have connections
+            that form directed cycles, allowing them to maintain an internal state or "memory" of past
+            information to influence the processing of current inputs.
+        </p>
+
+        <section id="simple-rnns">
+            <h2>Simple Recurrent Neural Networks (Elman Networks)</h2>
+            <p>
+                The foundational RNN architecture, often referred to as an Elman network, processes a sequence
+                one element at a time, updating its hidden state at each step.
+            </p>
+            <h4>Purpose:</h4>
+            <p>
+                To model sequences where the order of elements is important and to capture dependencies between
+                elements, even if they are not adjacent. Unlike Multi-Layer Perceptrons (MLPs) that require
+                fixed-length input vectors (often via a sliding window, losing long-range context), RNNs
+                can inherently handle variable-length sequences.
+            </p>
+            <h4>Architecture:</h4>
+            <p>At each time step $t$:</p>
+            <ul>
+                <li>An input vector $x_t$ (e.g., embedding of the current word) is received.</li>
+                <li>A hidden state $h_t$ is computed based on $x_t$ and the previous hidden state $h_{t-1}$:
+                    <div class="formula-box">
+                        $h_t = g(W_{xh}x_t + W_{hh}h_{t-1} + b_h)$
+                    </div>
+                    where $W_{xh}$ is input-to-hidden weights, $W_{hh}$ is hidden-to-hidden (recurrent) weights, $b_h$ is hidden bias, and $g$ is a non-linear activation (e.g., tanh, ReLU).
+                </li>
+                <li>An output $y_t$ can be generated from $h_t$:
+                    <div class="formula-box">
+                        $y_t = f(W_{hy}h_t + b_y)$
+                    </div>
+                    where $W_{hy}$ is hidden-to-output weights, $b_y$ is output bias, and $f$ is an output activation (e.g., softmax).
+                </li>
+            </ul>
+            <h4>Shared Weights:</h4>
+            <p>
+                A crucial characteristic is that weight matrices ($W_{xh}, W_{hh}, W_{hy}$) and biases ($b_h, b_y$)
+                are <strong>shared across all time steps</strong>. The network applies the same transformation rules at each step,
+                allowing generalization across sequence lengths and reducing parameters.
+            </p>
+            <h4>Applications:</h4>
+            <ul>
+                <li><strong>Language Modeling:</strong> Predicting the next word $P(\text{word}_{t+1} | \text{word}_1, ..., \text{word}_t)$.</li>
+                <li><strong>Sequence Labeling (POS Tagging, NER):</strong> Assigning a label to each input token $x_t$.</li>
+                <li><strong>Sequence Classification (Sentiment Analysis):</strong> Assigning a single label to an entire sequence, often using the final hidden state $h_N$ or an aggregation of hidden states.</li>
+                <li><strong>(Autoregressive) Generation (Machine Translation, Summarization):</strong> Generating an output sequence token by token, where $y_t$ is often fed as part of $x_{t+1}$.</li>
+            </ul>
+            <h4>Training Challenges: Vanishing and Exploding Gradients</h4>
+            <p>
+                Training simple RNNs, especially on long sequences, is difficult due to issues with gradient
+                propagation during Backpropagation Through Time (BPTT).
+            </p>
+            <ul>
+                <li>
+                    <strong>Vanishing Gradients:</strong> Gradients shrink exponentially if recurrent weight factors are small, preventing learning of long-range dependencies. The "memory" becomes short-term.
+                </li>
+                <li>
+                    <strong>Exploding Gradients:</strong> Gradients grow exponentially if factors are large, causing unstable training. Gradient clipping can help manage this but doesn't solve the long-term memory issue.
+                </li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability (Simple RNNs):</strong> Training simple RNNs is sequential by nature, making parallelization across time steps difficult. For very long sequences, BPTT becomes computationally expensive and memory-intensive. The vanishing/exploding gradient problem limits their practical effectiveness on tasks requiring long-range dependencies without specialized architectures like LSTMs/GRUs.</p>
+            </div>
+        </section>
+
+        <section id="lstm">
+            <h2>Long Short-Term Memory (LSTM) Cells</h2>
+            <p>
+                LSTMs were specifically designed to address the vanishing gradient problem and enable RNNs
+                to learn long-range dependencies more effectively.
+            </p>
+            <h4>Purpose:</h4>
+            <p>To allow information to persist over many time steps by introducing a more sophisticated internal memory mechanism regulated by gates.</p>
+            <h4>Architecture:</h4>
+            <p>An LSTM cell maintains an internal <strong>cell state ($c_t$)</strong> and a hidden state ($h_t$). Information flow is controlled by three gates:</p>
+            <ol>
+                <li>
+                    <strong>Forget Gate ($f_t$):</strong> Decides what information to discard from the cell state.
+                    <div class="formula-box">$f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$</div>
+                    (Looks at $h_{t-1}$ and $x_t$; $\sigma$ is sigmoid).
+                </li>
+                <li>
+                    <strong>Input Gate ($i_t$):</strong> Decides which new information to store in the cell state. It has two parts:
+                    <ul>
+                        <li>Input gate layer (sigmoid): $i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$</li>
+                        <li>Candidate values layer (tanh): $\tilde{c}_t = \tanh(W_c \cdot [h_{t-1}, x_t] + b_c)$</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Cell State Update:</strong> The old cell state $c_{t-1}$ is updated to $c_t$.
+                    <div class="formula-box">$c_t = f_t \circ c_{t-1} + i_t \circ \tilde{c}_t$</div>
+                    ($\circ$ is element-wise multiplication). This involves forgetting old info and adding new scaled info.
+                </li>
+                <li>
+                    <strong>Output Gate ($o_t$):</strong> Decides what part of the cell state $c_t$ to output as the hidden state $h_t$.
+                    <ul>
+                        <li>Output gate layer (sigmoid): $o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o)$</li>
+                        <li>Hidden state computation: $h_t = o_t \circ \tanh(c_t)$</li>
+                    </ul>
+                </li>
+            </ol>
+            <h4>How Gates Help:</h4>
+            <p>
+                Gating mechanisms allow LSTMs to maintain a more constant error flow. The cell state acts as a "conveyor belt," with gates controlling additions/removals. This helps prevent gradients from vanishing/exploding, enabling learning of dependencies over much longer sequences. The additive interaction in the cell state update is key.
+            </p>
+            <div class="note">
+                <p><strong>Scalability (LSTMs):</strong> While LSTMs address the vanishing gradient problem, they are more computationally complex than simple RNNs due to the additional gates and cell state. Like simple RNNs, their sequential nature limits parallelization over time. However, their ability to capture long-range dependencies made them the standard for many sequence tasks before Transformers.
+                </p>
+            </div>
+        </section>
+
+        <section id="gru">
+            <h2>Gated Recurrent Unit (GRU) Cells</h2>
+            <p>
+                GRUs are a variation of LSTMs with a simpler architecture, also using gating mechanisms.
+            </p>
+            <h4>Purpose:</h4>
+            <p>Similar to LSTMs, GRUs aim to capture long-range dependencies and mitigate gradient problems.</p>
+            <h4>Architecture:</h4>
+            <p>GRUs have two main gates:</p>
+            <ol>
+                <li>
+                    <strong>Update Gate ($z_t$):</strong> Combines roles of LSTM's forget and input gates. Decides how much of previous hidden state $h_{t-1}$ to keep and how much of new candidate hidden state $\tilde{h}_t$ to incorporate.
+                    <div class="formula-box">$z_t = \sigma(W_z \cdot [h_{t-1}, x_t] + b_z)$</div>
+                </li>
+                <li>
+                    <strong>Reset Gate ($r_t$):</strong> Determines how much of $h_{t-1}$ to forget when computing $\tilde{h}_t$.
+                    <div class="formula-box">$r_t = \sigma(W_r \cdot [h_{t-1}, x_t] + b_r)$</div>
+                </li>
+                <li>
+                    <strong>Candidate Hidden State ($\tilde{h}_t$):</strong>
+                    <div class="formula-box">$\tilde{h}_t = \tanh(W_h \cdot [r_t \circ h_{t-1}, x_t] + b_h)$</div>
+                    (Reset gate $r_t$ controls influence of $h_{t-1}$).
+                </li>
+                <li>
+                    <strong>Hidden State Update ($h_t$):</strong> Linear interpolation between $h_{t-1}$ and $\tilde{h}_t$, controlled by $z_t$.
+                    <div class="formula-box">$h_t = (1 - z_t) \circ h_{t-1} + z_t \circ \tilde{h}_t$</div>
+                </li>
+            </ol>
+            <h4>Comparison to LSTMs:</h4>
+            <ul>
+                <li><strong>Simpler Structure:</strong> Fewer gates (two vs. LSTM's three), no separate cell state vector.</li>
+                <li><strong>Fewer Parameters:</strong> Computationally more efficient, faster to train, sometimes less prone to overfitting on smaller datasets.</li>
+                <li><strong>Performance:</strong> Often comparable to LSTMs; choice may depend on dataset and constraints.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability (GRUs):</strong> Similar to LSTMs in terms of sequential processing limitations. Their simpler structure can lead to faster training times per epoch compared to LSTMs, making them attractive when computational resources are a concern, without a significant sacrifice in performance for many tasks.
+                </p>
+            </div>
+        </section>
+
+        <section id="advanced-rnns">
+            <h2>Advanced RNN Architectures</h2>
+            <p>To further enhance representational power, more complex RNN architectures are used.</p>
+            <h4>1. Stacked RNNs (Deep RNNs)</h4>
+            <p>
+                Involves layering multiple RNN (or LSTM/GRU) layers. The output sequence of hidden states
+                from one layer serves as the input sequence to the next.
+            </p>
+            <p>
+                <strong>Advantage:</strong> Each layer can learn representations at different levels of abstraction
+                (e.g., lower layers for syntactic features, higher for semantic). Leads to more powerful models,
+                but increases computational cost.
+            </p>
+            <h4>2. Bidirectional RNNs (Bi-RNNs)</h4>
+            <p>
+                Standard RNNs process sequences unidirectionally. However, understanding a word often requires
+                context from both left (past) and right (future).
+            </p>
+            <p><strong>Structure:</strong> A Bi-RNN consists of two independent RNNs:</p>
+            <ul>
+                <li>A <strong>forward RNN</strong> processes input left-to-right ($\vec{h_1}, \vec{h_2}, ..., \vec{h_N}$).</li>
+                <li>A <strong>backward RNN</strong> processes input right-to-left ($\cev{h_1}, \cev{h_2}, ..., \cev{h_N}$).</li>
+            </ul>
+            <p>
+                <strong>Output:</strong> At each time step $t$, the final hidden representation is typically formed by
+                concatenating the forward and backward hidden states: $h_t = [\vec{h_t} ; \cev{h_t}]$.
+            </p>
+            <p>
+                <strong>Advantage:</strong> Allows each token's representation to incorporate information from its entire
+                input context. Crucial for tasks like POS tagging, NER, where word meaning depends on surroundings.
+            </p>
+            <div class="note">
+                <p><strong>Scalability (Stacked & Bidirectional RNNs):</strong> Stacking increases depth and parameters, making training slower and requiring more data. Bidirectional RNNs roughly double the computation of a unidirectional RNN but can significantly improve performance by providing richer contextual information. The entire sequence must be available for Bi-RNNs before processing, which can be a limitation for real-time streaming applications where future context isn't available.
+                </p>
+            </div>
+            <p class="mt-4">
+                LSTMs and GRUs were breakthroughs, enabling RNNs to model longer sequences. These gated units,
+                along with stacking and bidirectionality, formed the backbone of many NLP systems before Transformers.
+                The concept of gating and the importance of full context (via bidirectionality) remain powerful ideas.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

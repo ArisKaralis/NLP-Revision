@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classic NLP Fundamentals</title>
+    <title>Classic & Neural NLP Fundamentals</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
@@ -24,76 +24,127 @@
         .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
         .content-section th { background-color: #f9fafb; font-weight: 600; }
         .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out; }
-        .nav-link:hover, .nav-link.active { background-color: #3b82f6; color: white; }
+        .nav-link:hover, .nav-link.active { background-color: #3b82f6; color: white; } /* Default active color, will be overridden by JS */
         .note { background-color: #eef2ff; border-left: 4px solid #6366f1; padding: 1rem; margin-bottom: 1rem; border-radius: 0.25rem;}
         .note strong { color: #4f46e5; }
+        .topic-card { display: block; padding: 1.5rem; background-color: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1); transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out; }
+        .topic-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1); transform: translateY(-2px); }
+        .topic-card h4 { font-semibold text-lg mb-2; }
+        .topic-card p { text-gray-600 text-sm; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
     <nav class="bg-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <a href="index.html" class="text-xl font-bold text-blue-600">Classic NLP</a>
-            <div class="space-x-1 md:space-x-2">
-                <a href="index.html" class="nav-link text-gray-700 hover:bg-blue-500 hover:text-white active">Home</a>
-                <a href="text_processing.html" class="nav-link text-gray-700 hover:bg-blue-500 hover:text-white">Text Processing</a>
-                <a href="language_models.html" class="nav-link text-gray-700 hover:bg-blue-500 hover:text-white">Language Models</a>
-                <a href="sequence_labelling.html" class="nav-link text-gray-700 hover:bg-blue-500 hover:text-white">Sequence Labelling</a>
-                <a href="sparse_embeddings.html" class="nav-link text-gray-700 hover:bg-blue-500 hover:text-white">Sparse Embeddings</a>
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 active block md:inline-block">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
             </div>
         </div>
     </nav>
-
     <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-20">
         <div class="container mx-auto px-6 text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">Foundational Techniques in Natural Language Processing</h1>
-            <p class="text-lg md:text-xl mb-8">A Comprehensive Review of Classic NLP Methods</p>
-            <a href="#overview" class="bg-white text-blue-600 font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-100 transition duration-300">Explore Topics</a>
+            <p class="text-lg md:text-xl mb-8">A Comprehensive Review of Classic and Neural NLP Methods</p>
+            <a href="#classic-topics-grid" class="bg-white text-blue-600 font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-100 transition duration-300">Explore Topics</a>
         </div>
     </header>
 
     <main class="container mx-auto px-6 py-12 content-section">
         <section id="overview">
-            <h2>Welcome to Classic NLP Fundamentals</h2>
+            <h2>Welcome to NLP Fundamentals</h2>
             <p>
-                This site explores fundamental methodologies within classical Natural Language Processing (NLP). These techniques form a critical underpinning for
-                more advanced neural approaches that you might be familiar with from your AI studies. We'll delve into statistical language modeling,
-                text processing techniques, sequence labelling methodologies, and sparse vector representations of textual data.
+                This site explores fundamental methodologies within both classical and neural Natural Language Processing (NLP).
+                These techniques form a critical underpinning for understanding how machines process and understand human language.
             </p>
 
             <div class="note">
-                <p><strong>Note for AI Master's Students:</strong> Understanding these classic techniques provides a strong foundation for several reasons:</p>
+                <p><strong>Note for AI Master's Students:</strong> Understanding these classic and neural techniques provides a strong foundation for several reasons:</p>
                 <ul>
-                    <li><strong>Conceptual Building Blocks:</strong> Many modern neural NLP models have roots in or address limitations of these classic methods. Knowing the history helps in understanding the "why" behind current architectures.</li>
-                    <li><strong>Baselines & Simpler Solutions:</strong> For certain tasks or with limited data, classic NLP techniques can still be surprisingly effective and computationally cheaper than large neural models. They provide excellent baselines for comparison.</li>
-                    <li><strong>Feature Engineering Insights:</strong> While deep learning automates much feature engineering, understanding how features were manually created in classic NLP can provide intuition for designing better neural network inputs or interpreting their behavior.</li>
-                    <li><strong>Scalability Understanding:</strong> Many classic techniques were designed with scalability in mind for large corpora, offering lessons applicable to today's big data challenges.</li>
+                    <li><strong>Conceptual Building Blocks:</strong> Many modern NLP models have roots in or address limitations of earlier methods. Knowing the history helps in understanding the "why" behind current architectures.</li>
+                    <li><strong>Baselines & Solutions:</strong> For certain tasks or with limited data, classic techniques can still be effective. Neural models offer state-of-the-art performance on complex tasks.
+                    </li>
+                    <li><strong>Feature Engineering Insights:</strong> Understanding manual feature engineering in classic NLP can provide intuition for neural network inputs. Neural models often learn features automatically.</li>
+                    <li><strong>Scalability Understanding:</strong> Both classic and neural techniques have considerations for scaling to large datasets and models.</li>
                 </ul>
             </div>
-
             <p>
-                Navigate through the topics using the menu above to explore each area in detail.
+                Navigate through the topics using the sections below to explore each area in detail.
             </p>
         </section>
 
-        <section id="topics-grid" class="mt-12">
-            <h3 class="text-2xl font-semibold mb-6 text-center">Key Areas Covered</h3>
+        <section id="classic-topics-grid" class="mt-12">
+            <h3 class="text-2xl font-semibold mb-6 text-center text-blue-700">Classic NLP Topics</h3>
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <a href="language_models.html" class="block p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <h4 class="text-blue-600 font-semibold text-lg mb-2">Language Models</h4>
-                    <p class="text-gray-600 text-sm">Understanding N-Grams, probability estimation, and smoothing techniques to handle data sparsity.</p>
+                <a href="text_processing.html" class="topic-card">
+                    <h4 class="text-green-600">Text Processing</h4>
+                    <p>Tokenization, normalization, and string similarity.</p>
                 </a>
-                <a href="text_processing.html" class="block p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <h4 class="text-green-600 font-semibold text-lg mb-2">Text Processing</h4>
-                    <p class="text-gray-600 text-sm">Exploring tokenization (like BPE), normalization (lemmatization, stemming), and string similarity measures.</p>
+                <a href="language_models.html" class="topic-card">
+                    <h4 class="text-blue-600">Language Models</h4>
+                    <p>N-Grams, probability estimation, and smoothing techniques.</p>
                 </a>
-                <a href="sequence_labelling.html" class="block p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <h4 class="text-purple-600 font-semibold text-lg mb-2">Sequence Labelling</h4>
-                    <p class="text-gray-600 text-sm">Delving into Part-of-Speech tagging, Named Entity Recognition, and Conditional Random Fields (CRFs).</p>
+                <a href="sequence_labelling.html" class="topic-card">
+                    <h4 class="text-purple-600">Sequence Labelling</h4>
+                    <p>POS tagging, Named Entity Recognition, and CRFs.</p>
                 </a>
-                <a href="sparse_embeddings.html" class="block p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <h4 class="text-yellow-600 font-semibold text-lg mb-2">Sparse Embeddings</h4>
-                    <p class="text-gray-600 text-sm">Covering TF-IDF, vector similarity (Cosine), and word association measures like PMI.</p>
+                <a href="sparse_embeddings.html" class="topic-card">
+                    <h4 class="text-yellow-600">Sparse Embeddings</h4>
+                    <p>TF-IDF, Cosine Similarity, and Pointwise Mutual Information.</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="neural-topics-grid" class="mt-16">
+            <h3 class="text-2xl font-semibold mb-6 text-center text-red-700">Neural NLP Topics</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <a href="word_embeddings.html" class="topic-card">
+                    <h4 class="text-red-600">Word Embeddings</h4>
+                    <p>Dense representations like Word2Vec, GloVe, FastText.</p>
+                </a>
+                <a href="recurrent_neural_networks.html" class="topic-card">
+                    <h4 class="text-orange-600">Recurrent Neural Networks</h4>
+                    <p>RNNs, LSTMs, GRUs for sequence processing.</p>
+                </a>
+                <a href="seq2seq_attention.html" class="topic-card">
+                    <h4 class="text-pink-600">Seq2Seq & Attention</h4>
+                    <p>Encoder-Decoder architectures and attention mechanisms.</p>
+                </a>
+                <a href="transformer_architecture.html" class="topic-card">
+                    <h4 class="text-teal-600">Transformer Architecture</h4>
+                    <p>Self-Attention, Multi-Head Attention, Positional Embeddings.</p>
+                </a>
+                <a href="transformer_models_pretraining.html" class="topic-card">
+                    <h4 class="text-cyan-600">Transformer Models & Pre-training</h4>
+                    <p>BERT, SpanBERT, RoFormer, Llama/Llama 2.</p>
+                </a>
+                <a href="finetuning_advanced_llm.html" class="topic-card">
+                    <h4 class="text-lime-600">Fine-tuning & Advanced LLM Tech</h4>
+                    <p>SFT, RLHF, CoT, RAG, and other advanced techniques.</p>
+                </a>
+                <a href="nlp_tasks_applications.html" class="topic-card">
+                    <h4 class="text-indigo-600">NLP Tasks & Applications</h4>
+                    <p>Applying models to QA, NER, MT, Summarization, etc.</p>
+                </a>
+                <a href="evaluation_metrics_nlp.html" class="topic-card">
+                    <h4 class="text-gray-600">Evaluation Metrics</h4>
+                    <p>Metrics for various NLP tasks, including ROUGE.</p>
                 </a>
             </div>
         </section>
@@ -102,8 +153,8 @@
 
     <footer class="bg-gray-800 text-white py-8 mt-12">
         <div class="container mx-auto px-6 text-center">
-            <p>&copy; <span id="currentYear"></span> Classic NLP Fundamentals. For educational purposes.</p>
-            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation: Classic NLP".</p>
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
         </div>
     </footer>
 
@@ -123,12 +174,12 @@
             // Set current year in footer
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-            // Active Nav Link
+            // Active Nav Link Highlighting
             const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
             const navLinks = document.querySelectorAll('nav a.nav-link');
             navLinks.forEach(link => {
                 if (link.getAttribute('href') === currentLocation) {
-                    link.classList.add('active', 'bg-blue-600', 'text-white');
+                    link.classList.add('active', 'bg-blue-600', 'text-white'); // Default active style
                     link.classList.remove('text-gray-700');
                 } else {
                     link.classList.remove('active', 'bg-blue-600', 'text-white');

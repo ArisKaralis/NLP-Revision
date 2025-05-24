@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLP Tasks & Applications - Neural NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #4f46e5; /* Indigo-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #e0e7ff; /* Indigo-100 */ color: #3730a3; /* Indigo-700 */ }
+        .nav-link.active { background-color: #4f46e5; /* Indigo-600 */ color: white; }
+        .note { background-color: #f0fdf4; /* Green-50 */ border-left: 4px solid #22c55e; /* Green-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #15803d; /* Green-700 */ }
+        .example-box { background-color: #eef2ff; /* Indigo-50 */ border: 1px solid #c7d2fe; /* Indigo-200 */ border-left-width: 4px; border-left-color: #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #4338ca; /* Indigo-700 */ margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 active block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Part 3: NLP Tasks (Applications and Techniques)</h1>
+        <p>
+            This part delves into specific Natural Language Processing tasks, outlining their goals,
+            challenges, and how the foundational and neural techniques discussed earlier are applied.
+        </p>
+
+        <section id="qa">
+            <h2>Section 3.1: Question Answering (QA)</h2>
+            <p><strong>Primary Goal:</strong> To enable systems to answer questions posed in natural language.</p>
+            <p><strong>Challenges:</strong> Understanding the question's intent, locating relevant information (often in large text corpora or knowledge bases), and synthesizing a coherent, accurate answer. Types include extractive QA (answer is a span in context) and abstractive QA (answer is generated).</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>BERT Fine-tuning (SQuAD-style):</strong> For extractive QA, BERT is fine-tuned by adding layers to predict the start and end tokens of the answer span within a given context passage. The <code>[CLS]</code> token isn't typically used for span prediction here.</li>
+                <li><strong>SpanBERT:</strong> Its span-masking and Span Boundary Objective (SBO) make it particularly effective for extractive QA tasks where identifying precise answer spans is crucial.</li>
+                <li><strong>Retrieval-Augmented Generation (RAG):</strong> Combines a retriever (to find relevant documents) with a generator (LLM) to answer questions, especially useful for open-domain QA where knowledge might not be in the LLM's parameters.</li>
+                <li><strong>Generate-then-Read (GENREAD):</strong> An LLM first generates relevant context, then a reader model answers based on this generated context.</li>
+            </ul>
+            <div class="example-box">
+                <h5>Simplified Example: Extractive QA</h5>
+                <p><strong>Context:</strong> "The Eiffel Tower is a wrought-iron lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower."</p>
+                <p><strong>Question:</strong> "Who is the Eiffel Tower named after?"</p>
+                <p><strong>Answer (Span):</strong> "Gustave Eiffel"</p>
+            </div>
+        </section>
+
+        <section id="ner">
+            <h2>Section 3.2: Named Entity Recognition (NER)</h2>
+            <p><strong>Primary Goal:</strong> To identify and classify named entities in text into predefined categories (e.g., PERSON, ORGANIZATION, LOCATION, DATE).</p>
+            <p><strong>Challenges:</strong> Ambiguity (e.g., "Washington"), multi-token entities ("Stanford University"), new entities not seen in training.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>BERT Fine-tuning:</strong> A token classification head is added on top of BERT's final hidden states for each token. The model is trained to predict BIO/BIOES tags for each token.</li>
+                <li>CRFs are often used on top of BiLSTMs or BERT outputs to model dependencies between tags.</li>
+            </ul>
+        </section>
+
+        <section id="srl">
+            <h2>Section 3.3: Semantic Role Labeling (SRL)</h2>
+            <p><strong>Primary Goal:</strong> To identify the semantic roles of constituents in a sentence with respect to a predicate (typically a verb). Answers "who did what to whom, when, where, why, how".</p>
+            <p><strong>Challenges:</strong> Identifying predicates, disambiguating roles, handling complex sentence structures.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>Deep BiLSTMs:</strong> Used to create contextualized representations for words. Often combined with features like POS tags. BIO tagging scheme is used for labeling argument spans. Decoding constraints (e.g., arguments don't overlap) are important.</li>
+                <li><strong>BERT-based models:</strong> Fine-tuned for SRL, often outperforming previous LSTM-based approaches by providing richer contextual embeddings.</li>
+            </ul>
+        </section>
+
+        <section id="wsd">
+            <h2>Section 3.4: Word Sense Disambiguation (WSD)</h2>
+            <p><strong>Primary Goal:</strong> To identify the correct meaning (sense) of a word in a given context, especially for polysemous words (words with multiple meanings).</p>
+            <p><strong>Challenges:</strong> Fine-grained distinctions between senses, lack of large-scale sense-annotated data for all words/languages.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>Contextual Embeddings (LMMS):</strong> Language Model Makes Sense (LMMS) uses pre-trained language models (like BERT) to get contextual embeddings for a target word and its possible senses (definitions/glosses). The sense whose embedding is closest (e.g., k-NN) to the target word's contextual embedding is chosen.</li>
+                <li><strong>Bi-Encoders (BEM):</strong> A Bi-Encoder Model (BEM) can be trained to independently embed the context of the ambiguous word and the definitions of its candidate senses. Similarity search is then performed in the embedding space.</li>
+                <li><strong>Word-Formation Knowledge (FormBERT):</strong> Enhances WSD (especially for Chinese) by incorporating word formation knowledge (e.g., character-level information, morphemes) into BERT-like models.</li>
+            </ul>
+        </section>
+
+        <section id="re">
+            <h2>Section 3.5: Relation Extraction (RE)</h2>
+            <p><strong>Primary Goal:</strong> To identify and classify semantic relationships between entities in text (e.g., "Steve Jobs" - Founded - "Apple Inc.").</p>
+            <p><strong>Challenges:</strong> Distinguishing between different relation types, handling long-distance relations, dealing with sentences expressing multiple relations.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>LSTMs with Position-Aware Attention:</strong> LSTMs can model sentence context, and position-aware attention helps focus on the relevant parts of the sentence concerning the two entities involved in a potential relation. Position embeddings relative to the target entities are often used.</li>
+                <li><strong>BERT-based Models:</strong> Fine-tuned by adding a classification layer over representations of the target entities (or the <code>[CLS]</code> token), often with special markers around entities.</li>
+                <li><strong>Open Information Extraction (OpenIE):</strong> Aims to extract relational tuples (e.g., (Arg1, RelationPhrase, Arg2)) from text without a predefined schema or set of relation types. Often uses rule-based or lightly supervised methods.</li>
+            </ul>
+        </section>
+
+        <section id="text-generation-summarization">
+            <h2>Section 3.6: Text Generation and Summarization</h2>
+            <p><strong>Primary Goals:</strong> Generating human-like text (e.g., stories, dialogue) or creating concise summaries of longer documents (extractive or abstractive).</p>
+            <p><strong>Challenges:</strong> Maintaining coherence, factual accuracy, avoiding repetition, controlling style and content, evaluating quality.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>Transformer-based models (Decoder-only like GPT/Llama, Encoder-Decoder like BART/T5):</strong> These are state-of-the-art.
+                    <ul>
+                        <li><strong>Autoregressive decoding:</strong> Generating text token by token.</li>
+                        <li><strong>Fine-tuning:</strong> Adapting pre-trained models on specific generation/summarization datasets.</li>
+                        <li><strong>Prompting strategies:</strong> Using carefully crafted prompts (including few-shot examples) to guide generation.</li>
+                        <li>RAG can be used for knowledge-grounded generation/summarization.</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section id="mt">
+            <h2>Section 3.7: Machine Translation (MT)</h2>
+            <p><strong>Primary Goal:</strong> To automatically translate text from a source language to a target language.</p>
+            <p><strong>Challenges:</strong> Lexical ambiguity, syntactic differences between languages, maintaining meaning and fluency, handling idioms and cultural nuances.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>Encoder-Decoder Transformers:</strong> The original Transformer paper ("Attention Is All You Need") demonstrated its effectiveness for MT. The encoder processes the source sentence, and the decoder generates the target sentence, with attention mechanisms linking target words to relevant source words.</li>
+            </ul>
+        </section>
+
+        <section id="nli">
+            <h2>Section 3.8: Natural Language Inference (NLI) / Textual Entailment</h2>
+            <p><strong>Primary Goal:</strong> To determine the relationship between a pair of sentences (premise and hypothesis): entailment, contradiction, or neutral.</p>
+            <p><strong>Challenges:</strong> Requires understanding nuanced meaning, commonsense reasoning, and logical inference.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>BERT Fine-tuning:</strong> Input is formatted as <code>[CLS] premise [SEP] hypothesis [SEP]</code>. The final hidden state of the <code>[CLS]</code> token is fed to a classifier to predict the relationship.</li>
+            </ul>
+        </section>
+
+        <section id="dialogue-systems">
+            <h2>Section 3.9: Dialogue Systems</h2>
+            <p><strong>Primary Goal:</strong> To enable machines to converse naturally with humans (task-oriented or open-domain chatbots).</p>
+            <p><strong>Challenges:</strong> Maintaining context over multiple turns, understanding user intent, generating coherent and relevant responses, managing dialogue state, ensuring safety and helpfulness.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>Fine-tuning LLMs like Llama 2-Chat:</strong> Involves Supervised Fine-Tuning (SFT) on dialogue data, Reinforcement Learning from Human Feedback (RLHF) to align with preferences (helpfulness, safety), and techniques like Ghost Attention (GAtt) for multi-turn consistency.</li>
+            </ul>
+        </section>
+
+        <section id="fact-checking">
+            <h2>Section 3.10: Fact Checking</h2>
+            <p><strong>Primary Goal:</strong> To verify the factual accuracy of claims against evidence from reliable sources.</p>
+            <p><strong>Challenges:</strong> Identifying check-worthy claims, retrieving relevant evidence, reasoning over evidence to determine veracity.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li>Potential application of <strong>RAG</strong> (to retrieve evidence and generate a verdict) or <strong>GENREAD</strong> (to generate supporting/refuting arguments based on internal knowledge before making a judgment). NLI techniques are also relevant for comparing claims to evidence.</li>
+            </ul>
+        </section>
+
+        <section id="coreference-resolution">
+            <h2>Section 3.11: Coreference Resolution</h2>
+            <p><strong>Primary Goal:</strong> To identify all expressions in a text that refer to the same real-world entity (e.g., linking pronouns to their antecedents).</p>
+            <p><strong>Challenges:</strong> Ambiguity, long-distance coreference, distinguishing between different entities with similar mentions.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>SpanBERT:</strong> Its design focusing on span representations makes it well-suited for coreference resolution, which involves identifying and linking spans of text (mentions).</li>
+            </ul>
+        </section>
+
+        <section id="kbp">
+            <h2>Section 3.12: Slot Filling (Knowledge Base Population - KBP)</h2>
+            <p><strong>Primary Goal:</strong> To extract specific attributes (slots) for given entities from text and use them to populate a knowledge base (e.g., finding the "birthdate" and "spouse" for a "PERSON" entity).</p>
+            <p><strong>Challenges:</strong> Identifying correct slot values, handling variations in how information is expressed, distinguishing between multiple potential fillers.</p>
+            <h4>Techniques & Applications:</h4>
+            <ul>
+                <li><strong>LSTMs with Position-Aware Attention:</strong> Used to identify slot fillers for an entity, where position-aware attention helps focus on relevant parts of the sentence given the entity and the target slot. Supervised data with labeled slot fills is crucial.</li>
+                <li>BERT-based models can also be fine-tuned for this, often formulated as a sequence labeling or question answering task.</li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

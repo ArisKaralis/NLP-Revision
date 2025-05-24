@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformer Architecture - Neural NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #0d9488; /* Teal-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #ccfbf1; /* Teal-100 */ color: #0f766e; /* Teal-700 */ }
+        .nav-link.active { background-color: #0d9488; /* Teal-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #f0fdfa; /* Teal-50 */ border: 1px solid #99f6e4; /* Teal-200 */ border-left-width: 4px; border-left-color: #2dd4bf; /* Teal-400 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #0f766e; /* Teal-700 */ margin-bottom: 0.5rem; }
+        .formula-box { background-color: #f3f4f6; padding: 1rem; border-radius: 0.375rem; margin-bottom:1rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 active block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Section 2.4: The Transformer Architecture – The Foundation of Modern NLP</h1>
+        <p>
+            The Transformer architecture, introduced by Vaswani et al. in "Attention Is All You Need",
+            marked a paradigm shift in sequence modeling. It dispenses with recurrence and convolutions
+            almost entirely, relying heavily on attention mechanisms to model dependencies between
+            input and output tokens.
+        </p>
+
+        <section id="overall-structure">
+            <h2>Overall Structure</h2>
+            <p>The original Transformer was designed for machine translation and thus has an <strong>Encoder-Decoder architecture</strong>.</p>
+            <ul>
+                <li>
+                    <strong>Encoder:</strong> Maps an input sequence of symbol representations $(x_1, ..., x_n)$ to a sequence of continuous representations $(z_1, ..., z_n)$. It consists of a stack of N identical layers. Each layer has two sub-layers: a multi-head self-attention mechanism and a simple, position-wise fully connected feed-forward network.
+                </li>
+                <li>
+                    <strong>Decoder:</strong> Also composed of a stack of N identical layers. In addition to the two sub-layers in each encoder layer, the decoder inserts a third sub-layer, which performs multi-head attention over the output of the encoder stack.
+                </li>
+            </ul>
+            <h4>Variants:</h4>
+            <ul>
+                <li><strong>Encoder-Only (e.g., BERT):</strong> Use only the Transformer encoder stack. Effective for NLU tasks (classification, sequence tagging, QA) requiring rich bidirectional contextual representations.</li>
+                <li><strong>Decoder-Only (e.g., GPT series, Llama):</strong> Use only the Transformer decoder stack (typically with causal/masked self-attention). Suited for autoregressive language modeling and text generation.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability (Overall Architecture):</strong> The key innovation of Transformers is their parallelizability. Unlike RNNs which process tokens sequentially, Transformers can process all tokens in a sequence in parallel through self-attention. This makes them highly scalable for training on large datasets and with large models using modern hardware (GPUs/TPUs). The depth (N layers) and width (embedding dimensions) can be scaled up significantly.</p>
+            </div>
+        </section>
+
+        <section id="self-attention">
+            <h2>Self-Attention (Scaled Dot-Product Attention)</h2>
+            <p>
+                Self-attention is the core mechanism, allowing each token in a sequence to interact with and
+                weigh the importance of all other tokens in the same sequence to compute its own updated representation.
+                This captures dependencies regardless of distance.
+            </p>
+            <h4>Role:</h4>
+            <p>To create context-aware representations for each token by considering its relationship with all other tokens in the sequence.</p>
+            <h4>Computation:</h4>
+            <ol>
+                <li>
+                    <strong>Queries, Keys, Values (Q, K, V):</strong> For each input embedding $x_i$ (from previous layer or initial input), three vectors are derived via learned weight matrices $W_Q, W_K, W_V$:
+                    <div class="formula-box">
+                        Query vector: $q_i = x_i W_Q$ <br>
+                        Key vector: $k_i = x_i W_K$ <br>
+                        Value vector: $v_i = x_i W_V$
+                    </div>
+                    In matrix form for sequence $X$: $Q=XW_Q, K=XW_K, V=XW_V$.
+                </li>
+                <li>
+                    <strong>Attention Scores:</strong> Compatibility score between query $q_i$ and key $k_j$ is their dot product: $\text{score}(q_i, k_j) = q_i \cdot k_j$. Matrix form: $QK^T$.
+                </li>
+                <li>
+                    <strong>Scaling:</strong> Scores are scaled by $\sqrt{d_k}$ (dimension of key vectors):
+                    <div class="formula-box">$\frac{QK^T}{\sqrt{d_k}}$</div>
+                    This stabilizes gradients and prevents large dot products from pushing softmax into regions with small gradients.
+                </li>
+                <li>
+                    <strong>Softmax for Attention Weights:</strong> Softmax is applied row-wise to scaled scores to get attention weights $P$. $P_{ij}$ is how much attention token $i$ pays to token $j$.
+                    <div class="formula-box">$P = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)$</div>
+                </li>
+                <li>
+                    <strong>Output Computation:</strong> Output $Z$ is a weighted sum of value vectors:
+                    <div class="formula-box">$Z = PV$</div>
+                    Each output $z_i$ is a context-aware representation of input $x_i$.
+                </li>
+            </ol>
+            <div class="example-box">
+                <h5>Simplified Example: Self-Attention</h5>
+                <p>Consider the sentence: "The animal didn't cross the street because <strong>it</strong> was too tired."</p>
+                <p>When processing the word "it", self-attention allows the model to learn that "it" refers to "animal" and not "street". It does this by calculating high attention scores between "it" (as a query) and "animal" (as a key), thus giving more weight to the "animal" vector when computing the new representation for "it".</p>
+            </div>
+        </section>
+
+        <section id="multi-head-attention">
+            <h2>Multi-Head Attention</h2>
+            <p>
+                Instead of a single attention function, Transformers employ multi-head attention.
+            </p>
+            <h4>Concept:</h4>
+            <p>
+                Input Q, K, V are linearly projected $h$ times (number of heads, e.g., 8 or 12) using different learned projections. These $h$ sets are fed into $h$ parallel attention functions.
+            </p>
+            <h4>Process:</h4>
+            <ol>
+                <li>Linearly project Q, K, V $h$ times: $Q_i = QW_i^Q, K_i = KW_i^K, V_i = VW_i^V$ for head $i=1...h$.</li>
+                <li>Apply scaled dot-product attention for each head: $\text{head}_i = \text{Attention}(Q_i, K_i, V_i)$.</li>
+                <li>Concatenate the $h$ head outputs: $\text{MultiHead}(Q,K,V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)$.</li>
+                <li>Linearly project the concatenated output with another weight matrix $W^O$: $\text{MultiHead}(Q,K,V)W^O$.</li>
+            </ol>
+            <h4>Benefits:</h4>
+            <p>
+                Allows the model to jointly attend to information from different representation subspaces at
+                different positions. Different heads can learn to capture different types of relationships
+                (e.g., syntactic, semantic, co-reference, local vs. distant context), enriching the model's
+                ability to process complex information.
+            </p>
+            <div class="note">
+                <p><strong>Scalability (Self & Multi-Head Attention):</strong> The computation of self-attention involves matrix multiplications ($QK^T$) which can be $O(N^2 \cdot d)$ for sequence length $N$ and dimension $d$. This quadratic complexity with sequence length is a bottleneck for very long sequences. However, these operations are highly parallelizable across tokens and heads. For typical sequence lengths in many NLP tasks, this is manageable on modern hardware. Techniques like sparse attention or linear attention aim to reduce this quadratic complexity for extremely long sequences.</p>
+            </div>
+        </section>
+
+        <section id="positional-embeddings">
+            <h2>Positional Embeddings</h2>
+            <p>
+                Since self-attention is permutation-invariant (treats input as a set), information about
+                token order must be explicitly injected. Without it, "dog bites man" and "man bites dog"
+                would be indistinguishable.
+            </p>
+            <h4>Types:</h4>
+            <ul>
+                <li>
+                    <strong>Absolute Position Embedding (Learned):</strong> Unique embedding vectors learned for each absolute position (e.g., position 1, 2, ...), added to token embeddings. Used in BERT, GPT.
+                </li>
+                <li>
+                    <strong>Absolute Position Embedding (Sine/Cosine Functions):</strong> Original Transformer used fixed embeddings from sine/cosine functions of different frequencies:
+                    <div class="formula-box">
+                        $PE_{(pos, 2i)} = \sin(pos / 10000^{2i/d_{model}})$<br>
+                        $PE_{(pos, 2i+1)} = \cos(pos / 10000^{2i/d_{model}})$
+                    </div>
+                    (pos is position, $i$ is dimension). Allows potential generalization to longer sequences.
+                </li>
+                <li>
+                    <strong>Relative Position Embedding:</strong> Encodes relative distance between token pairs directly into attention.
+                </li>
+                <li>
+                    <strong>Rotary Position Embedding (RoPE):</strong> Used in RoFormer, Llama. Encodes absolute position by applying a rotation matrix to Q and K vectors based on their absolute position. The angle depends on position. The dot product $Q_m K_n^T$ naturally incorporates relative position $m-n$. Offers good sequence length flexibility and decaying inter-token dependency with distance.
+                </li>
+            </ul>
+        </section>
+
+        <section id="ffn">
+            <h2>Feed-Forward Networks (FFN) per block</h2>
+            <p>
+                Each Transformer block contains a position-wise Feed-Forward Network (FFN) applied
+                independently and identically to each position (token's representation after self-attention).
+            </p>
+            <h4>Structure:</h4>
+            <p>Typically two linear transformations with a non-linear activation in between.</p>
+            <div class="formula-box">$\text{FFN}(x) = \text{Activation}(xW_1 + b_1)W_2 + b_2$</div>
+            <p>Input $x$ is output from self-attention. First layer ($W_1, b_1$) usually expands dimensionality (e.g., $d_{model}$ to $d_{ff} = 4 \times d_{model}$), activation is applied, second layer ($W_2, b_2$) projects back to $d_{model}$.</p>
+            <h4>Activation Functions:</h4>
+            <ul>
+                <li>Original Transformer: ReLU ($\max(0,z)$).</li>
+                <li>BERT: GELU (Gaussian Error Linear Unit), smoother than ReLU.</li>
+                <li>
+                    GLU Variants (Gated Linear Units): Shown improved performance. General form: $\text{GLU}(x,W,V,b,c) = \sigma(xW+b) \otimes (xV+c)$.
+                    <ul>
+                        <li>ReGLU: Uses ReLU.</li>
+                        <li>GEGLU: Uses GELU.</li>
+                        <li>SwiGLU: Uses Swish ($x \cdot \sigma(\beta x)$). Used in Llama models.</li>
+                    </ul>
+                    When using GLU variants, $d_{ff}$ is often reduced (e.g., to $2/3 \cdot d_{ff\_original}$) to keep parameter count similar.
+                </li>
+            </ul>
+        </section>
+
+        <section id="add-norm">
+            <h2>Add & Norm Layers (Residual Connections and Layer Normalization)</h2>
+            <p>
+                Each sub-layer (self-attention and FFN) is followed by a residual connection and then layer normalization.
+            </p>
+            <ul>
+                <li>
+                    <strong>Residual Connection ("Add"):</strong> Output is $x + \text{Sublayer}(x)$, where $x$ is input to sub-layer. Allows gradients to flow more directly, easing training of deep Transformers by mitigating vanishing gradients.
+                </li>
+                <li>
+                    <strong>Layer Normalization (LayerNorm):</strong> Applied after residual connection. Normalizes activations across features (embedding dimensions) for each token independently within a layer. Stabilizes learning, reduces sensitivity to initialization, speeds up training.
+                </li>
+                <li>
+                    <strong>RMSNorm (Root Mean Square Layer Normalization):</strong> Simpler, more efficient alternative to LayerNorm, used in Llama. Only re-scales activations by their root mean square, omitting mean re-centering. Formula: $\bar{a}_i = \frac{a_i}{\text{RMS}(\mathbf{a})} g_i$, where $\text{RMS}(\mathbf{a}) = \sqrt{\frac{1}{n}\sum_{j=1}^n a_j^2}$ and $g_i$ is a learnable gain. Achieves comparable performance, faster. Llama uses RMSNorm for pre-normalization (applied to input of each sub-layer).
+                </li>
+            </ul>
+        </section>
+
+        <section id="causal-masking">
+            <h2>Causal Masking (Look-ahead Masking) in Decoders</h2>
+            <p>
+                For autoregressive generation (predicting next token based on previous), self-attention in
+                Transformer decoders must be prevented from attending to future positions in the output sequence.
+            </p>
+            <h4>Purpose:</h4>
+            <p>To ensure prediction for position $i$ only depends on known outputs at positions $j < i$.</p>
+            <h4>Mechanism:</h4>
+            <p>
+                During attention score computation ($QK^T$), a mask sets scores for connections from query at
+                position $i$ to keys at positions $j > i$ to negative infinity ($-\infty$). Softmax then makes
+                these attention weights 0, zeroing out attention to future tokens.
+            </p>
+            <p class="mt-4">
+                The Transformer's parallelizability (due to removal of recurrence) was key to scaling to large datasets and models. Continuous refinements (LayerNorm to RMSNorm, ReLU to SwiGLU, RoPE) show it's a flexible, evolving framework. Decoder-only models (GPT, Llama) highlight the versatility of its core principles.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

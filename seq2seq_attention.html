@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seq2Seq & Attention - Neural NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #ec4899; /* Pink-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #fce7f3; /* Pink-100 */ color: #db2777; /* Pink-700 */ }
+        .nav-link.active { background-color: #ec4899; /* Pink-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #fdf2f8; /* Pink-50 */ border: 1px solid #fbcfe8; /* Pink-200 */ border-left-width: 4px; border-left-color: #f472b6; /* Pink-400 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #db2777; /* Pink-700 */ margin-bottom: 0.5rem; }
+        .formula-box { background-color: #f3f4f6; padding: 1rem; border-radius: 0.375rem; margin-bottom:1rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 active block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Section 2.3: Sequence-to-Sequence (Seq2Seq) Models and Attention</h1>
+        <p>
+            Sequence-to-sequence (Seq2Seq) models are designed for tasks where the input is a sequence and
+            the output is also a sequence, and the lengths of these sequences can differ. This architecture
+            is fundamental to applications like machine translation, text summarization, and question answering.
+        </p>
+
+        <section id="encoder-decoder">
+            <h2>Encoder-Decoder Architecture</h2>
+            <p>
+                The standard Seq2Seq model consists of two main components: an <strong>encoder</strong> and a <strong>decoder</strong>,
+                typically implemented using RNNs (like LSTMs or GRUs).
+            </p>
+            <h4>Purpose:</h4>
+            <p>
+                To map an input sequence of variable length (e.g., a sentence in a source language) to an
+                output sequence of potentially different variable length (e.g., its translation in a target language).
+            </p>
+            <h4>Encoder:</h4>
+            <p>
+                The encoder reads the input sequence token by token. At each step, it updates its hidden state
+                based on the current input token and its previous hidden state. After processing the entire
+                input sequence, the encoder's final hidden state (or a transformation of it) is used as a
+                fixed-length vector representation of the entire input sequence. This vector is often called
+                the "context vector" or "thought vector," as it aims to summarize the meaning of the input sequence.
+            </p>
+            <div class="example-box">
+                <h5>Simplified Example: Encoder</h5>
+                <p>Input: "Je suis étudiant" (French)</p>
+                <p>The encoder (e.g., an LSTM) processes each word ("Je", "suis", "étudiant") and produces a final hidden state vector that represents the meaning of this French sentence.</p>
+            </div>
+            <h4>Decoder:</h4>
+            <p>
+                The decoder takes the context vector from the encoder as its initial hidden state (or as an input
+                at every step). It then generates the output sequence token by token in an autoregressive manner.
+                That is, to generate the token at time step $t$, the decoder uses its current hidden state and
+                the output token generated at time step $t-1$. This process continues until a special
+                end-of-sequence (<code>&lt;EOS&gt;</code>) token is generated.
+            </p>
+            <div class="example-box">
+                <h5>Simplified Example: Decoder</h5>
+                <p>Context Vector from Encoder (representing "Je suis étudiant")</p>
+                <p>Decoder starts generating: "I" -> "am" -> "a" -> "student" -> <code>&lt;EOS&gt;</code> (English)</p>
+                <p>The previously generated word ("I") helps predict the next word ("am").</p>
+            </div>
+            <h4>Challenge (Information Bottleneck):</h4>
+            <p>
+                A significant challenge with the basic encoder-decoder architecture is that the single
+                fixed-length context vector must encapsulate all information from the input sequence.
+                This can become an "information bottleneck," especially for long input sequences, as it's
+                difficult to compress all relevant details into one vector. Information from earlier parts
+                of a long input sequence might be poorly represented or lost.
+            </p>
+            <div class="note">
+                <p><strong>Scalability (Basic Seq2Seq):</strong> Training these models involves backpropagating errors through both the decoder and encoder RNNs. The fixed-length context vector is a major limitation for scalability to very long sequences. While RNNs can handle variable lengths, the quality degrades with increasing length due to the bottleneck.</p>
+            </div>
+        </section>
+
+        <section id="attention-mechanisms">
+            <h2>Attention Mechanisms</h2>
+            <p>
+                Attention mechanisms were introduced to address the information bottleneck problem in Seq2Seq
+                models and to allow the decoder to selectively focus on different parts of the source input
+                sequence when generating each part of the output sequence.
+            </p>
+            <h4>Rationale:</h4>
+            <p>
+                Instead of relying on a single fixed context vector, attention allows the decoder to "look back"
+                at the hidden states of the encoder for all input tokens at each step of the decoding process.
+                This enables the decoder to assign different levels of "attention" or importance to different
+                parts of the input sequence when predicting the current output token.
+            </p>
+            <div class="example-box">
+                <h5>Simplified Analogy: Attention in Human Translation</h5>
+                <p>When a human translates a long sentence, they don't just read it once, memorize everything, and then write the translation. Instead, they might focus on a few words of the source sentence, translate that part, then shift their focus to the next few words, and so on. Attention mechanisms try to mimic this selective focus.</p>
+            </div>
+            <h4>Mechanism (Conceptual Steps):</h4>
+            <ol>
+                <li><strong>Encoder Hidden States:</strong> The encoder produces a sequence of hidden states, $h_1^{enc}, h_2^{enc}, ..., h_S^{enc}$, one for each token in the input sequence of length $S$.</li>
+                <li><strong>Decoder Hidden State:</strong> At each decoding time step $t$, the decoder has a current hidden state $h_t^{dec}$.</li>
+                <li>
+                    <strong>Alignment Scores (Attention Scores, $e_{ts}$):</strong> For the current decoder state $h_t^{dec}$, an alignment score (or energy score) $e_{ts}$ is computed for each encoder hidden state $h_s^{enc}$. This score quantifies how well the input around position $s$ and the output at position $t$ match.
+                </li>
+                <li>
+                    <strong>Attention Weights ($\alpha_{ts}$):</strong> These alignment scores are then normalized using a softmax function to obtain attention weights $\alpha_{ts}$ for each encoder hidden state:
+                    <div class="formula-box">$\alpha_{ts} = \frac{\exp(e_{ts})}{\sum_{k=1}^{S} \exp(e_{tk})}$</div>
+                    These weights sum to 1 and represent the probability distribution of attention over the input sequence for the current decoding step.
+                </li>
+                <li>
+                    <strong>Context Vector ($c_t$):</strong> A dynamic context vector $c_t$ is computed as a weighted sum of all the encoder hidden states, using the attention weights:
+                    <div class="formula-box">$c_t = \sum_{s=1}^{S} \alpha_{ts} h_s^{enc}$</div>
+                    This context vector captures the relevant information from the input sequence for generating the output token at step $t$.
+                </li>
+                <li>
+                    <strong>Output Prediction:</strong> The context vector $c_t$ is then combined with the decoder's current hidden state $h_t^{dec}$ (often by concatenation) and fed into an output layer to predict the next output token $y_t$.
+                </li>
+            </ol>
+
+            <h4>Types of Attention:</h4>
+            <ul>
+                <li>
+                    <strong>Additive Attention (Bahdanau Attention):</strong> The alignment score $e_{ts}$ is computed using a small feed-forward neural network that takes both $h_t^{dec}$ (or $h_{t-1}^{dec}$) and $h_s^{enc}$ as input. A simplified form is:
+                    <div class="formula-box">$e_{ts} = v_a^T \tanh(W_a h_{t-1}^{dec} + U_a h_s^{enc})$</div>
+                    (where $v_a, W_a, U_a$ are learned weight matrices). This allows for more complex interactions.
+                </li>
+                <li>
+                    <strong>Dot-Product Attention (Luong Attention):</strong> The alignment score $e_{ts}$ is computed as the dot product between the decoder hidden state and the encoder hidden state:
+                    <div class="formula-box">$e_{ts} = (h_t^{dec})^T h_s^{enc}$</div>
+                    This is simpler and often more computationally efficient. A variant, <strong>Scaled Dot-Product Attention</strong>, divides the dot product by $\sqrt{d_k}$ (dimension of keys), as used in Transformers.
+                </li>
+            </ul>
+            <h4>Impact:</h4>
+            <p>
+                The introduction of attention mechanisms significantly improved the performance of Seq2Seq models,
+                particularly in machine translation, by allowing them to handle long sentences more effectively
+                and learn "soft alignments" between source and target words. The dynamic context vector allows
+                the decoder to focus on relevant parts of the input, overcoming the limitations of a single
+                fixed-length context vector. This concept of dynamically weighting input parts is foundational
+                for self-attention in Transformers.
+            </p>
+            <div class="note">
+                <p><strong>Scalability (Seq2Seq with Attention):</strong> Attention adds computational overhead at each decoding step, as scores against all encoder states need to be computed. For very long input sequences ($S$), this can be $O(S \times \text{DecoderSteps})$. However, the performance gains, especially for longer sequences, often outweigh this cost. The ability to parallelize the calculation of attention scores across encoder states helps. This mechanism was a crucial step towards handling longer dependencies more effectively than basic Seq2Seq models.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
