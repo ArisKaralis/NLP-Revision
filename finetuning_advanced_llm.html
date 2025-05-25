@@ -108,18 +108,19 @@
             <h4>1. Supervised Fine-Tuning (SFT)</h4>
             <ul>
                 <li><strong>Objective:</strong> Initial alignment of base Llama 2 towards following instructions and dialogue.</li>
-                <li><strong>Data:</strong> High-quality instruction-following data (prompt-answer pairs). Llama 2 paper emphasizes quality over quantity (~27,540 curated examples).</li>
+                <li><strong>Data:</strong> High-quality instruction-following data (prompt-answer pairs). Llama 2 paper emphasizes quality over quantity over quantity (~27,540 curated examples).</li>
                 <li><strong>Process:</strong> Model fine-tuned using an autoregressive objective; loss typically computed only on answer tokens.</li>
+                <li><strong>Quality vs. Quantity:</strong> The Llama 2 paper (Touvron et al., 2023) found that using fewer but higher-quality examples improved results significantly. The authors observed that SFT model outputs were often competitive with human-written data.</li>
             </ul>
 
             <h4>2. Reinforcement Learning with Human Feedback (RLHF)</h4>
             <p>Further refines model behavior based on human preferences.</p>
             <ul>
                 <li>
-                    <strong>Human Preference Data Collection:</strong> Annotators choose preferred response between two model-generated outputs for a prompt, often rating preference degree. Focus on helpfulness and safety.
+                    <strong>Human Preference Data Collection:</strong> Annotators choose preferred response between two model-generated outputs for a prompt, often rating preference degree. Focus on helpfulness and safety. According to the Llama 2 paper, over 1 million binary comparisons were collected, with annotators using specific guidelines and indicating degree of preference (from "significantly better" to "negligibly better/unsure").
                 </li>
                 <li>
-                    <strong>Reward Modeling (RM):</strong> One or more RMs trained on preference data. RM takes prompt + response, outputs a scalar score for alignment with human preferences. Llama 2-Chat trains separate RMs for helpfulness and safety. RM architecture is similar to base LLM with a regression head. Binary ranking loss is common.
+                    <strong>Reward Modeling (RM):</strong> One or more RMs trained on preference data. RM takes prompt + response, outputs a scalar score for alignment with human preferences. Llama 2-Chat trains separate RMs for helpfulness and safety. RM architecture is similar to base LLM with a regression head. Binary ranking loss is common. The paper notes that accuracy is higher for pairs with stronger preference.
                 </li>
                 <li>
                     <strong>Iterative Model Refinement (Policy Optimization):</strong> SFT model (policy) further fine-tuned using RL algorithms, with RM providing reward.
@@ -134,6 +135,7 @@
             <p>Technique for Llama 2-Chat to improve multi-turn dialogue consistency, especially remembering initial instructions (e.g., "act as a pirate").</p>
             <ul>
                 <li><strong>Method:</strong> During fine-tuning (often SFT-like stage after RLHF), initial instruction synthetically concatenated to all user messages in training dialogues. Loss set to 0 for tokens from previous turns to avoid issues where intermediate assistant messages wouldn't have had access to this repeated instruction. This "hacks" data to remind model of overarching instruction.</li>
+                <li><strong>Inspiration:</strong> According to the Llama 2 paper, GAtt was inspired by Context Distillation and helps attention focus in multi-turn dialogues by maintaining the initial context throughout the conversation.</li>
             </ul>
             <div class="note">
                 <p><strong>Scalability (Llama 2-Chat Fine-tuning):</strong> SFT is less costly than pre-training but still requires significant data and compute. RLHF is complex and iterative, involving human annotation (expensive and time-consuming), reward model training, and RL fine-tuning. Each step requires careful management and considerable resources. GAtt adds a data preprocessing step but doesn't fundamentally change the fine-tuning compute requirements otherwise.</p>
@@ -157,6 +159,16 @@
             <p>
                 Builds on CoT. Samples multiple diverse reasoning paths from LLM (e.g., using non-zero temperature). Final answer selected by majority vote over answers from these paths. Improves robustness and accuracy.
             </p>
+            <p>
+                As described in Wang et al. (2022), "Self-Consistency Improves Chain of Thought Reasoning in Language Models," this method:
+            </p>
+            <ul>
+                <li><strong>Sampling:</strong> Generates multiple diverse reasoning paths using temperature sampling or top-k truncation from the same prompt</li>
+                <li><strong>Aggregation:</strong> Takes the most consistent answer across paths via majority voting</li>
+                <li><strong>Performance:</strong> Shows significant improvements across arithmetic reasoning tasks (AddSub, MultiArith, GSM8K) and commonsense reasoning tasks</li>
+                <li><strong>Scaling:</strong> Performance generally improves with more reasoning paths (e.g., sampling 40 paths), though with increased computational cost</li>
+                <li><strong>Additional benefits:</strong> Provides uncertainty estimates and improves calibration</li>
+            </ul>
 
             <h4>3. SELF-REFINE</h4>
             <p>Iterative framework where an LLM improves its own generated output without additional training data or external feedback.</p>
@@ -165,6 +177,17 @@
                 <li><strong>Feedback:</strong> Same LLM prompted to provide feedback on its own output (errors, improvements).</li>
                 <li><strong>Refine:</strong> LLM uses original input, initial output, and its own feedback to generate refined output. Cycle can be repeated.</li>
             </ol>
+            <p>
+                According to Madaan et al. (2023), "SELF-REFINE: Iterative Refinement with Self-Feedback," this approach:
+            </p>
+            <ul>
+                <li><strong>Implementation:</strong> Uses few-shot prompts for generation, feedback, and refinement with existing LLMs (GPT-3.5, ChatGPT, GPT-4)</li>
+                <li><strong>Tasks:</strong> Evaluated on diverse tasks including dialogue response generation, code optimization, code readability improvement, math reasoning, sentiment reversal, acronym generation, and constrained generation</li>
+                <li><strong>Results:</strong> Shows consistent improvement across tasks and models, with the FEEDBACK step being crucial—generic feedback or no feedback leads to reduced scores</li>
+                <li><strong>Iteration:</strong> Multiple iterations improve output quality, though with diminishing returns</li>
+                <li><strong>Human Evaluation:</strong> SELF-REFINE outputs were preferred over simply generating multiple initial outputs (1 vs k comparison)</li>
+                <li><strong>Advantages:</strong> Reduces the cost of human creative processes and avoids training a separate refiner, making it simple and widely applicable</li>
+            </ul>
         </section>
 
         <section id="knowledge-augmentation">
@@ -201,7 +224,7 @@
                 <li><strong>Rationale:</strong> Leverages LLM's internal knowledge to create tailored context, useful when external corpus is unavailable or context is highly specific.</li>
             </ul>
             <div class="note">
-                <p><strong>Scalability (Prompting & Augmentation):</strong> CoT, Self-Consistency, and SELF-REFINE increase inference cost as they involve generating more text or iterative steps. RAG adds the cost of retrieval (indexing a large corpus and performing search) and processing longer inputs for the generator. GENREAD also increases generation cost. These trade off increased computational cost at inference for improved performance, reasoning, or factuality without retraining the base LLM.</p>
+                <p><strong>Scalability (Prompting & Augmentation):</strong> CoT, Self-Consistency, and SELF-REFINE increase inference cost as they involve generating more text or iterative steps. As noted in the Self-Consistency paper (Wang et al., 2022), sampling multiple reasoning paths significantly increases computation but provides substantial gains in accuracy. SELF-REFINE similarly trades increased generation cost for improved output quality through its multi-step process. RAG adds the cost of retrieval (indexing a large corpus and performing search) and processing longer inputs for the generator. GENREAD also increases generation cost. These methods trade off increased computational cost at inference for improved performance, reasoning, or factuality without retraining the base LLM.</p>
             </div>
         </section>
 
@@ -222,19 +245,19 @@
                             <td><strong>SFT (Supervised Fine-Tuning)</strong></td>
                             <td>Fine-tune PLM on (instruction, response) pairs.</td>
                             <td>Initial alignment to follow instructions and perform specific tasks (e.g., dialogue).</td>
-                            <td>Llama 2-Chat</td>
+                            <td>Llama 2-Chat (Touvron et al., 2023)</td>
                         </tr>
                         <tr>
                             <td><strong>RLHF (Reinforcement Learning from Human Feedback)</strong></td>
                             <td>Train reward model on human preferences, then use RL to fine-tune LLM policy.</td>
                             <td>Further align LLM with complex human preferences (helpfulness, safety, style).</td>
-                            <td>Llama 2-Chat, InstructGPT</td>
+                            <td>Llama 2-Chat (Touvron et al., 2023), InstructGPT</td>
                         </tr>
                         <tr>
                             <td><strong>GAtt (Ghost Attention)</strong></td>
                             <td>Synthetically repeat initial instruction in multi-turn dialogue training data; mask loss for prior turns.</td>
                             <td>Improves multi-turn consistency and adherence to initial instructions in dialogue.</td>
-                            <td>Llama 2-Chat</td>
+                            <td>Llama 2-Chat (Touvron et al., 2023)</td>
                         </tr>
                         <tr>
                             <td><strong>CoT (Chain-of-Thought) Prompting</strong></td>
@@ -266,11 +289,127 @@
                             <td>Leverages LLM's internal knowledge to create tailored context, useful when external retrieval is hard or corpus is unavailable.</td>
                             <td>Yu et al. 2023</td>
                         </tr>
+                        <tr>
+                            <td><strong>RoPE (Rotary Position Embedding)</strong></td>
+                            <td>Encodes absolute position through rotation matrices in self-attention mechanism.</td>
+                            <td>Improves performance on long text tasks and provides better handling of relative positions.</td>
+                            <td>Su et al. 2021 (RoFormer)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RMSNorm</strong></td>
+                            <td>Normalizes inputs using the Root Mean Square value, omitting the centering step of LayerNorm.</td>
+                            <td>Computational efficiency, faster training, and potentially better model performance.</td>
+                            <td>Zhang & Sennrich, 2019</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
             <p class="mt-4">
                 The fine-tuning process, especially complex multi-stage approaches like RLHF for Llama 2-Chat, highlights that transforming a general-purpose pre-trained LLM into a specialized, aligned, and safe conversational agent is a significant undertaking. Advanced prompting and knowledge augmentation techniques further extend the capabilities of these models, allowing them to perform more sophisticated reasoning and access information beyond their pre-training data.
+            </p>
+        </section>
+
+        <section id="research-papers">
+            <h2>Key Research Papers in LLM Development</h2>
+            <p>
+                The following summaries highlight significant research papers that have contributed to the advancement of Large Language Models, their architectures, fine-tuning approaches, and enhancement techniques.
+            </p>
+
+            <h3 id="llama-papers">LLaMA Model Papers</h3>
+            <div class="example-box">
+                <h5>LLaMA: Open and Efficient Foundation Language Models (Touvron et al., 2023)</h5>
+                <p><strong>Goal:</strong> Introduce LLaMA, a family of foundation language models aimed at efficiency.</p>
+                <p><strong>Key Points:</strong></p>
+                <ul>
+                    <li><strong>Training Data:</strong> Diverse datasets including English CommonCrawl, C4, Github, Gutenberg, Books3, ArXiv, and Stack Exchange. Preprocessing involved deduplication, language identification, and quality filtering.</li>
+                    <li><strong>Languages:</strong> Primarily English, with some other languages using Latin or Cyrillic scripts (bg, ca, cs, da, de, en, es, fr, hr, hu, it, nl, pl, pt, ro, ru, sl, sr, sv, uk).</li>
+                    <li><strong>Evaluation:</strong> Tested on 20 benchmarks covering zero-shot and few-shot tasks. MMLU performance showed LLaMA-65B behind Chinchilla-70B and PaLM-540B, potentially due to limited books and academic papers in pre-training.</li>
+                    <li><strong>Instruction Finetuning:</strong> LLaMA-I (65B) achieved 68.9% on MMLU after brief instruction finetuning, outperforming OPT-IML and Flan-PaLM but below GPT code-davinci-002.</li>
+                    <li><strong>Carbon Footprint:</strong> Training emissions ranged from 14 MWh (7B) to 173 MWh (65B) using A100-80GB GPUs.</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h5>Llama 2: Open Foundation and Fine-Tuned Chat Models (Touvron et al., 2023)</h5>
+                <p><strong>Goal:</strong> Introduce Llama 2, a family of pretrained and fine-tuned chat models (7B to 70B parameters), with focus on helpfulness and safety.</p>
+                <p><strong>Key Points:</strong></p>
+                <ul>
+                    <li><strong>Supervised Fine-tuning (SFT):</strong> Emphasized quality over quantity, with 27,540 carefully curated annotation examples. Higher-quality but fewer examples improved results.</li>
+                    <li><strong>Human Preference Data:</strong> Collected over 1 million binary comparisons for RLHF, focusing separately on helpfulness and safety. Annotators labeled degree of preference and received specific guidelines.</li>
+                    <li><strong>Reward Modeling:</strong> Separate reward models for helpfulness and safety performed best due to tension between objectives. Accuracy was higher for pairs with stronger preference.</li>
+                    <li><strong>Ghost Attention (GAtt):</strong> Simple method to help models maintain focus in multi-turn dialogues by synthetically concatenating the initial instruction to all user messages during fine-tuning.</li>
+                    <li><strong>Safety:</strong> Comprehensive safety alignment process including SFT, RLHF, red teaming, and context distillation with safety preprompts. Evaluation showed comparable or lower violation percentage compared to ChatGPT, Falcon, MPT, and Vicuna.</li>
+                    <li><strong>Attention Mechanism:</strong> Explored Grouped-Query Attention (GQA) as an alternative to Multi-Head Attention, enabling higher throughput and larger batch sizes while maintaining performance.</li>
+                </ul>
+            </div>
+
+            <h3 id="architecture-papers">Transformer Architecture Innovations</h3>
+            <div class="example-box">
+                <h5>RoFormer: Enhanced Transformer with Rotary Position Embedding (Su et al., 2021)</h5>
+                <p><strong>Goal:</strong> Propose Rotary Position Embedding (RoPE) as a new position embedding method for transformer architectures.</p>
+                <p><strong>Key Points:</strong></p>
+                <ul>
+                    <li><strong>Method:</strong> Incorporates explicit relative position dependency in self-attention by encoding absolute position through rotation matrices.</li>
+                    <li><strong>Benefits:</strong> Naturally formulates relative position using vector production, demonstrated faster convergence in pre-training compared to learned absolute position encoding.</li>
+                    <li><strong>Performance:</strong> Shows better performance on long text tasks and competitive results on GLUE benchmarks.</li>
+                    <li><strong>Limitation:</strong> Cannot effectively extrapolate past the sequence length compared to methods like ALiBi.</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h5>Root Mean Square Layer Normalization (Zhang & Sennrich, 2019)</h5>
+                <p><strong>Goal:</strong> Introduce RMSNorm as a computationally efficient alternative to LayerNorm.</p>
+                <p><strong>Key Points:</strong></p>
+                <ul>
+                    <li><strong>Method:</strong> Normalizes summed inputs using the Root Mean Square (RMS) value, omitting the centering step used in LayerNorm.</li>
+                    <li><strong>Efficiency:</strong> Computationally more efficient than LayerNorm while achieving similar or better performance.</li>
+                    <li><strong>Invariance:</strong> Invariant to re-scaling of weight matrices and single training cases, but not to re-centering.</li>
+                    <li><strong>Results:</strong> Demonstrated faster training and lower validation error rates across various deep network architectures and tasks.</li>
+                </ul>
+            </div>
+
+            <h3 id="reasoning-papers">Enhancing LLM Reasoning</h3>
+            <div class="example-box">
+                <h5>Self-Consistency Improves Chain of Thought Reasoning in Language Models (Wang et al., 2022)</h5>
+                <p><strong>Goal:</strong> Introduce self-consistency, a method to improve reasoning by sampling multiple reasoning paths and taking a majority vote.</p>
+                <p><strong>Key Points:</strong></p>
+                <ul>
+                    <li><strong>Method:</strong> Applies self-consistency on top of chain-of-thought prompting, sampling diverse reasoning paths using temperature sampling or top-k truncation.</li>
+                    <li><strong>No Additional Training:</strong> Does not require additional supervision or fine-tuning, making it widely applicable.</li>
+                    <li><strong>Results:</strong> Significantly improves accuracy across arithmetic and commonsense reasoning tasks on multiple LLMs (UL2-20B, LaMDA-137B, PaLM-540B, GPT-3).</li>
+                    <li><strong>Scaling:</strong> Performance improves with more reasoning paths (e.g., sampling 40 paths), though at increased computational cost.</li>
+                    <li><strong>Additional Benefits:</strong> Useful for collecting rationales, providing uncertainty estimates, and improving calibration.</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h5>SELF-REFINE: Iterative Refinement with Self-Feedback (Madaan et al., 2023)</h5>
+                <p><strong>Goal:</strong> Introduce SELF-REFINE, an approach allowing a single LLM to iteratively provide self-feedback and refine its outputs.</p>
+                <p><strong>Key Points:</strong></p>
+                <ul>
+                    <li><strong>Process:</strong> Given an input, the model generates an initial output, then generates feedback on that output, and refines the output based on the feedback in iterative steps.</li>
+                    <li><strong>Implementation:</strong> Uses few-shot prompts for generation, feedback, and refinement with existing LLMs (GPT-3.5, ChatGPT, GPT-4).</li>
+                    <li><strong>Tasks:</strong> Evaluated on 7 diverse tasks including dialogue, code optimization, math reasoning, sentiment reversal, acronym generation, and constrained generation.</li>
+                    <li><strong>Results:</strong> Consistently improves performance across tasks and models. The FEEDBACK step is crucial—generic feedback or no feedback leads to reduced scores.</li>
+                    <li><strong>Iteration:</strong> Multiple iterations improve output quality, though with diminishing returns.</li>
+                    <li><strong>Human Evaluation:</strong> SELF-REFINE outputs were preferred over simply generating multiple initial outputs (1 vs k comparison).</li>
+                    <li><strong>Advantages:</strong> Reduces the cost of human creative processes and avoids training a separate refiner, making it simple and widely applicable.</li>
+                </ul>
+            </div>
+
+            <h3 id="research-connections">Connections Between Research Areas</h3>
+            <p>
+                These papers collectively illustrate the multi-faceted landscape of LLM development:
+            </p>
+            <ul>
+                <li><strong>Evolution of Foundation Models:</strong> LLaMA and Llama 2 show the progression from base pretraining to extensive chat-specific fine-tuning, highlighting the importance of data quality and alignment techniques.</li>
+                <li><strong>Architectural Innovations:</strong> RoFormer and RMSNorm contribute improvements to core transformer components (position encoding and layer normalization), enhancing efficiency and performance.</li>
+                <li><strong>Post-Training Enhancement:</strong> Self-Consistency and SELF-REFINE demonstrate how existing powerful models can be further improved through advanced prompting and iterative refinement without additional training.</li>
+                <li><strong>Feedback Loops:</strong> A conceptual link exists between Llama 2's RLHF process (learning from human preference feedback) and SELF-REFINE's self-feedback mechanism—both involve feedback loops to improve output quality.</li>
+                <li><strong>Safety and Responsibility:</strong> Llama 2's comprehensive safety alignment process exemplifies the growing importance of responsible AI deployment, with extensive red teaming and evaluation.</li>
+            </ul>
+            <p>
+                The field continues to advance through these complementary approaches: improving base architectures, scaling with high-quality data, aligning with human values through fine-tuning, and developing innovative prompting and enhancement techniques.
             </p>
         </section>
 
