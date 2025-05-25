@@ -3,58 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Processing - Classic NLP Fundamentals</title>
+    <title>Interactive Mind Map - NLP Fundamentals</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="logo.png">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .katex-display { display: block; margin: 1em 0; text-align: center; }
-        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #16a34a; /* Green-600 */ }
-        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
-        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
-        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
-        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
-        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
-        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
-        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
-        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
-        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
-        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
-        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
-        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
-        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; background-color: #f9fafb; }
+        .markmap-container { flex-grow: 1; }
+        svg.markmap { width: 100%; height: 100%; }
+        nav { background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 50; }
         .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
-        .nav-link:hover { background-color: #dcfce7; /* Green-100 */ color: #15803d; /* Green-700 */ }
-        .nav-link.active { background-color: #16a34a; /* Green-600 */ color: white; }
-        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
-        .note strong { color: #4f46e5; /* Indigo-600 */ }
-        .example-box { background-color: #f0fdf4; /* Green-50 */ border: 1px solid #bbf7d0; /* Green-200 */ border-left-width: 4px; border-left-color: #22c55e; /* Green-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
-        .example-box h5 { font-weight: 600; color: #166534; /* Green-700 */ margin-bottom: 0.5rem; }
-        .algorithm-steps ol { list-style-type: lower-alpha; margin-left: 1.5rem; }
+        .nav-link:hover { background-color: #eef2ff; /* Indigo-100 */ color: #4338ca; /* Indigo-700 */ }
+        .nav-link.active { background-color: #4f46e5; /* Indigo-600 */ color: white; }
+        .header-bar { background-color: #4f46e5; /* Indigo-600 */ color: white; padding: 1rem 1.5rem; text-align: center; }
+        .header-bar h1 { font-size: 1.75rem; font-weight: 600; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.15.4/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markmap-view@0.15.4"></script>
 </head>
-<body class="bg-gray-100 text-gray-800">
-
-    <nav class="bg-white shadow-md sticky top-0 z-50">
+<body>
+    <nav>
         <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
-            <a href="index.html" class="flex items-center text-xl font-bold text-blue-600">
-                <img src="logo.png" alt="NLP Fundamentals Logo" class="h-8 w-auto mr-2">
-                <span>NLP Fundamentals</span>
-            </a>
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
             <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
             <div id="mobile-menu" class="w-full md:w-auto md:flex md:flex-nowrap md:overflow-x-auto space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
                 <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
-                <a href="text_processing.html" class="nav-link text-gray-700 active block md:inline-block">Text Processing</a>
-                <a href="regex.html" class="nav-link text-gray-700 block md:inline-block">Regex</a>
+                <a href="mind_map.html" class="nav-link text-gray-700 active block md:inline-block">Mind Map</a>
                 <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
                 <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="constituency_grammars.html" class="nav-link text-gray-700 block md:inline-block">Constituency Grammars</a>
                 <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="regex.html" class="nav-link text-gray-700 block md:inline-block">Regex Foundations</a>
+                <a href="basic_text_processing_foundations.html" class="nav-link text-gray-700 block md:inline-block">Basic Text Processing</a>
                 <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
                 <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
                 <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
@@ -63,255 +46,249 @@
                 <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
                 <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
                 <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
-                <a href="lab_regex.html" class="nav-link text-gray-700 active block md:inline-block">Regex Lab</a>
+                <a href="lab_regex.html" class="nav-link text-gray-700 block md:inline-block">Regex Lab</a>
                 <a href="lab_crf.html" class="nav-link text-gray-700 block md:inline-block">CRF Lab</a>
                 <a href="lab_bert.html" class="nav-link text-gray-700 block md:inline-block">BERT Lab</a>
                 <a href="lab_llama.html" class="nav-link text-gray-700 block md:inline-block">Llama Lab</a>
             </div>
         </div>
     </nav>
-
-    <main class="container mx-auto px-6 py-12 content-section">
-        <h1>Section 1.2: Classic Text Processing</h1>
-        <p>
-            Before text can be used by NLP algorithms, it typically undergoes several preprocessing steps to convert
-            it from a raw stream of characters into a more structured format. These steps include tokenization,
-            normalization, and sometimes, analysis of string similarity.
-        </p>
-
-        <section id="tokenization">
-            <h2>A. Tokenization</h2>
-            <p>
-                Tokenization is the task of segmenting a text into a sequence of tokens, which are usually words,
-                punctuation marks, or other meaningful units. The definition of a "token" is crucial as it
-                determines how grammar and semantics can be understood.
-            </p>
-            <h3>Challenges in Tokenization:</h3>
-            <p>A naïve approach of simply splitting text by whitespace and punctuation is often insufficient. Challenges include:</p>
-            <ul>
-                <li><strong>Internal Punctuation:</strong> Words like "m.p.h.", "Ph.D.", "AT&T", "cap'n" require careful handling.</li>
-                <li><strong>Numerical and Special Expressions:</strong> Prices ("$45.55"), dates ("01/02/2021"), times ("12:34"), URLs, hashtags, email addresses often need to be preserved as single tokens or handled specially.</li>
-                <li><strong>Clitic Contractions:</strong> Forms like "we're", "I'm", "they'll", "doesn't" often need to be split into their constituent morphemes (e.g., "we're" → "we", "are").</li>
-                <li><strong>Multiword Expressions (MWEs):</strong> Phrases like "New York" or "rock 'n' roll" might be better treated as single semantic units depending on the task.</li>
-                <li><strong>Language Specificity:</strong> Tokenization rules vary significantly across languages. For example, German has many compound nouns, and languages like Chinese or Japanese do not use spaces to delimit words.</li>
-            </ul>
-
-            <h3>Approaches to Tokenization:</h3>
-            <h4>1. Rule-Based Tokenization (e.g., using Regular Expressions)</h4>
-            <p>
-                Regular expressions (regex) provide a powerful language for defining patterns to identify tokens.
-                A naïve approach of simply splitting text by whitespace and punctuation is often insufficient.
-                More sophisticated regex patterns can handle many of the challenges listed above.
-            </p>
-            <div class="example-box">
-                <h5>Simplified Example: Regex Tokenization</h5>
-                <p>A regex might be designed to recognize abbreviations like "U.S.A.", words with internal hyphens like "poster-print", and currency symbols like "$12.40" as single tokens.</p>
-            </div>
-            <div class="note">
-                <p><strong>Scalability & Limitations (Regex):</strong> Regex rules can become complex and corpus-specific, often requiring iterative refinement. While effective for many common cases, they require linguistic expertise and may not generalize well to new domains or languages. For large-scale processing, regex efficiency can also be a concern if patterns are poorly designed.</p>
-            </div>
-
-            <h4>2. Learned Tokenization (Subword Units): Byte Pair Encoding (BPE)</h4>
-            <p>
-                BPE is an algorithm that learns a vocabulary of subword units from the corpus itself, addressing
-                issues like large vocabulary sizes, out-of-vocabulary (OOV) words, and capturing morphological information.
-            </p>
-            <div class="algorithm-steps">
-                <h4>BPE Algorithm Steps:</h4>
-                <ol>
-                    <li>Initialize the vocabulary with all individual characters present in the corpus, plus a special end-of-word symbol (e.g., <code>_</code> or <code>&lt;/w&gt;</code>).</li>
-                    <li>Count the frequencies of all adjacent symbol pairs in the corpus.</li>
-                    <li>Iteratively, for a predefined number of merges (k):
-                        <ol type="i">
-                            <li>Identify the most frequent adjacent pair of symbols (A, B).</li>
-                            <li>Add the new merged symbol AB to the vocabulary.</li>
-                            <li>Replace all occurrences of the pair A B in the corpus with the new symbol AB.</li>
-                        </ol>
-                    </li>
-                </ol>
-            </div>
-            <div class="example-box">
-                <h5>Simplified BPE Example:</h5>
-                <p>Given a corpus: <code>low_</code> (5 times), <code>lowest_</code> (2), <code>newer_</code> (6), <code>wider_</code> (3), <code>new_</code> (2).</p>
-                <p>Initial vocabulary (characters): d, e, i, l, n, o, r, s, t, w, _.</p>
-                <ul>
-                    <li><strong>Iteration 1:</strong> Suppose <code>e r</code> is the most frequent pair. Merge <code>e</code> and <code>r</code> to form <code>er</code>. Vocabulary now includes <code>er</code>. Corpus segments like <code>n e w e r _</code> become <code>n e w er _</code>.</li>
-                    <li><strong>Iteration 2:</strong> Suppose <code>er _</code> becomes the most frequent pair. Merge <code>er</code> and <code>_</code> to form <code>er_</code>. Vocabulary includes <code>er_</code>. Corpus segments like <code>n e w er _</code> become <code>n e w er_</code>.</li>
-                    <li><strong>Iteration 3:</strong> Suppose <code>n e</code> is now most frequent. Merge <code>n</code> and <code>e</code> to <code>ne</code>. Vocabulary includes <code>ne</code>. Corpus segments like <code>ne w er_</code> become <code>ne w er_</code>. (This process continues)</li>
-                </ul>
-                <p><strong>Outcome:</strong> Common words tend to become single tokens in the vocabulary, while rare words are represented as sequences of frequent subword units. This effectively manages vocabulary size and allows the model to handle unknown words by breaking them into known sub-parts.</p>
-            </div>
-             <p><strong>Variants:</strong> WordPiece (used by BERT) and SentencePiece are related subword tokenization algorithms. SentencePiece is notable for being language-independent and treating text as a raw stream of Unicode characters without pre-tokenization based on spaces.</p>
-            <div class="note">
-                <p><strong>Scalability & Advantages (BPE):</strong> The initial counting of pairs and subsequent merges can be computationally intensive for very large corpora and large numbers of merge operations. However, it's a data-driven process. Efficient implementations are crucial. Once the vocabulary and merge rules are learned, tokenizing new text is relatively fast. BPE is robust to OOV words, making it a standard in modern LLMs. It handles the trade-off between vocabulary size and sequence length, though it can result in longer token sequences.</p>
-            </div>
-
-            <h3>Summary Table: Common Tokenization Challenges and Solutions</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Challenge</th>
-                        <th>Example(s)</th>
-                        <th>Naïve Problem (e.g., Whitespace Splitting)</th>
-                        <th>Potential Solution(s)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Abbreviations</td>
-                        <td>"U.S.A.", "Ph.D."</td>
-                        <td>Splits "U.S.A." -> "U.S.A" (correct) or "Ph.D." -> "Ph.D" (correct), but might fail on "m.p.h." -> "m.p.h."</td>
-                        <td>Regex: <code>([A-Z]\.)+</code>. Language-specific rules.</td>
-                    </tr>
-                    <tr>
-                        <td>Hyphenated words</td>
-                        <td>"state-of-the-art", "poster-print"</td>
-                        <td>"state-of-the-art" -> "state-of-the-art" or "state", "of", "the", "art"</td>
-                        <td>Regex: <code>\w+(-\w+)*</code>. Task-dependent (keep as one or split).</td>
-                    </tr>
-                    <tr>
-                        <td>Numerical/Currency/Dates</td>
-                        <td>"$12.40", "03/10/2023"</td>
-                        <td>"$12.40" -> "$", "12.40"</td>
-                        <td>Regex: <code>\$?\d+(\.\d+)?</code>. Specific patterns for dates/times.</td>
-                    </tr>
-                    <tr>
-                        <td>Contractions</td>
-                        <td>"doesn't", "we're"</td>
-                        <td>"doesn't" -> "doesn't" (single token)</td>
-                        <td>Rule-based splitting (e.g., "doesn't" -> "does", "n't" or "does", "not"). Language-specific lists.</td>
-                    </tr>
-                    <tr>
-                        <td>Multiword Expressions (MWEs)</td>
-                        <td>"New York", "rock 'n' roll"</td>
-                        <td>"New", "York" (two tokens)</td>
-                        <td>Gazetteer lists, statistical MWE detection. BPE might learn "NewYork" if frequent.</td>
-                    </tr>
-                    <tr>
-                        <td>Out-of-Vocabulary (OOV) Words</td>
-                        <td>"serendipitous" (if rare)</td>
-                        <td>Word becomes <code>&lt;UNK&gt;</code> (unknown token)</td>
-                        <td>BPE/Subword tokenization (e.g., "seren", "##dip", "##itous"). Character-level models.</td>
-                    </tr>
-                    <tr>
-                        <td>Language Specificity</td>
-                        <td>German compounds (Donaudampfschifffahrtskapitän)</td>
-                        <td>Single long token</td>
-                        <td>Language-specific compound splitters. BPE can break down compounds into meaningful sub-units.</td>
-                    </tr>
-                </tbody>
-            </table>
-             <p>The choice of tokenization method has profound implications. Rule-based methods require linguistic expertise and may not generalize well. Subword tokenization like BPE is more data-driven and robust to OOV words, which is why it is a standard component in modern large language models.</p>
-        </section>
-
-        <section id="normalization">
-            <h2>B. Text Normalization: Standardizing Tokens</h2>
-            <p>
-                After tokenization, tokens are often normalized to ensure consistency and reduce vocabulary size. This helps downstream NLP models to learn more effectively by focusing on meaningful patterns rather than superficial differences in form.
-            </p>
-            <h4>1. Lemmatization</h4>
-            <p>
-                This process reduces inflected or variant forms of a word to its canonical or dictionary form,
-                known as the <strong>lemma</strong>. For example, "cats" is lemmatized to "cat", "ate" to "eat", and "children" to "child".
-                Lemmatization typically requires morphological analysis (understanding word structure, like stems and affixes)
-                and often knowledge of the word's part-of-speech to disambiguate (e.g., "saw" as a noun vs. "saw" as a verb).
-                Words are composed of morphemes: stems (core meaning) and affixes (prefixes or suffixes) like un-, -able, -ing.
-            </p>
-            <div class="note">
-                <p><strong>Scalability & Complexity (Lemmatization):</strong> More linguistically informed and accurate than stemming. Requires dictionaries and morphological analyzers (e.g., WordNet). Can be slower than stemming. For large-scale processing, efficient lemmatizers are needed. The quality depends heavily on the underlying linguistic resources for the target language.</p>
-            </div>
-
-            <h4>2. Stemming</h4>
-            <p>
-                Stemming is a simpler, more heuristic process for removing suffixes (and sometimes prefixes) from words
-                to obtain a common "stem". A well-known example is the Porter stemmer. For instance, "relational"
-                might be stemmed to "relate", "motoring" to "motor", and "grasses" to "grass". Stemming is generally
-                faster and less computationally intensive than lemmatization but is also cruder and can lead to
-                non-word stems (e.g., "accurate copy" stemmed to "accur copi", where "copi" is not a valid English word).
-                Stemming algorithms are often language-specific and described as "very crude".
-            </p>
-            <p>The primary difference is that lemmatization aims for a valid dictionary word, while stemming may not.</p>
-            <div class="note">
-                <p><strong>Scalability & Simplicity (Stemming):</strong> Much faster and simpler to implement than lemmatization, making it easily scalable. Often used when speed is more critical than perfect linguistic accuracy.</p>
-            </div>
-
-            <h4>3. Other Normalization Steps:</h4>
-            <ul>
-                <li>
-                    <strong>Case Folding:</strong> Converting all text to a single case, typically lowercase, to treat "The" and "the" as the same token.
-                    <div class="note" style="margin-left: 1.5rem; margin-top:0.5rem; margin-bottom:0.5rem; padding: 0.5rem;"><strong>Scalability Implication:</strong> Very simple and highly scalable. However, be cautious as it can lose information (e.g., "US" (country) vs. "us" (pronoun) if case is folded without care).</div>
-                </li>
-                <li>
-                    <strong>Punctuation Removal:</strong> Depending on the task, punctuation might be removed. For sentiment analysis, exclamation marks might be important, while for topic modeling, they might be noise.
-                    <div class="note" style="margin-left: 1.5rem; margin-top:0.5rem; margin-bottom:0.5rem; padding: 0.5rem;"><strong>Scalability Implication:</strong> Easy to implement and scale.</div>
-                </li>
-                <li>
-                    <strong>Stop Word Removal:</strong> Filtering out common function words (e.g., "a", "an", "the", "is", "in", "of") which occur frequently but often carry little semantic weight for tasks like information retrieval. These words can account for a large percentage of a text's content.
-                    <div class="note" style="margin-left: 1.5rem; margin-top:0.5rem; margin-bottom:0.5rem; padding: 0.5rem;"><strong>Scalability Implication:</strong> Involves checking against a predefined list, so it's fast and scalable. Can significantly reduce data size.</div>
-                </li>
-            </ul>
-            <p>
-                The cumulative effect of these text processing steps is to transform raw, often inconsistent, textual data
-                into a cleaner, more standardized representation. However, each step involves a trade-off: aggressive
-                normalization might lead to loss of subtle but important information.
-            </p>
-        </section>
-
-        <section id="string-similarity">
-            <h2>C. Measuring String Similarity: Levenshtein (Minimum Edit) Distance</h2>
-            <p>
-                The Levenshtein distance, or minimum edit distance, quantifies the similarity between two strings
-                by counting the minimum number of single-character edits (insertions, deletions, or substitutions)
-                required to change one string into the other.
-            </p>
-            <h4>Calculation:</h4>
-            <p>The distance is typically computed using a dynamic programming algorithm. An alignment diagram can visually represent the operations. The recursive definition is:</p>
-            <p>Let $a$ and $b$ be two strings.</p>
-            $$ \text{lev}(a,b) = \begin{cases} |a| & \text{if } |b|=0 \\ |b| & \text{if } |a|=0 \\ \text{lev}(\text{tail}(a), \text{tail}(b)) & \text{if } a[0]=b[0] \\ 1 + \min \begin{cases} \text{lev}(\text{tail}(a), b) & \text{(deletion from } a \text{)} \\ \text{lev}(a, \text{tail}(b)) & \text{(insertion into } a \text{)} \\ \text{lev}(\text{tail}(a), \text{tail}(b)) & \text{(substitution)} \end{cases} & \text{otherwise} \end{cases} $$
-            <p>where <code>tail(s)</code> is string <code>s</code> without its first character, and <code>s[0]</code> is the first character.</p>
-            <div class="example-box">
-                <h5>Simplified Example: Levenshtein Distance</h5>
-                <p>Transforming "INTENTION" to "EXECUTION" might involve 5 operations (3 substitutions, 1 deletion, and 1 insertion), assuming each operation has a cost of 1. If substitution is defined as a delete followed by an insert, its cost would be 2.</p>
-            </div>
-            <h4>Applications:</h4>
-            <ul>
-                <li><strong>Spelling Correction:</strong> Identifying and correcting misspelled words (e.g., "accommodate" vs. "accomodate").</li>
-                <li><strong>Bioinformatics:</strong> Aligning DNA or protein sequences.</li>
-                <li><strong>Software Engineering:</strong> Calculating differences between file versions (diff utility).</li>
-                <li><strong>Plagiarism Detection:</strong> Identifying similar text segments.</li>
-                <li><strong>Machine Translation and Speech Recognition Evaluation:</strong> Comparing system output to reference translations/transcriptions.</li>
-            </ul>
-            <div class="note">
-                <p><strong>Scalability (Levenshtein Distance):</strong> The standard dynamic programming algorithm has a time complexity of $O(m \times n)$, where m and n are the lengths of the two strings. This is efficient for comparing individual word pairs or short phrases. For large-scale applications (e.g., finding all near-duplicate documents in a massive corpus, or fast spell-checking against a huge dictionary), calculating Levenshtein distance between all pairs would be too slow. Approximation algorithms or techniques based on n-gram overlap can be used for faster, though less exact, similarity estimation to quickly filter candidates. Specialized data structures like BK-trees or tries combined with Levenshtein distance can speed up dictionary lookups.
-                </p>
-            </div>
-            <p>The Levenshtein distance provides a quantitative measure of string similarity that is fundamental in many areas where approximate string matching is required.</p>
-        </section>
-
-    </main>
-
-    <footer class="bg-gray-800 text-white py-8 mt-12">
-        <div class="container mx-auto px-6 text-center">
-            <p>&copy; <span id="currentYear"></span> Classic NLP Fundamentals. For educational purposes.</p>
-            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation: Classic NLP".</p>
-        </div>
-    </footer>
+    <div class="header-bar">
+        <h1>Interactive NLP Knowledge Map</h1>
+    </div>
+    <div class="markmap-container">
+        <svg id="markmap" class="markmap"></svg>
+    </div>
 
     <script>
-        // KaTeX auto-render
-        document.addEventListener("DOMContentLoaded", function() {
-            renderMathInElement(document.body, {
-                delimiters: [
-                    {left: "$$", right: "$$", display: true},
-                    {left: "$", right: "$", display: false},
-                    {left: "\\(", right: "\\)", display: false},
-                    {left: "\\[", right: "\\]", display: true}
-                ],
-                throwOnError : false
-            });
+        const markdownContent = `
+# [NLP Fundamentals & Labs](index.html)
 
-            // Set current year in footer
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
+## [Classic NLP Topics](index.html#classic-topics-grid)
+- [**Language Models**](language_models.html)
+  - [N-Grams](language_models.html#ngram-definition)
+    - Definition & Types
+    - [MLE](language_models.html#mle)
+    - Applications & Scaling
+  - [Data Sparsity & Smoothing](language_models.html#smoothing)
+    - Laplace (Add-One)
+    - Add-k Smoothing
+    - Backoff (General, Stupid Backoff)
+    - Interpolation
+    - Kneser-Ney Smoothing
+  - [Practical Considerations](language_models.html#practical-considerations)
+    - Log Probabilities
+    - N-gram Order
+    - Class-based N-grams
+    - Skip-grams
+- Text Processing Foundations
+  - [**Regex Foundations**](regex.html)
+    - [Definition & Purpose](regex.html#regex-definition)
+    - [Core Syntax](regex.html#regex-syntax)
+    - [NLP Tasks with Regex](regex.html#regex-nlp-tasks)
+    - [Python Implementation](regex.html#regex-python)
+    - [Limitations & Best Practices](regex.html#regex-limitations-best-practices)
+  - [**Basic Text Processing**](basic_text_processing_foundations.html)
+    - [Word Segmentation (Tokenization)](basic_text_processing_foundations.html#word-segmentation)
+    - [Sentence Segmentation](basic_text_processing_foundations.html#sentence-segmentation)
+    - [Text Normalization](basic_text_processing_foundations.html#text-normalization)
+    - [Stemming](basic_text_processing_foundations.html#stemming)
+    - [Lemmatization](basic_text_processing_foundations.html#lemmatization)
+  - [**Advanced Text Processing**](text_processing.html) (Original Page)
+    - [Tokenization (Subword: BPE)](text_processing.html#tokenization)
+    - [Normalization (Recap)](text_processing.html#normalization)
+    - [String Similarity (Levenshtein)](text_processing.html#string-similarity)
+- [**Sequence Labelling**](sequence_labelling.html)
+  - [Overview (POS Tagging, NER)](sequence_labelling.html#overview-tasks)
+  - [Conditional Random Fields (CRFs)](sequence_labelling.html#crfs)
+  - [Evaluation](sequence_labelling.html#evaluation)
+- [**Sparse Embeddings**](sparse_embeddings.html)
+  - [Lexical vs. Vector Semantics](sparse_embeddings.html#lexical-vs-vector)
+  - [Term-Document Matrices](sparse_embeddings.html#term-document)
+  - [TF-IDF](sparse_embeddings.html#tf-idf)
+  - [Cosine Similarity](sparse_embeddings.html#cosine-similarity)
+  - [Pointwise Mutual Information (PMI)](sparse_embeddings.html#pmi)
+
+## [Neural NLP Topics](index.html#neural-topics-grid)
+- [**Word Embeddings (Neural)**](word_embeddings.html)
+  - [From Sparse to Dense](word_embeddings.html#sparse-to-dense)
+  - [Word2Vec (SGNS)](word_embeddings.html#word2vec)
+  - [GloVe](word_embeddings.html#glove)
+  - [FastText](word_embeddings.html#fasttext)
+  - [Dependency-Based WE](word_embeddings.html#dependency-based)
+- [**Recurrent Neural Networks (RNNs)**](recurrent_neural_networks.html)
+  - [Simple RNNs (Elman Networks)](recurrent_neural_networks.html#simple-rnns)
+  - [LSTMs](recurrent_neural_networks.html#lstm)
+  - [GRUs](recurrent_neural_networks.html#gru)
+  - [Advanced RNNs (Stacked, Bidirectional)](recurrent_neural_networks.html#advanced-rnns)
+- [**Seq2Seq & Attention**](seq2seq_attention.html)
+  - [Encoder-Decoder Architecture](seq2seq_attention.html#encoder-decoder)
+  - [Attention Mechanisms](seq2seq_attention.html#attention-mechanisms)
+- [**Transformer Architecture**](transformer_architecture.html)
+  - [Overall Structure](transformer_architecture.html#overall-structure)
+  - [Self-Attention (Scaled Dot-Product)](transformer_architecture.html#self-attention)
+  - [Multi-Head Attention](transformer_architecture.html#multi-head-attention)
+  - [Positional Embeddings](transformer_architecture.html#positional-embeddings)
+  - [Feed-Forward Networks (FFN)](transformer_architecture.html#ffn)
+  - [Add & Norm Layers](transformer_architecture.html#add-norm)
+  - [Causal Masking](transformer_architecture.html#causal-masking)
+- [**Transformer Models & Pre-training**](transformer_models_pretraining.html)
+  - [BERT](transformer_models_pretraining.html#bert)
+  - [SpanBERT](transformer_models_pretraining.html#spanbert)
+  - [RoFormer](transformer_models_pretraining.html#roformer)
+  - [Llama / Llama 2](transformer_models_pretraining.html#llama)
+- [**Fine-tuning & Advanced LLM Techniques**](finetuning_advanced_llm.html)
+  - [BERT Fine-tuning](finetuning_advanced_llm.html#bert-finetuning)
+  - [Llama 2-Chat Fine-tuning](finetuning_advanced_llm.html#llama2-chat-finetuning)
+  - [Advanced Prompting (CoT, Self-Consistency, SELF-REFINE)](finetuning_advanced_llm.html#advanced-prompting)
+  - [Knowledge Augmentation (RAG, GENREAD)](finetuning_advanced_llm.html#knowledge-augmentation)
+- [**NLP Tasks & Applications**](nlp_tasks_applications.html)
+  - [Question Answering (QA)](nlp_tasks_applications.html#qa)
+  - [Named Entity Recognition (NER)](nlp_tasks_applications.html#ner)
+  - [Semantic Role Labeling (SRL)](nlp_tasks_applications.html#srl)
+  - [Word Sense Disambiguation (WSD)](nlp_tasks_applications.html#wsd)
+  - [Relation Extraction (RE)](nlp_tasks_applications.html#re)
+  - [Text Generation & Summarization](nlp_tasks_applications.html#text-generation-summarization)
+  - [Machine Translation (MT)](nlp_tasks_applications.html#mt)
+  - [Natural Language Inference (NLI)](nlp_tasks_applications.html#nli)
+  - [Dialogue Systems](nlp_tasks_applications.html#dialogue-systems)
+  - [Fact Checking](nlp_tasks_applications.html#fact-checking)
+  - [Coreference Resolution](nlp_tasks_applications.html#coreference-resolution)
+  - [Knowledge Base Population (KBP)](nlp_tasks_applications.html#kbp)
+- [**Evaluation Metrics**](evaluation_metrics_nlp.html)
+  - [ROUGE](evaluation_metrics_nlp.html#rouge)
+
+## [NLP Lab Modules](index.html#lab-modules-grid)
+- [**Regex Lab**](lab_regex.html)
+  - [Definition & Purpose](lab_regex.html#lab-regex-definition)
+  - [Syntax & Operations](lab_regex.html#lab-regex-syntax)
+  - [NLP Tasks with Regex](lab_regex.html#lab-regex-nlp-tasks)
+  - [Python Implementation](lab_regex.html#lab-regex-python)
+  - [Limitations & Best Practices](lab_regex.html#lab-regex-limitations-best-practices)
+- [**CRF Lab**](lab_crf.html)
+  - [Introduction to CRFs](lab_crf.html#lab-crf-intro)
+  - [Linear-Chain CRF Architecture](lab_crf.html#lab-crf-linear-chain)
+  - [Analysis of Lab Experiments](lab_crf.html#lab-crf-experiments)
+  - [CRF Variations](lab_crf.html#lab-crf-variations)
+  - [Uses & Limitations](lab_crf.html#lab-crf-uses-limitations)
+- [**BERT Lab**](lab_bert.html)
+  - [BERT Architecture](lab_bert.html#lab-bert-architecture)
+  - [Pre-training Objectives](lab_bert.html#lab-bert-pretraining)
+  - [Tensor Dimensions & Parameters](lab_bert.html#lab-bert-tensors)
+  - [Fine-tuning Process](lab_bert.html#lab-bert-finetuning-tasks)
+  - [Common Applications](lab_bert.html#lab-bert-common-apps)
+  - [Lab Experiment Results](lab_bert.html#lab-bert-experiment-results)
+  - [Advantages & Limitations](lab_bert.html#lab-bert-advantages-limitations)
+- [**Llama Lab**](lab_llama.html)
+  - [Llama Architecture](lab_llama.html#lab-llama-architecture)
+  - [Tensor Dimensions & Parameters](lab_llama.html#lab-llama-tensors)
+  - [Utilizing Llama Models](lab_llama.html#lab-llama-usage)
+  - [Common Applications](lab_llama.html#lab-llama-apps)
+  - [Lab Experiment Insights](lab_llama.html#lab-llama-experiment-results)
+  - [Advantages & Limitations](lab_llama.html#lab-llama-advantages-limitations)
+        `;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                let missingComponents = [];
+                if (typeof d3 === 'undefined') {
+                    missingComponents.push('D3.js (d3)');
+                }
+                
+                // Check for markmap-view components
+                if (typeof window.markmap === 'undefined' || typeof window.markmap.Markmap === 'undefined') {
+                    missingComponents.push('Markmap.Markmap class (from markmap-view)');
+                }
+
+                // Check for markmap-lib components
+                if (typeof window.markmapLib === 'undefined' || typeof window.markmapLib.Transformer === 'undefined') {
+                     missingComponents.push('Transformer class (from markmap-lib)');
+                }
+
+
+                if (missingComponents.length > 0) {
+                    const errMsg = "Core mind map components failed to load: " + missingComponents.join('; ') + 
+                                   ". Please open your browser's Developer Console (usually F12 or Ctrl+Shift+J/Cmd+Option+J) " +
+                                   "and check the 'Console' and 'Network' tabs for specific errors. " +
+                                   "This could be due to CDN links being blocked (e.g., by a firewall or ad-blocker), network connectivity issues, or script execution errors from the CDN files themselves. "+
+                                   "Ensure the scripts (d3.js, markmap-lib/dist/index.min.js, markmap-view.js) are loading with a status of 200 OK in the Network tab.";
+                    console.error(errMsg); 
+                    displayError(errMsg); 
+                    return; 
+                }
+
+                const { Markmap } = window.markmap; // From markmap-view
+                const { Transformer } = window.markmapLib; // From markmap-lib
+                
+                const transformer = new Transformer();
+                const { root } = transformer.transform(markdownContent); 
+                
+                const svgEl = document.querySelector('svg#markmap');
+                if (svgEl) {
+                    Markmap.create(svgEl, null, root); 
+                } else {
+                    const errMsg = "SVG element #markmap not found for Markmap rendering. This is an HTML structure issue.";
+                    console.error(errMsg);
+                    displayError(errMsg);
+                }
+
+            } catch (e) {
+                console.error("Error initializing Markmap:", e);
+                displayError(`Error initializing mind map: ${e.message}. Check browser console for more details.`);
+            }
+
+            function displayError(message) {
+                const svgContainer = document.getElementById('markmap');
+                if (svgContainer) {
+                    while (svgContainer.firstChild) {
+                        svgContainer.removeChild(svgContainer.firstChild);
+                    }
+                    const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+                    foreignObject.setAttribute('x', '5%'); 
+                    foreignObject.setAttribute('y', '30%'); 
+                    foreignObject.setAttribute('width', '90%');
+                    foreignObject.setAttribute('height', '60%');
+
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.color = 'red';
+                    errorDiv.style.textAlign = 'center';
+                    errorDiv.style.fontSize = '14px'; 
+                    errorDiv.style.fontFamily = 'Inter, sans-serif';
+                    errorDiv.style.padding = '15px';
+                    errorDiv.style.border = '1px dashed red';
+                    errorDiv.style.borderRadius = '5px';
+                    errorDiv.style.wordBreak = 'break-word'; 
+                    errorDiv.style.overflowY = 'auto'; 
+                    errorDiv.style.maxHeight = '100%';
+                    errorDiv.innerHTML = message.replace(/\n/g, '<br>'); 
+                    
+                    foreignObject.appendChild(errorDiv);
+                    svgContainer.appendChild(foreignObject);
+
+                } else {
+                    const body = document.querySelector('body');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.color = 'red';
+                    errorDiv.style.textAlign = 'center';
+                    errorDiv.style.padding = '20px';
+                    errorDiv.style.fontSize = '16px';
+                    errorDiv.innerHTML = message.replace(/\n/g, '<br>');
+                    if (body && body.firstChild) {
+                        body.insertBefore(errorDiv, body.firstChild);
+                    } else if (body) {
+                        body.appendChild(errorDiv);
+                    }
+                }
+            }
+
+            // Mobile Menu Toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
 
             // Active Nav Link Highlighting
             const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
@@ -327,6 +304,5 @@
             });
         });
     </script>
-
 </body>
 </html>

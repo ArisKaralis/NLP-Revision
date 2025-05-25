@@ -9,7 +9,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="logo.png">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .katex-display { display: block; margin: 1em 0; text-align: center; }
@@ -30,17 +29,14 @@
         .note strong { color: #4f46e5; /* Indigo-600 */ }
         .example-box { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ border-left-width: 4px; border-left-color: #9ca3af; /* Gray-400 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
         .example-box h5 { font-weight: 600; color: #4b5563; /* Gray-600 */ margin-bottom: 0.5rem; }
-        .formula-box { background-color: #f3f4f6; padding: 1rem; border-radius: 0.375rem; margin-bottom:1rem; }
+        .formula-box { background-color: #f3f4f6; padding: 1rem; border-radius: 0.375rem; margin-bottom:1rem; text-align:center; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
     <nav class="bg-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
-            <a href="index.html" class="flex items-center text-xl font-bold text-blue-600">
-                <img src="logo.png" alt="NLP Fundamentals Logo" class="h-8 w-auto mr-2">
-                <span>NLP Fundamentals</span>
-            </a>
+            <a href="index.html" class="text-xl font-bold text-blue-600">NLP Fundamentals</a>
             <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
@@ -51,6 +47,7 @@
                 <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
                 <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
                 <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="basic_text_processing_foundations.html" class="nav-link text-gray-700 block md:inline-block">Basic Text Processing</a>
                 <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
                 <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
                 <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
@@ -59,7 +56,7 @@
                 <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
                 <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
                 <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 active block md:inline-block">Evaluation Metrics</a>
-                <a href="lab_regex.html" class="nav-link text-gray-700 active block md:inline-block">Regex Lab</a>
+                <a href="lab_regex.html" class="nav-link text-gray-700 block md:inline-block">Regex Lab</a>
                 <a href="lab_crf.html" class="nav-link text-gray-700 block md:inline-block">CRF Lab</a>
                 <a href="lab_bert.html" class="nav-link text-gray-700 block md:inline-block">BERT Lab</a>
                 <a href="lab_llama.html" class="nav-link text-gray-700 block md:inline-block">Llama Lab</a>
@@ -75,11 +72,11 @@
             metrics. This section will focus on common metrics, particularly for text generation.
         </p>
 
-        <section id="rouge">
+        <section id="metrics-text-generation">
             <h2>Section 4.1: Metrics for Text Generation</h2>
             <p>Evaluating generated text (e.g., summaries, translations) is challenging because there can be many "correct" outputs. Metrics often compare model-generated text to one or more human-written reference texts.</p>
 
-            <h3>ROUGE (Recall-Oriented Understudy for Gisting Evaluation)</h3>
+            <h3 id="rouge">ROUGE (Recall-Oriented Understudy for Gisting Evaluation)</h3>
             <p>
                 ROUGE is a set of metrics commonly used for evaluating automatic summarization and machine translation.
                 It measures the overlap (n-grams, word sequences, word pairs) between the system-generated summary/translation
@@ -132,7 +129,7 @@
                     System 1 has a higher ROUGE-1 score, indicating better unigram overlap with the reference.
                 </p>
             </div>
-            <h4>Interpretation & Considerations:</h4>
+            <h4>Interpretation & Considerations (ROUGE):</h4>
             <ul>
                 <li>ROUGE scores are typically reported as recall, precision, and F1-score.</li>
                 <li>Higher ROUGE scores generally indicate better similarity to reference texts.</li>
@@ -143,14 +140,109 @@
                 <p><strong>Scalability (ROUGE):</strong> Calculating ROUGE involves comparing n-grams or subsequences. For ROUGE-N, this is relatively efficient. ROUGE-L (LCS) can be computed with dynamic programming, typically $O(m \times n)$ where $m$ and $n$ are lengths of system and reference summaries. For evaluating large outputs or many reference summaries, efficient implementations are important. Standard ROUGE toolkits are available.
                 </p>
             </div>
-            <p>Other metrics for text generation include BLEU (Bilingual Evaluation Understudy, common in MT), METEOR, CIDEr (for image captioning), and perplexity (for language models). More recently, model-based evaluation (using other pre-trained models to score quality) and human evaluation remain crucial, especially for nuanced aspects of generation quality.</p>
+
+            <h3 id="bleu" class="mt-8">BLEU (Bilingual Evaluation Understudy)</h3>
+            <p>
+                BLEU is a widely used metric for evaluating the quality of machine translation. Its central idea is that "the closer a machine translation is to a professional human translation, the better it is." It measures this closeness by comparing n-gram overlaps between the candidate translation and one or more reference translations.
+            </p>
+            <h4>Core Components:</h4>
+            <ol>
+                <li>
+                    <strong>Modified n-gram Precision ($p_n$):</strong>
+                    <ul>
+                        <li>Counts the number of candidate translation n-grams (typically up to N=4) that occur in any reference translation.</li>
+                        <li>To prevent overgeneration of common words (e.g., "the the the"), candidate n-gram counts are "clipped." The count of each candidate n-gram is limited to the maximum number of times that n-gram occurs in any single reference translation.</li>
+                        <li>The modified precision $p_n$ for each n-gram order is calculated as:
+                            <div class="formula-box">
+                            $p_n = \frac{\sum_{C \in \{\text{Candidates}\}} \sum_{\text{n-gram} \in C} \text{Count}_{\text{clip}}(\text{n-gram})}{\sum_{C \in \{\text{Candidates}\}} \sum_{\text{n-gram} \in C} \text{Count}(\text{n-gram})}$
+                            </div>
+                            This is computed over the entire test corpus by summing clipped counts for all candidate sentences and dividing by the total number of candidate n-grams.
+                        </li>
+                        <li>Unigram precision accounts for adequacy (using the right words), while longer n-gram matches account for fluency (correct word order).</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Brevity Penalty (BP):</strong>
+                    <ul>
+                        <li>Penalizes candidate translations that are too short compared to the reference translations, as n-gram precision alone can be artificially high for very short sentences.</li>
+                        <li>It does not penalize translations longer than references, as this is already handled by the precision metric.</li>
+                        <li>Calculated over the entire corpus:
+                            <div class="formula-box">
+                            $BP = \begin{cases} 1 & \text{if } c > r \\ e^{(1-r/c)} & \text{if } c \le r \end{cases}$
+                            </div>
+                            where $c$ is the total length of the candidate translation corpus, and $r$ is the "effective reference corpus length" (sum of the lengths of the reference translations that are closest in length to their corresponding candidate sentences).
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Combining Scores:</strong>
+                    <ul>
+                        <li>BLEU combines the modified n-gram precisions (typically for n=1 to 4) using a geometric mean. Uniform weights $w_n = 1/N$ (where N is the max n-gram order, usually 4) are common.</li>
+                        <li>The final BLEU score is the product of the Brevity Penalty and the geometric mean of the $p_n$:
+                            <div class="formula-box">
+                            $\text{BLEU} = BP \cdot \exp\left(\sum_{n=1}^{N} w_n \log p_n\right)$
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ol>
+            <h4>Interpretation & Considerations (BLEU):</h4>
+            <ul>
+                <li>BLEU scores range from 0 to 1 (or 0 to 100). Higher scores are better.</li>
+                <li>It correlates reasonably well with human judgments of translation quality at the corpus level.</li>
+                <li>It is language-independent and inexpensive to run.</li>
+                <li>Scores can be sensitive to the number of reference translations; more references generally lead to higher scores.</li>
+                <li>BLEU is not good at evaluating individual sentence quality and may not capture all aspects of translation quality like semantic accuracy for nuanced phrases or creativity.</li>
+                <li>Case folding is typically the only text normalization performed before calculation.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability (BLEU):</strong> Calculating n-gram statistics and the brevity penalty over a corpus is computationally efficient. Standard toolkits (e.g., in NLTK, SacreBLEU) make it easy to compute BLEU scores for large test sets. The main cost is in preparing the reference translations.</p>
+            </div>
+
+            <h3 id="bertscore" class="mt-8">BERTScore</h3>
+            <p>
+                BERTScore is a more recent metric for evaluating text generation tasks, which leverages pre-trained contextual embeddings from models like BERT. Unlike n-gram overlap metrics (ROUGE, BLEU), BERTScore measures the semantic similarity between tokens in the candidate and reference texts.
+            </p>
+            <h4>Core Idea:</h4>
+            <p>
+                BERTScore computes a similarity score based on the cosine similarity of the contextual embeddings of tokens in the candidate sentence and tokens in the reference sentence. It addresses some limitations of n-gram metrics, such as their inability to capture semantic equivalence when different wording is used (e.g., "quick" vs. "fast").
+            </p>
+            <h4>Mechanism:</h4>
+            <ol>
+                <li>
+                    <strong>Contextual Embeddings:</strong> Obtain contextual embeddings for each token in the candidate sentence and each token in the reference sentence using a pre-trained model (e.g., BERT, RoBERTa).
+                </li>
+                <li>
+                    <strong>Pairwise Cosine Similarity:</strong> For each token in the candidate sentence, find the token in the reference sentence that has the highest cosine similarity with it. Similarly, for each token in the reference, find its best match in the candidate.
+                </li>
+                <li>
+                    <strong>Recall, Precision, F1:</strong>
+                    <ul>
+                        <li><strong>Recall (BERTScore-R):</strong> Average of the maximum similarity scores for tokens in the reference (how well the candidate captures reference tokens).</li>
+                        <li><strong>Precision (BERTScore-P):</strong> Average of the maximum similarity scores for tokens in the candidate (how well candidate tokens are supported by reference tokens).</li>
+                        <li><strong>F1 (BERTScore-F1):</strong> The harmonic mean of BERTScore-R and BERTScore-P.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Importance Weighting (Optional):</strong> Tokens can be weighted by their Inverse Document Frequency (IDF) scores to give more importance to rare and informative words. This can improve correlation with human judgments.
+                </li>
+            </ol>
+            <h4>Interpretation & Considerations (BERTScore):</h4>
+            <ul>
+                <li>BERTScore often correlates better with human judgments of semantic similarity and adequacy than n-gram based metrics, especially when paraphrasing or synonyms are involved.</li>
+                <li>It is more robust to variations in surface form as long as the meaning is preserved.</li>
+                <li>The choice of pre-trained model for embeddings can influence the scores.</li>
+                <li>It is computationally more intensive than ROUGE or BLEU due to the need to compute embeddings and pairwise similarities.</li>
+                <li>Like other metrics, it's not a perfect substitute for human evaluation but provides a valuable complementary perspective, focusing more on semantic content than exact lexical matches.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Scalability (BERTScore):</strong> The main computational cost comes from obtaining BERT embeddings for all tokens in the candidate and reference texts, and then computing the similarity matrix. For very long texts or large datasets, this can be time-consuming. However, embeddings can often be pre-computed, and efficient libraries are available for calculating BERTScore.
+                </p>
+            </div>
+
+            <p class="mt-6">Other metrics for text generation include METEOR, CIDEr (for image captioning), and perplexity (for language models). More recently, model-based evaluation (using other pre-trained models to score quality) and human evaluation remain crucial, especially for nuanced aspects of generation quality.</p>
         </section>
-        <!--
-        <section id="other-metrics">
-            <h2>Section 4.2: Metrics for Other NLP Tasks</h2>
-            <p>This section would cover metrics for tasks like classification (accuracy, precision, recall, F1), sequence labeling (token accuracy, span-based F1 for NER), etc.</p>
-        </section>
-        -->
+
 
     </main>
 
