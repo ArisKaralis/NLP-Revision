@@ -58,6 +58,7 @@
                 <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
                 <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
                 <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 active block md:inline-block">NLP Tasks</a>
+                <a href="info_extraction.html" class="nav-link text-gray-700 block md:inline-block">Information Extraction</a>
                 <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
                 <a href="lab_regex.html" class="nav-link text-gray-700 active block md:inline-block">Regex Lab</a>
                 <a href="lab_crf.html" class="nav-link text-gray-700 block md:inline-block">CRF Lab</a>
@@ -107,24 +108,114 @@
         <section id="srl">
             <h2>Section 3.3: Semantic Role Labeling (SRL)</h2>
             <p><strong>Primary Goal:</strong> To identify the semantic roles of constituents in a sentence with respect to a predicate (typically a verb). Answers "who did what to whom, when, where, why, how".</p>
-            <p><strong>Challenges:</strong> Identifying predicates, disambiguating roles, handling complex sentence structures.</p>
-            <h4>Techniques & Applications:</h4>
-            <ul>
-                <li><strong>Deep BiLSTMs:</strong> Used to create contextualized representations for words. Often combined with features like POS tags. BIO tagging scheme is used for labeling argument spans. Decoding constraints (e.g., arguments don't overlap) are important.</li>
-                <li><strong>BERT-based models:</strong> Fine-tuned for SRL, often outperforming previous LSTM-based approaches by providing richer contextual embeddings.</li>
-            </ul>
+            <p><strong>Challenges:</strong> Identifying predicates, disambiguating roles, handling complex sentence structures, accounting for long-distance dependencies, and resolving structural ambiguities (e.g., PP-attachment errors, adjunct-argument distinctions).</p>
+            
+            <p>Semantic Role Labeling is a crucial step toward natural language understanding, as it reveals the underlying predicate-argument structure of sentences. SRL has evolved from requiring extensive syntactic parsing and feature engineering to leveraging deep learning architectures that can learn meaningful representations directly from data. This progression reflects the broader trend in NLP from heavily engineered systems to data-driven approaches.</p>
+            
+            <h4>Key Architectures and Techniques:</h4>
+            
+            <div class="example-box">
+                <h5>Deep Highway BiLSTM with Constrained Decoding (He et al., 2017)</h5>
+                <p><strong>Core Idea:</strong> Use deep bidirectional LSTMs with highway connections to create rich contextual representations, combined with constrained decoding to enforce structural consistency in predictions.</p>
+                <p><strong>Architecture:</strong></p>
+                <ul>
+                    <li><strong>Deep BiLSTM Encoder:</strong> 8-layer bidirectional LSTM with highway connections between layers, providing more direct paths for gradient flow during training.</li>
+                    <li><strong>BIO Tagging Approach:</strong> Treats SRL as a sequence tagging problem, where each token receives a tag indicating whether it's the Beginning, Inside, or Outside of an argument with a specific role.</li>
+                    <li><strong>Model Optimizations:</strong> Incorporates recurrent dropout and orthonormal initialization to improve training stability and performance.</li>
+                    <li><strong>Constrained Decoding:</strong> Applies A* search over tag prefixes during inference to enforce constraints like valid BIO transitions, unique core roles, and continuation roles, without adding complexity to training.</li>
+                    <li><strong>Syntax Relationship:</strong> While not using syntax as direct input, the model's predictions showed high consistency with gold syntactic structures (94.3% agreement with unlabeled constituents).</li>
+                </ul>
+                <p><strong>Results:</strong> Achieved significant improvements over previous state-of-the-art (83.2 F1 on CoNLL 2005 test set and 83.4 F1 on CoNLL 2012), representing approximately a 10% relative error reduction. Analysis showed deep models excel at capturing long-distance dependencies, but still struggled with certain linguistic phenomena.</p>
+                <p><strong>Significance:</strong> Demonstrated that powerful deep learning models could achieve strong SRL performance without explicit syntactic features, challenging the long-held belief that syntax was a prerequisite for SRL. However, experiments also showed that high-quality syntactic information could still provide significant improvements (up to 2 F1 points with gold syntax).</p>
+            </div>
+            
+            <div class="example-box">
+                <h5>Simple BERT Models for SRL (Shi & Lin, 2019)</h5>
+                <p><strong>Core Idea:</strong> Leverage powerful pretrained contextual embeddings from BERT to achieve state-of-the-art SRL performance with minimal architectural complexity and without external linguistic features.</p>
+                <p><strong>Architecture:</strong></p>
+                <ul>
+                    <li><strong>Input Representation:</strong> The sentence along with a predicate indicator (marking the target predicate for which arguments need to be identified) fed into BERT encoder.</li>
+                    <li><strong>Simple Classification Layer:</strong> For predicate sense disambiguation, a simple MLP classifier on top of BERT's representation for the predicate token.</li>
+                    <li><strong>Argument Identification & Classification:</strong> BERT contextual representations combined with predicate indicator embeddings, fed into a lightweight one-layer BiLSTM, followed by an MLP classifier predicting BIO tags.</li>
+                    <li><strong>Feature Integration:</strong> Concatenation of the current token's hidden state and the predicate's hidden state before final classification, creating a direct link between arguments and their associated predicate.</li>
+                    <li><strong>Notable Simplifications:</strong> No external lexical or syntactic features, no complex hand-crafted constraints or rules, significantly simpler than previous state-of-the-art systems.</li>
+                </ul>
+                <p><strong>Results:</strong> The BERT-LSTM-large model achieved state-of-the-art performance across multiple benchmarks: better accuracy than previous models using linguistic features on predicate disambiguation (CoNLL 2009), significant F1 improvements on dependency-based SRL (CoNLL 2009), and state-of-the-art F1 among single models on span-based SRL (CoNLL 2005).</p>
+                <p><strong>Significance:</strong> Demonstrated that powerful pretrained language models like BERT fundamentally change the landscape for SRL, allowing simpler architectures to achieve or surpass previous state-of-the-art results that relied on extensive feature engineering and complex decoding constraints. This represents a shift from engineering task-specific features to effectively leveraging general-purpose linguistic understanding encoded in large pretrained models.</p>
+            </div>
+            
+            <h4>Evolution and Trends:</h4>
+            <p>The progression from deep, carefully engineered BiLSTM architectures with constrained decoding (He et al., 2017) to simpler BERT-based models (Shi & Lin, 2019) illustrates the transformative impact of large pretrained language models on SRL:</p>
+            <ol>
+                <li><strong>Decreasing Reliance on Syntax:</strong> While earlier approaches considered syntactic parsing a prerequisite for SRL, modern neural approaches have demonstrated strong performance without explicit syntactic input, though high-quality syntax may still offer marginal benefits.</li>
+                <li><strong>Architectural Simplification:</strong> The trend moved from complex, task-specific architectures to leveraging the rich contextual representations from pretrained models with minimal additional components.</li>
+                <li><strong>Trade-offs in Constraint Enforcement:</strong> While BERT-based approaches rely less on explicit constraints, certain complex decoding mechanisms with specific constraints may still offer advantages for particular metrics or datasets (e.g., higher precision on CoNLL 2012).</li>
+                <li><strong>Persistent Challenges:</strong> Despite significant advances, models still struggle with certain linguistic phenomena like PP-attachment errors, adjunct-argument distinctions, and structural ambiguities in complex sentences.</li>
+            </ol>
+            <p>These developments suggest that while simpler BERT-based models provide strong SRL baselines, there remains potential for further improvements through carefully integrating linguistic knowledge or task-specific constraints in ways that complement rather than compete with the strengths of large pretrained models.</p>
         </section>
 
         <section id="wsd">
             <h2>Section 3.4: Word Sense Disambiguation (WSD)</h2>
             <p><strong>Primary Goal:</strong> To identify the correct meaning (sense) of a word in a given context, especially for polysemous words (words with multiple meanings).</p>
-            <p><strong>Challenges:</strong> Fine-grained distinctions between senses, lack of large-scale sense-annotated data for all words/languages.</p>
-            <h4>Techniques & Applications:</h4>
-            <ul>
-                <li><strong>Contextual Embeddings (LMMS):</strong> Language Model Makes Sense (LMMS) uses pre-trained language models (like BERT) to get contextual embeddings for a target word and its possible senses (definitions/glosses). The sense whose embedding is closest (e.g., k-NN) to the target word's contextual embedding is chosen.</li>
-                <li><strong>Bi-Encoders (BEM):</strong> A Bi-Encoder Model (BEM) can be trained to independently embed the context of the ambiguous word and the definitions of its candidate senses. Similarity search is then performed in the embedding space.</li>
-                <li><strong>Word-Formation Knowledge (FormBERT):</strong> Enhances WSD (especially for Chinese) by incorporating word formation knowledge (e.g., character-level information, morphemes) into BERT-like models.</li>
-            </ul>
+            <p><strong>Challenges:</strong> Fine-grained distinctions between senses, lack of large-scale sense-annotated data for all words/languages, data sparsity with rare senses (the "long tail" problem), and language-specific characteristics that affect word meaning.</p>
+            
+            <p>Word Sense Disambiguation is fundamental to many NLP applications, as resolving lexical ambiguity improves performance in tasks like machine translation and information extraction. Historically, WSD relied on manually engineered features or statistical techniques, but the rise of contextual embeddings from Neural Language Models (NLMs) has transformed the field by providing context-sensitive word representations.</p>
+            
+            <h4>Key Architectures and Techniques:</h4>
+            
+            <div class="example-box">
+                <h5>Language Model Makes Sense (LMMS) - Full-Coverage WSD (Loureiro & Jorge, 2019)</h5>
+                <p><strong>Core Idea:</strong> Represent every possible sense in WordNet as a dense vector embedding and perform WSD by finding the sense embedding closest to the contextual embedding of the target word.</p>
+                <p><strong>Architecture:</strong></p>
+                <ul>
+                    <li><strong>Bootstrapping Sense Embeddings:</strong> Start with sense-annotated corpora (like SemCor) to create initial sense embeddings by averaging contextual embeddings from ELMo or BERT for each sense.</li>
+                    <li><strong>WordNet Propagation:</strong> Extend coverage to all ~200K WordNet senses by leveraging the hierarchical structure (synonyms, hypernyms, lexnames) to impute embeddings for senses missing in annotated data.</li>
+                    <li><strong>Dictionary Definitions:</strong> Incorporate gloss embeddings by averaging contextual embeddings of words in dictionary definitions, making them sense-specific by including the target lemma.</li>
+                    <li><strong>Combined Representation:</strong> Concatenate bootstrapped sense embeddings with dictionary embeddings and static word embeddings (for morphological robustness).</li>
+                    <li><strong>k-NN Disambiguation:</strong> For a word in context, generate its contextual embedding and find the closest sense embedding using cosine similarity (1-NN).</li>
+                </ul>
+                <p><strong>Significance:</strong> Achieved state-of-the-art results without relying on Most Frequent Sense (MFS) fallbacks, demonstrating the power of dense sense representations aligned with contextual embeddings. The method also provides "full-coverage" of all WordNet senses.</p>
+            </div>
+            
+            <div class="example-box">
+                <h5>Gloss-Informed Bi-encoders (BEM) - Tackling Rare Senses (Blevins & Zettlemoyer, 2020)</h5>
+                <p><strong>Core Idea:</strong> Learn to embed both the target word in context and sense definitions (glosses) into the same vector space, addressing the "long tail" problem of rare and unseen senses.</p>
+                <p><strong>Architecture:</strong></p>
+                <ul>
+                    <li><strong>Dual Encoders:</strong> Two independent transformer encoders initialized with pretrained BERT:
+                        <ul>
+                            <li><strong>Context Encoder (Tc):</strong> Processes the sentence with the target word, producing a representation for the target.</li>
+                            <li><strong>Gloss Encoder (Tg):</strong> Processes the dictionary definition of a sense, using the [CLS] token embedding as the sense representation.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Joint Training:</strong> Both encoders are jointly optimized using cross-entropy loss based on dot-product similarity between context and sense embeddings.</li>
+                    <li><strong>WSD Process:</strong> Compute embeddings for the target word in context and all its possible senses (via their definitions), then select the sense with highest similarity score.</li>
+                </ul>
+                <p><strong>Significance:</strong> Significantly improved performance on less frequent senses (LFS) and zero-shot WSD compared to previous approaches. Demonstrated that directly modeling sense definitions and aligning them with contextual word representations is particularly effective for rare senses. Showed strong data efficiency in few-shot settings.</p>
+            </div>
+            
+            <div class="example-box">
+                <h5>FormBERT - Word-Formation Knowledge for Chinese WSD (Zheng et al., 2021)</h5>
+                <p><strong>Core Idea:</strong> Incorporate word-formation knowledge (how constituent characters form words in Chinese) to improve WSD performance, as these formations often provide crucial clues about word meaning.</p>
+                <p><strong>Architecture:</strong></p>
+                <ul>
+                    <li><strong>Foundation:</strong> BERT-based binary classifier that takes concatenated context and sense definition as input.</li>
+                    <li><strong>Word-Formation Integration:</strong> Add a learned embedding for the word-formation type (e.g., Modifier-Head, Verb-Object) to the BERT output before classification.</li>
+                    <li><strong>Word-Formation Predictor (FP):</strong> An auxiliary module (typically an MLP) that predicts the word-formation from context when annotations aren't available, enabling broader application.</li>
+                    <li><strong>Training Objective:</strong> Combined loss function with the primary WSD classification loss and an auxiliary loss for word-formation prediction.</li>
+                </ul>
+                <p><strong>Significance:</strong> First work to explicitly leverage word-formation knowledge for Chinese WSD. Created a large-scale, formation-annotated dataset (FiCLS) for Chinese NLP research. Demonstrated substantial performance improvements over BERT baselines by incorporating this language-specific feature.</p>
+            </div>
+            
+            <h4>Evolution and Trends:</h4>
+            <p>These approaches represent an evolution in WSD research, building upon contextual embeddings from pretrained language models:</p>
+            <ol>
+                <li><strong>Leveraging Embeddings and External Knowledge (LMMS, 2019):</strong> Using contextual embeddings with structured knowledge (WordNet) and glosses to create comprehensive sense inventories.</li>
+                <li><strong>Targeting Data Imbalance (BEM, 2020):</strong> Directly addressing the skewed distribution of sense occurrences through dedicated bi-encoder architectures.</li>
+                <li><strong>Incorporating Language-Specific Features (FormBERT, 2021):</strong> Augmenting pretrained models with explicit linguistic knowledge specific to the target language.</li>
+            </ol>
+            <p>All three approaches demonstrate that while large pretrained models provide powerful general representations, enhancing them with clever architectural designs and linguistic knowledge leads to significant improvements in WSD performance.</p>
         </section>
 
         <section id="re">
@@ -137,6 +228,7 @@
                 <li><strong>BERT-based Models:</strong> Fine-tuned by adding a classification layer over representations of the target entities (or the <code>[CLS]</code> token), often with special markers around entities.</li>
                 <li><strong>Open Information Extraction (OpenIE):</strong> Aims to extract relational tuples (e.g., (Arg1, RelationPhrase, Arg2)) from text without a predefined schema or set of relation types. Often uses rule-based or lightly supervised methods.</li>
             </ul>
+            <p>For a more detailed exploration of Information Extraction approaches, including Position-aware Attention, SpanBERT, and Open Information Extraction, see our dedicated <a href="info_extraction.html" class="text-purple-600 hover:underline">Information Extraction</a> page.</p>
         </section>
 
         <section id="text-generation-summarization">

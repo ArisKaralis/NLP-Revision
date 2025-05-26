@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Information Extraction - NLP Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUbGuHTCQ" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .katex-display { display: block; margin: 1em 0; text-align: center; }
+        .content-section h1 { margin-bottom: 1.5rem; font-size: 2.25rem; font-weight: 700; color: #a855f7; /* Purple-600 */ }
+        .content-section h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .content-section h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.35rem; font-weight: 600; }
+        .content-section h4 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 600; }
+        .content-section p, .content-section ul, .content-section ol { margin-bottom: 1rem; line-height: 1.65; color: #374151; /* Gray-700 */ }
+        .content-section ul { list-style-type: disc; margin-left: 1.5rem; }
+        .content-section ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .content-section code { background-color: #f3f4f6; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; color: #4b5563; /* Gray-600 */ }
+        .content-section pre { background-color: #f9fafb; /* Gray-50 */ border: 1px solid #e5e7eb; /* Gray-200 */ padding: 1em; border-radius: 0.375rem; /* rounded-md */ overflow-x: auto; margin-bottom: 1rem; }
+        .content-section pre code { background-color: transparent; padding: 0; font-size: 90%; }
+        .content-section table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06); border-radius: 0.5rem; overflow: hidden;}
+        .content-section th, .content-section td { border: 1px solid #e5e7eb; padding: 0.75rem 1rem; text-align: left; }
+        .content-section th { background-color: #f9fafb; /* Gray-50 */ font-weight: 600; color: #1f2937; /* Gray-800 */ }
+        .content-section tr:nth-child(even) { background-color: #f9fafb; }
+        .nav-link { padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #f3e8ff; /* Purple-100 */ color: #7e22ce; /* Purple-700 */ }
+        .nav-link.active { background-color: #a855f7; /* Purple-600 */ color: white; }
+        .note { background-color: #eef2ff; /* Indigo-50 */ border-left: 4px solid #6366f1; /* Indigo-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.25rem;}
+        .note strong { color: #4f46e5; /* Indigo-600 */ }
+        .example-box { background-color: #faf5ff; /* Purple-50 */ border: 1px solid #e9d5ff; /* Purple-200 */ border-left-width: 4px; border-left-color: #a855f7; /* Purple-500 */ padding: 1rem; margin-top: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem; }
+        .example-box h5 { font-weight: 600; color: #7e22ce; /* Purple-700 */ margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-3 flex flex-wrap justify-between items-center">
+            <a href="index.html" class="flex items-center text-xl font-bold text-blue-600">
+                <img src="logo.png" alt="NLP Fundamentals Logo" class="h-8 w-auto mr-2">
+                <span>NLP Fundamentals</span>
+            </a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-800 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="mobile-menu" class="w-full md:w-auto md:flex md:flex-nowrap md:overflow-x-auto space-y-2 md:space-y-0 md:space-x-1 hidden mt-3 md:mt-0">
+                <a href="index.html" class="nav-link text-gray-700 block md:inline-block">Home</a>
+                <a href="mind_map.html" class="nav-link text-gray-700 block md:inline-block">Mind Map</a>
+                <a href="text_processing.html" class="nav-link text-gray-700 block md:inline-block">Text Processing</a>
+                <a href="regex.html" class="nav-link text-gray-700 block md:inline-block">Regex</a>
+                <a href="language_models.html" class="nav-link text-gray-700 block md:inline-block">Language Models</a>
+                <a href="sequence_labelling.html" class="nav-link text-gray-700 block md:inline-block">Sequence Labelling</a>
+                <a href="constituency_grammars.html" class="nav-link text-gray-700 block md:inline-block">Constituency Grammars</a>
+                <a href="sparse_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Sparse Embeddings</a>
+                <a href="word_embeddings.html" class="nav-link text-gray-700 block md:inline-block">Word Embeddings (Neural)</a>
+                <a href="recurrent_neural_networks.html" class="nav-link text-gray-700 block md:inline-block">RNNs</a>
+                <a href="seq2seq_attention.html" class="nav-link text-gray-700 block md:inline-block">Seq2Seq & Attention</a>
+                <a href="transformer_architecture.html" class="nav-link text-gray-700 block md:inline-block">Transformers</a>
+                <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
+                <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 block md:inline-block">Fine-tuning LLMs</a>
+                <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="info_extraction.html" class="nav-link text-gray-700 active block md:inline-block">Information Extraction</a>
+                <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
+                <a href="lab_regex.html" class="nav-link text-gray-700 block md:inline-block">Regex Lab</a>
+                <a href="lab_crf.html" class="nav-link text-gray-700 block md:inline-block">CRF Lab</a>
+                <a href="lab_bert.html" class="nav-link text-gray-700 block md:inline-block">BERT Lab</a>
+                <a href="lab_llama.html" class="nav-link text-gray-700 block md:inline-block">Llama Lab</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 content-section">
+        <h1>Information Extraction: Advanced Approaches and Techniques</h1>
+        <p>
+            Information Extraction (IE) is a crucial task in Natural Language Processing that aims to automatically extract structured information from unstructured text documents. IE enables machines to convert the vast wealth of information contained in natural language texts into structured data that can be easily analyzed, searched, and used for various applications such as question answering, knowledge base population, and decision support systems.
+        </p>
+
+        <section id="overview">
+            <h2>Overview of Information Extraction</h2>
+            <p>
+                Information Extraction encompasses a range of sub-tasks designed to identify and extract specific elements from text documents:
+            </p>
+            <ul>
+                <li><strong>Named Entity Recognition (NER):</strong> Identifying and categorizing entities such as people, organizations, locations, dates, etc.</li>
+                <li><strong>Relation Extraction:</strong> Determining the relationships between entities (e.g., "Person X works at Organization Y").</li>
+                <li><strong>Event Extraction:</strong> Identifying events and their participants, time, and location.</li>
+                <li><strong>Slot Filling:</strong> Extracting specific attributes (slots) for given entities (e.g., birthdate, profession of a person).</li>
+                <li><strong>Open Information Extraction:</strong> Extracting relational tuples without a predefined schema or relation types.</li>
+            </ul>
+            <p>
+                Traditionally, IE systems relied heavily on carefully engineered features, rule-based approaches, and domain-specific knowledge. However, the field has evolved significantly with the advent of neural network architectures, particularly with the rise of pre-trained language models that can learn rich contextual representations of text.
+            </p>
+        </section>
+
+        <section id="open-ie">
+            <h2>Open Information Extraction</h2>
+            <p>
+                Open Information Extraction (OpenIE) aims to extract relational tuples from text without requiring predefined schemas or relation types. This approach offers flexibility and scalability across diverse domains and corpora. Unlike traditional IE systems that extract instances of a predefined set of relations, OpenIE identifies all possible relation-argument structures in a sentence.
+            </p>
+
+            <div class="example-box">
+                <h5>Identifying Relations for Open Information Extraction (Stanovsky et al., 2018)</h5>
+                <p><strong>Core Idea:</strong> Reframe Open Information Extraction as a sequence tagging problem, where models identify predicates and their associated arguments through BIO tagging, rather than using syntactic patterns or rule-based approaches.</p>
+                <p><strong>Architecture:</strong></p>
+                <ul>
+                    <li><strong>Task Formulation:</strong> Convert the task from heuristic extraction to a supervised learning problem using existing OpenIE data to create BIO tagging sequences.</li>
+                    <li><strong>Neural Architecture:</strong> Bidirectional LSTM network that takes word embeddings as input and outputs BIO tags for each word, identifying predicate and argument spans.</li>
+                    <li><strong>Multi-Layer Perceptron:</strong> The final layer for classification of tokens into predicate, arguments, and non-argument categories.</li>
+                    <li><strong>Evaluation Framework:</strong> Introduced a framework for comparing different OpenIE systems by automatically converting extractions to a standard format.</li>
+                </ul>
+                <p><strong>Key Innovations:</strong></p>
+                <ul>
+                    <li>First supervised learning approach for OpenIE that doesn't rely on handcrafted features or syntactic parsing.</li>
+                    <li>Created a pipeline to convert existing OpenIE datasets into sequence tagging format, enabling neural training.</li>
+                    <li>Facilitated direct comparison between different OpenIE systems through a unified evaluation framework.</li>
+                </ul>
+                <p><strong>Results:</strong> The neural model outperformed traditional rule-based and syntax-based systems on benchmark datasets, particularly in handling complex sentences with long-range dependencies and coordination structures.</p>
+                <p><strong>Significance:</strong> This work demonstrated the potential of neural sequence models for open extraction tasks, shifting the field away from rule-based systems and opening pathways for applying modern NLP architectures to information extraction without domain-specific engineering.</p>
+            </div>
+        </section>
+
+        <section id="slot-filling">
+            <h2>Slot Filling with Position-aware Attention</h2>
+            <p>
+                Slot filling is a key task in knowledge base population, where the goal is to extract specific attributes or "slots" for entities from text. For instance, extracting a person's date of birth, spouse, or employer. This task requires models to understand both the semantics of the target entity and the specific slot being filled.
+            </p>
+
+            <div class="example-box">
+                <h5>Position-aware Attention and Sentence Representation for Slot Filling (Zhang et al., 2017)</h5>
+                <p><strong>Core Idea:</strong> Incorporate position information into attention mechanisms to help models focus on parts of sentences most relevant to entity-slot relationships, improving targeted information extraction.</p>
+                <p><strong>Architecture:</strong></p>
+                <ul>
+                    <li><strong>Bidirectional LSTM Encoder:</strong> Creates contextual representations of input sentences containing candidate entities and potential slot values.</li>
+                    <li><strong>Position-aware Attention:</strong> Novel attention mechanism that incorporates relative position information between words and the target entity:
+                        <ul>
+                            <li>Position embeddings are learned to represent distance from target entities</li>
+                            <li>Attention weights are influenced by both semantic relevance and positional proximity</li>
+                            <li>Enhanced focus on contextual regions likely to contain slot information</li>
+                        </ul>
+                    </li>
+                    <li><strong>Entity and Relation Embeddings:</strong> Specific embeddings for entity types and relation types are incorporated into the model.</li>
+                    <li><strong>Multi-instance Learning Framework:</strong> Aggregates information across multiple sentences mentioning the same entity to handle the noise in distantly supervised training data.</li>
+                </ul>
+                <p><strong>Key Innovations:</strong></p>
+                <ul>
+                    <li>Integration of position information into the attention calculation, helping the model focus on relevant parts of long sentences.</li>
+                    <li>Sentence-level representation combining both semantic content and positional context relevant to the target entities.</li>
+                    <li>Multi-instance learning approach that selects the most informative sentences for each entity-relation pair.</li>
+                </ul>
+                <p><strong>Results:</strong> Significant improvements over previous state-of-the-art methods on the TAC KBP benchmark, with particular gains in handling long sentences and distinguishing between multiple entity mentions.</p>
+                <p><strong>Significance:</strong> This work demonstrated the importance of position awareness in attention mechanisms for targeted information extraction tasks. The approach has influenced subsequent research on attention mechanisms for extraction tasks where positional context is critical for understanding entity relationships.</p>
+            </div>
+        </section>
+
+        <section id="spanbert">
+            <h2>SpanBERT for Information Extraction</h2>
+            <p>
+                Pre-trained language models like BERT have revolutionized many NLP tasks, including information extraction. SpanBERT extends this approach by specifically focusing on better representing and predicting spans of text, which is particularly valuable for IE tasks that involve extracting multi-word expressions.
+            </p>
+
+            <div class="example-box">
+                <h5>SpanBERT: Improving Pre-training by Representing and Predicting Spans (Joshi et al., 2020)</h5>
+                <p><strong>Core Idea:</strong> Enhance BERT's pre-training to better capture span-level information through span-based masking and span boundary objective, making it particularly effective for span selection tasks in information extraction.</p>
+                <p><strong>Architecture:</strong></p>
+                <ul>
+                    <li><strong>Span Masking:</strong> Instead of random token masking as in BERT, SpanBERT masks contiguous random spans, forcing the model to capture broader contexts and dependencies across spans.</li>
+                    <li><strong>Span Boundary Objective (SBO):</strong> Novel training objective where the model predicts each masked token using representations of boundary tokens (tokens surrounding the span) and relative position embeddings:
+                        <ul>
+                            <li>Uses boundary tokens outside the masked span to predict internal tokens</li>
+                            <li>Incorporates position embeddings to represent distance from boundaries</li>
+                            <li>Explicitly trains the model to infer content from span boundaries</li>
+                        </ul>
+                    </li>
+                    <li><strong>Single-Sequence Training:</strong> Removes the Next Sentence Prediction (NSP) objective from BERT and trains on single contiguous segments, allowing for more focus on span representation.</li>
+                </ul>
+                <p><strong>Key Innovations:</strong></p>
+                <ul>
+                    <li>Span-focused masking strategy that better captures dependencies within and across spans of text.</li>
+                    <li>Span Boundary Objective that explicitly trains representation of text spans based on their context.</li>
+                    <li>Optimization of pre-training to better match the requirements of span selection tasks.</li>
+                </ul>
+                <p><strong>Results:</strong> Significantly outperformed BERT on a wide range of span selection tasks:</p>
+                <ul>
+                    <li><strong>Question Answering:</strong> +2.8% F1 on SQuAD 2.0</li>
+                    <li><strong>Coreference Resolution:</strong> +2.6% F1 on OntoNotes</li>
+                    <li><strong>Relation Extraction:</strong> +3.3% F1 on TACRED</li>
+                    <li><strong>Named Entity Recognition:</strong> +0.8% F1 on CoNLL 2003</li>
+                </ul>
+                <p><strong>Significance:</strong> SpanBERT demonstrated that adapting pre-training objectives to better align with downstream task requirements can yield significant improvements. It has been particularly impactful for information extraction tasks that involve identifying and classifying spans of text, such as named entity recognition, relation extraction, and coreference resolution. The span-based approach has influenced subsequent research on span representation for various IE tasks.</p>
+            </div>
+        </section>
+
+        <section id="ie-applications">
+            <h2>Additional Information Extraction Methods and Techniques</h2>
+            <p>
+                Information Extraction encompasses a rich variety of approaches beyond those covered in the landmark papers above. This section explores additional methods and applications within the IE field.
+            </p>
+
+            <h3>Supervised Relation Extraction Approaches</h3>
+            <p>
+                Relation extraction models typically follow these general approaches:
+            </p>
+            <ul>
+                <li><strong>Pattern-based RE:</strong> Uses hand-crafted lexico-syntactic patterns (like Hearst patterns) to identify relations. These methods offer high precision but often lower recall and require significant manual effort to create.</li>
+                <li><strong>Feature-based ML Models:</strong> Traditional workflow involves:
+                    <ul>
+                        <li>Identifying named entity pairs in text through NER</li>
+                        <li>Extracting features using templates (entity types, context windows, words between entities)</li>
+                        <li>Using classifiers like CRFs to predict relation types</li>
+                    </ul>
+                </li>
+                <li><strong>Transformer-based Methods:</strong> Modern approaches that encode sentences with entity markers and use classifier heads on models like BERT to predict relation types.</li>
+            </ul>
+            
+            <div class="example-box">
+                <h5>Entity Replacement Strategy</h5>
+                <p>A common technique in modern relation extraction is replacing subject and object entities with their NER tags to prevent overfitting to specific lexical terms:</p>
+                <p>Original: <em>"American Airlines supported the move by chairman Wagner"</em></p>
+                <p>Transformed: <em>"<code>[ORGANIZATION]</code> supported the move by chairman <code>[PERSON]</code>"</em></p>
+                <p>This helps models generalize better across different entity mentions of the same type.</p>
+            </div>
+
+            <h3>Semi-supervised and Unsupervised Approaches</h3>
+            
+            <h4>Semi-supervised RE using Bootstrapping:</h4>
+            <p>
+                Bootstrapping approaches begin with minimal supervision and iteratively expand the knowledge base:
+            </p>
+            <ol>
+                <li>Start with high-quality seed tuples (relation, entity1, entity2)</li>
+                <li>Find sentences that match these seeds</li>
+                <li>Identify new patterns or instances</li>
+                <li>Generate new candidate seed tuples</li>
+                <li>Iterate the process with the expanded set</li>
+            </ol>
+            <p>
+                A key challenge in bootstrapping is managing <strong>semantic drift</strong> (going off topic) and <strong>overfitting</strong> to the initial seeds. Techniques to mitigate these issues include confidence thresholds and pattern generalization.
+            </p>
+
+            <h4>Distant Supervision for RE:</h4>
+            <p>
+                Distant supervision leverages existing knowledge bases to automatically generate training data:
+            </p>
+            <ul>
+                <li>Uses knowledge bases (like DBpedia or Wikidata) as a source of seed tuples</li>
+                <li>Matches entities in text with entities in seed tuples</li>
+                <li>Assumes sentences containing matched entity pairs express the relation</li>
+                <li>Generates large but noisy training datasets</li>
+            </ul>
+            <p>
+                While this approach produces training data with lower precision, modern transformer models are effective at learning patterns even from such noisy datasets.
+            </p>
+
+            <h3>Temporal and Event Extraction</h3>
+            <p>
+                Time is a critical dimension in information extraction that adds context to extracted facts:
+            </p>
+            <h4>Temporal Extraction:</h4>
+            <ul>
+                <li><strong>Absolute Expressions:</strong> Direct mentions of dates and times (e.g., "January 15, 2023")</li>
+                <li><strong>Relative Expressions:</strong> Time references relative to context (e.g., "yesterday," "next week")</li>
+                <li><strong>Temporal Normalization:</strong> Mapping expressions to standardized time points or durations</li>
+            </ul>
+
+            <h4>Event Extraction:</h4>
+            <p>
+                Events represent occurrences in text, typically centered around verbs or nominalized actions:
+            </p>
+            <ul>
+                <li>Event triggers (usually verbs or nouns that indicate an event)</li>
+                <li>Event arguments (entities participating in the event)</li>
+                <li>Event attributes (time, location, manner)</li>
+            </ul>
+
+            <h3>Knowledge Base Population (KBP)</h3>
+            <p>
+                KBP represents the end-to-end process of building and expanding structured knowledge bases from unstructured text:
+            </p>
+
+            <h4>Slotfilling:</h4>
+            <p>
+                Slotfilling aims to complete all known information about a particular entity by:
+            </p>
+            <ul>
+                <li>Extracting relation triples involving the entity</li>
+                <li>Computing direct (0-hop) and indirect (1-hop) slots</li>
+                <li>Managing error propagation between hops</li>
+            </ul>
+
+            <div class="note">
+                <p><strong>Key Distinction:</strong> The difference between related information organization tasks:</p>
+                <ul>
+                    <li><strong>Entity Linking (Named Entity Disambiguation):</strong> Mapping entity mentions in text to specific entries in a knowledge base (using URIs like Wikipedia identifiers)</li>
+                    <li><strong>Co-reference Resolution:</strong> Linking multiple mentions of the same entity within text <em>without</em> mapping to an external knowledge base</li>
+                </ul>
+                <p>Both tasks are crucial for effective information extraction and knowledge base population.</p>
+            </div>
+        </section>
+
+        <section id="joint-models">
+            <h2>Joint Models and Neural Architectures for IE</h2>
+            <p>
+                While early information extraction systems tackled each subtask (entity recognition, relation extraction, etc.) in isolation, modern approaches increasingly recognize the benefits of joint modeling, where multiple IE subtasks are addressed simultaneously.
+            </p>
+
+            <h3>Joint Entity and Relation Extraction</h3>
+            <p>
+                Joint models aim to capture the interdependencies between entity recognition and relation extraction:
+            </p>
+            <ul>
+                <li><strong>Table-filling Approaches:</strong> Create a table where cells represent potential relations between word pairs, simultaneously predicting entity types and relations.</li>
+                <li><strong>Shared-encoder Methods:</strong> Use a common encoder with task-specific decoders for entity recognition and relation classification.</li>
+                <li><strong>Span-based Models:</strong> Directly consider text spans as candidate entities and classify relations between span pairs.</li>
+            </ul>
+
+            <div class="example-box">
+                <h5>SpERT: Span-based Entity and Relation Transformer</h5>
+                <p>A representative joint entity and relation extraction model that:</p>
+                <ul>
+                    <li>Classifies spans as entities or non-entities</li>
+                    <li>Only considers relations between spans classified as entities</li>
+                    <li>Uses contextualized span representations with width embeddings</li>
+                    <li>Achieves computational efficiency by filtering unlikely entity spans before relation classification</li>
+                </ul>
+            </div>
+
+            <h3>End-to-end Neural Architectures</h3>
+            <p>
+                Several neural architectures have been developed specifically for information extraction tasks:
+            </p>
+            
+            <h4>Seq2Seq Models for IE:</h4>
+            <p>
+                Reformulating IE as a sequence-to-sequence task, where:
+            </p>
+            <ul>
+                <li>Input: The natural language sentence or document</li>
+                <li>Output: A linearized representation of structured information (entities, relations, events)</li>
+                <li>Benefits: Flexibility in output structure and potential for transfer learning from other seq2seq tasks</li>
+            </ul>
+            
+            <h4>Graph Neural Networks (GNNs) for IE:</h4>
+            <p>
+                GNNs are particularly well-suited for IE tasks due to their ability to model relationships:
+            </p>
+            <ul>
+                <li>Nodes represent tokens or entities</li>
+                <li>Edges represent syntactic dependencies or potential relations</li>
+                <li>Message passing mechanisms allow information to flow between related entities</li>
+                <li>Particularly effective for document-level extraction where long-distance dependencies are common</li>
+            </ul>
+
+            <h3>Few-shot and Zero-shot Information Extraction</h3>
+            <p>
+                Large language models have enabled new paradigms for information extraction with minimal supervision:
+            </p>
+            
+            <h4>Prompt-based IE:</h4>
+            <ul>
+                <li>Formulating IE tasks as text completion problems</li>
+                <li>Using natural language templates to extract entities and relations</li>
+                <li>Example: "What is the [RELATION] of [ENTITY]? Answer: _____"</li>
+            </ul>
+            
+            <h4>In-context Learning:</h4>
+            <ul>
+                <li>Providing a few examples of the desired extraction format in the prompt</li>
+                <li>Leveraging the language model's ability to recognize patterns from examples</li>
+                <li>Enabling extraction of new relation types without explicit training</li>
+            </ul>
+            
+            <div class="note">
+                <p><strong>Emerging Trend:</strong> The boundary between traditional structured IE and question answering is increasingly blurred. Many modern systems reformulate IE tasks as QA problems, where targeted questions extract specific pieces of information from text. This approach leverages the strong performance of QA models and enables more flexible extraction without predefined schemas.</p>
+            </div>
+        </section>
+
+        <section id="trends">
+            <h2>Evolution and Future Directions</h2>
+            <p>The progression in information extraction research shows several key trends:</p>
+            <ol>
+                <li><strong>From Rule-based to Neural:</strong> Moving away from handcrafted patterns and rules toward data-driven neural approaches.</li>
+                <li><strong>From Task-specific to Transfer Learning:</strong> Using pre-trained language models as foundational components with task-specific fine-tuning.</li>
+                <li><strong>From Isolated to Joint Modeling:</strong> Addressing multiple IE sub-tasks simultaneously to leverage their interdependencies.</li>
+                <li><strong>From Supervised to Weakly-Supervised:</strong> Utilizing distant supervision and self-training to reduce reliance on manually annotated data.</li>
+                <li><strong>From Static to Contextual Representations:</strong> Leveraging rich contextual embeddings from transformer-based models.</li>
+            </ol>
+            <p>Future research directions in information extraction include:</p>
+            <ul>
+                <li>Document-level and cross-document information extraction to capture relationships beyond sentence boundaries.</li>
+                <li>Multimodal information extraction combining text with images, tables, or structured data.</li>
+                <li>Few-shot and zero-shot extraction to handle new relation types without extensive labeled data.</li>
+                <li>Explainable information extraction that provides justifications for extracted information.</li>
+                <li>Incorporating world knowledge and commonsense reasoning to improve extraction accuracy.</li>
+            </ul>
+            <div class="note">
+                <p><strong>Key Insight:</strong> The most successful modern IE systems combine the strengths of neural pre-trained models with task-specific architectures that incorporate structural biases relevant to the extraction task. While general language models provide rich contextual representations, specialized components like position-aware attention and span-focused objectives help direct the model's focus to the specific patterns relevant for information extraction.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; <span id="currentYear"></span> NLP Fundamentals. For educational purposes.</p>
+            <p class="text-sm text-gray-400">Content derived from "NLP Exam Preparation" notes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // KaTeX auto-render
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Active Nav Link Highlighting & Mobile Menu Toggle
+            const currentLocation = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('active');
+                    link.classList.add('text-gray-700');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

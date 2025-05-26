@@ -62,6 +62,7 @@
                 <a href="transformer_models_pretraining.html" class="nav-link text-gray-700 block md:inline-block">Transformer Models</a>
                 <a href="finetuning_advanced_llm.html" class="nav-link text-gray-700 active block md:inline-block">Fine-tuning LLMs</a>
                 <a href="nlp_tasks_applications.html" class="nav-link text-gray-700 block md:inline-block">NLP Tasks</a>
+                <a href="info_extraction.html" class="nav-link text-gray-700 block md:inline-block">Information Extraction</a>
                 <a href="evaluation_metrics_nlp.html" class="nav-link text-gray-700 block md:inline-block">Evaluation Metrics</a>
                 <a href="lab_regex.html" class="nav-link text-gray-700 active block md:inline-block">Regex Lab</a>
                 <a href="lab_crf.html" class="nav-link text-gray-700 block md:inline-block">CRF Lab</a>
@@ -321,9 +322,19 @@
                 <p><strong>Goal:</strong> Introduce LLaMA, a family of foundation language models aimed at efficiency.</p>
                 <p><strong>Key Points:</strong></p>
                 <ul>
-                    <li><strong>Training Data:</strong> Diverse datasets including English CommonCrawl, C4, Github, Gutenberg, Books3, ArXiv, and Stack Exchange. Preprocessing involved deduplication, language identification, and quality filtering.</li>
-                    <li><strong>Languages:</strong> Primarily English, with some other languages using Latin or Cyrillic scripts (bg, ca, cs, da, de, en, es, fr, hr, hu, it, nl, pl, pt, ro, ru, sl, sr, sv, uk).</li>
-                    <li><strong>Evaluation:</strong> Tested on 20 benchmarks covering zero-shot and few-shot tasks. MMLU performance showed LLaMA-65B behind Chinchilla-70B and PaLM-540B, potentially due to limited books and academic papers in pre-training.</li>
+                    <li><strong>Model Scale:</strong> Released in four sizes: 6.7B, 13B, 32.5B, and 65.2B parameters. LLaMA-13B outperformed GPT-3 (175B) on most benchmarks despite being more than 10x smaller.</li>
+                    <li><strong>Core Architecture:</strong> Based on the Transformer with several important modifications:
+                        <ul>
+                            <li>Pre-normalization using RMSNorm (Zhang & Sennrich, 2019)</li>
+                            <li>SwiGLU activation function in feed-forward networks (Shazeer, 2020)</li>
+                            <li>Rotary Positional Embeddings (RoPE) (Su et al., 2022)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Tokenization:</strong> Uses byte-pair encoding (BPE) with SentencePiece. Numbers are split into individual digits, and bytes are used for unknown UTF-8 characters.</li>
+                    <li><strong>Training Data:</strong> Approximately 1.4 trillion tokens from publicly available sources like CommonCrawl, C4, Github, Wikipedia, Gutenberg, Books3, ArXiv, and Stack Exchange. The 7B and 13B models were trained on 1.0T tokens, while 33B and 65B models used 1.4T tokens.</li>
+                    <li><strong>Context Length:</strong> Supports a context window of 2048 tokens (2k).</li>
+                    <li><strong>Training Details:</strong> Used AdamW optimizer with cosine learning rate decay, weight decay of 0.1, gradient clipping at 1.0, and 2000 warmup steps. Models were trained with a large global batch size of 4M tokens.</li>
+                    <li><strong>Evaluation:</strong> Tested on 20 benchmarks covering zero-shot and few-shot tasks. LLaMA-65B was competitive with Chinchilla-70B and PaLM-540B on many tasks.</li>
                     <li><strong>Instruction Finetuning:</strong> LLaMA-I (65B) achieved 68.9% on MMLU after brief instruction finetuning, outperforming OPT-IML and Flan-PaLM but below GPT code-davinci-002.</li>
                     <li><strong>Carbon Footprint:</strong> Training emissions ranged from 14 MWh (7B) to 173 MWh (65B) using A100-80GB GPUs.</li>
                 </ul>
@@ -334,12 +345,24 @@
                 <p><strong>Goal:</strong> Introduce Llama 2, a family of pretrained and fine-tuned chat models (7B to 70B parameters), with focus on helpfulness and safety.</p>
                 <p><strong>Key Points:</strong></p>
                 <ul>
-                    <li><strong>Supervised Fine-tuning (SFT):</strong> Emphasized quality over quantity, with 27,540 carefully curated annotation examples. Higher-quality but fewer examples improved results.</li>
-                    <li><strong>Human Preference Data:</strong> Collected over 1 million binary comparisons for RLHF, focusing separately on helpfulness and safety. Annotators labeled degree of preference and received specific guidelines.</li>
-                    <li><strong>Reward Modeling:</strong> Separate reward models for helpfulness and safety performed best due to tension between objectives. Accuracy was higher for pairs with stronger preference.</li>
-                    <li><strong>Ghost Attention (GAtt):</strong> Simple method to help models maintain focus in multi-turn dialogues by synthetically concatenating the initial instruction to all user messages during fine-tuning.</li>
-                    <li><strong>Safety:</strong> Comprehensive safety alignment process including SFT, RLHF, red teaming, and context distillation with safety preprompts. Evaluation showed comparable or lower violation percentage compared to ChatGPT, Falcon, MPT, and Vicuna.</li>
-                    <li><strong>Attention Mechanism:</strong> Explored Grouped-Query Attention (GQA) as an alternative to Multi-Head Attention, enabling higher throughput and larger batch sizes while maintaining performance.</li>
+                    <li><strong>Model Scale:</strong> Available in three sizes: 7B, 13B, and 70B parameters. A 34B variant was also trained but not initially released due to insufficient safety testing time.</li>
+                    <li><strong>Architectural Improvements:</strong> Based on the original LLaMA architecture with key enhancements:
+                        <ul>
+                            <li>Increased context length from 2k to 4k tokens (4096)</li>
+                            <li>Grouped-Query Attention (GQA) for larger models (34B and 70B) to improve inference efficiency</li>
+                            <li>Retained other core components: RMSNorm, SwiGLU, and RoPE</li>
+                        </ul>
+                    </li>
+                    <li><strong>Training Data:</strong> 2 trillion tokens from publicly available sources (40% increase from LLaMA 1), with emphasis on up-sampling factual sources to increase knowledge and reduce hallucinations. No data from Meta's products or services was used.</li>
+                    <li><strong>Data Filtering:</strong> Removed data from sites known to contain high volumes of personal information. Less aggressive filtering than some other models to maintain broader usability and avoid demographic erasure.</li>
+                    <li><strong>Supervised Fine-tuning (SFT):</strong> Emphasized quality over quantity, with 27,540 carefully curated annotation examples. Higher-quality but fewer examples improved results significantly.</li>
+                    <li><strong>Human Preference Data:</strong> Collected over 1 million binary comparisons for RLHF, focusing separately on helpfulness and safety. Annotators labeled degree of preference (from "significantly better" to "negligibly better/unsure").</li>
+                    <li><strong>Reward Modeling:</strong> Separate reward models for helpfulness and safety performed best due to tension between objectives. Reward model accuracy scaled with both model size and data volume.</li>
+                    <li><strong>Ghost Attention (GAtt):</strong> Novel technique to help models maintain focus in multi-turn dialogues by synthetically concatenating the initial instruction to all user messages during fine-tuning, masking loss for tokens from previous turns. Evaluation showed GAtt maintained consistency for 20+ turns.</li>
+                    <li><strong>Context Distillation:</strong> Technique to enhance safety efficiently, especially for adversarial prompts. Involves prefixing models with safety preprompts during generation, then fine-tuning on their own safe outputs without the preprompt.</li>
+                    <li><strong>Safety Focus:</strong> Comprehensive alignment process including SFT, RLHF, extensive red teaming, and context distillation. Evaluation showed significantly lower toxicity compared to other open models and competitive performance with some closed models.</li>
+                    <li><strong>Performance:</strong> Llama 2 models generally outperform Llama 1 and other open-source models like MPT and Falcon on most benchmarks. Llama 2 70B is competitive with some closed models like PaLM (540B) but still trails GPT-4 and PaLM-2-L.</li>
+                    <li><strong>License:</strong> Released for both research and commercial use, with an Acceptable Use Policy and Responsible Use Guide.</li>
                 </ul>
             </div>
 
@@ -365,6 +388,27 @@
                     <li><strong>Efficiency:</strong> Computationally more efficient than LayerNorm while achieving similar or better performance.</li>
                     <li><strong>Invariance:</strong> Invariant to re-scaling of weight matrices and single training cases, but not to re-centering.</li>
                     <li><strong>Results:</strong> Demonstrated faster training and lower validation error rates across various deep network architectures and tasks.</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h5>GLU Variants Improve Transformer (Noam Shazeer, 2020)</h5>
+                <p><strong>Goal:</strong> Explore alternatives to standard ReLU/GELU activations in Transformer feed-forward networks (FFNs).</p>
+                <p><strong>Key Points:</strong></p>
+                <ul>
+                    <li><strong>Method:</strong> Introduces Gated Linear Units (GLU) and variants as replacements for the linear transformation and activation function in Transformer FFNs.</li>
+                    <li><strong>Variants:</strong> Proposes several GLU variants using different activations:
+                        <ul>
+                            <li>Standard GLU - using sigmoid activation</li>
+                            <li>ReGLU - using ReLU activation</li>
+                            <li>GEGLU - using GELU activation</li>
+                            <li>SwiGLU - using Swish activation</li>
+                            <li>Bilinear - using no activation</li>
+                        </ul>
+                    </li>
+                    <li><strong>Implementation:</strong> GLU-variant layers use three weight matrices instead of two, requiring adjustment of hidden layer size (reduced by factor of 2/3) to maintain comparable parameter count and compute cost.</li>
+                    <li><strong>Results:</strong> GLU variants achieve better perplexity during pre-training and improved performance on downstream tasks (GLUE, SuperGLUE, SQuAD) compared to standard FFN implementations.</li>
+                    <li><strong>Impact:</strong> GEGLU and SwiGLU variants produced the best perplexities, and these techniques have been adopted in several later models including PaLM.</li>
                 </ul>
             </div>
 
